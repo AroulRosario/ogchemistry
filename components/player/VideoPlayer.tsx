@@ -1,0 +1,280 @@
+import { supabase } from '@/constants/supabase';
+import { COLORS } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
+import { ResizeMode, Video } from 'expo-av';
+import { FastForward, Loader2, Pause, Play } from 'lucide-react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+
+interface VideoPlayerProps {
+    url: string;
+    contentItemId: string;
+}
+
+export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
+    const videoRef = useRef<Video>(null);
+    const { user } = useAuth();
+
+    const [status, setStatus] = useState<any>({});
+    const [speedIndex, setSpeedIndex] = useState(0);
+    const [controlsVisible, setControlsVisible] = useState(true);
+    const [loading, setLoading] = useState(true);
+
+    const SPEEDS = [1.0, 1.25, 1.5, 2.0];
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+
+    // Load initial progress
+    useEffect(() => {
+        if (!user || !contentItemId) return;
+        const loadProgress = async () => {
+            const { data } = await supabase
+                .from('video_progress')
+                .select('watched_seconds')
+                .eq('user_id', user.id)
+                .eq('content_item_id', contentItemId)
+                .single();
+
+            if (data?.watched_seconds && videoRef.current) {
+                videoRef.current.setPositionAsync(data.watched_seconds * 1000);
+            }
+        };
+        loadProgress();
+    }, [user, contentItemId]);
+
+    // Save progress periodically
+    useEffect(() => {
+        if (!user || !contentItemId || !status.isPlaying) return;
+
+        const saveInterval = setInterval(async () => {
+            if (status.positionMillis) {
+                await supabase.from('video_progress').upsert({
+                    user_id: user.id,
+                    content_item_id: contentItemId,
+                    watched_seconds: Math.floor(status.positionMillis / 1000),
+                    duration: Math.floor(status.durationMillis / 1000) || 0,
+                    is_completed: status.positionMillis >= (status.durationMillis - 2000),
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,content_item_id' });
+            }
+        }, 10000); // Save every 10 seconds
+
+        return () => clearInterval(saveInterval);
+    }, [status.isPlaying, status.positionMillis]);
+
+    const togglePlay = () => {
+        if (!videoRef.current) return;
+        if (status.isPlaying) videoRef.current.pauseAsync();
+        else videoRef.current.playAsync();
+        showControlsTemporarily();
+    };
+
+    const cycleSpeed = async () => {
+        if (!videoRef.current) return;
+        const nextIndex = (speedIndex + 1) % SPEEDS.length;
+        setSpeedIndex(nextIndex);
+        await videoRef.current.setRateAsync(SPEEDS[nextIndex], true);
+        showControlsTemporarily();
+    };
+
+    const skipForward = async () => {
+        if (!videoRef.current || !status.positionMillis) return;
+        await videoRef.current.setPositionAsync(status.positionMillis + 10000);
+        showControlsTemporarily();
+    };
+
+    const showControlsTemporarily = () => {
+        setControlsVisible(true);
+        Animated.timing(fadeAnim, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            if (status.isPlaying) {
+                Animated.timing(fadeAnim, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => setControlsVisible(false));
+            }
+        }, 3000);
+    };
+
+    const formatTime = (millis: number) => {
+        if (!millis || isNaN(millis)) return "0:00";
+        const totalSeconds = Math.floor(millis / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    };
+
+    return (
+        <View style={styles.container}>
+            <Pressable style={styles.videoWrapper} onPress={showControlsTemporarily}>
+                <Video
+                    ref={videoRef}
+                    source={{ uri: url, headers: { 'User-Agent': 'ComicApp/1.0' } }}
+                    style={styles.video}
+                    resizeMode={ResizeMode.CONTAIN}
+                    isLooping={false}
+                    onPlaybackStatusUpdate={status => {
+                        setStatus(() => status);
+                        if (status.isLoaded && loading) { setLoading(false); showControlsTemporarily(); }
+                    }}
+                />
+
+                {loading && (
+                    <View style={styles.loaderOverlay}>
+                        <Loader2 color={COLORS.orange} size={40} style={styles.spinning} />
+                        <Text style={styles.loaderText}>BUFFERING</Text>
+                    </View>
+                )}
+
+                {/* Custom Overlay Controls */}
+                {controlsVisible && !loading && (
+                    <Animated.View style={[styles.controlsOverlay, { opacity: fadeAnim }]}>
+                        {/* Top Bar: Speed & Status */}
+                        <View style={styles.topControls}>
+                            <Pressable style={styles.speedBtn} onPress={cycleSpeed}>
+                                <Text style={styles.speedText}>{SPEEDS[speedIndex]}x</Text>
+                            </Pressable>
+                        </View>
+
+                        {/* Center Play/Pause */}
+                        <View style={styles.centerControls}>
+                            <Pressable style={styles.controlCircle} onPress={togglePlay}>
+                                {status.isPlaying ? <Pause color="#FFF" size={32} /> : <Play color="#FFF" size={32} style={{ marginLeft: 4 }} />}
+                            </Pressable>
+                            <Pressable style={styles.controlCircleSmall} onPress={skipForward}>
+                                <FastForward color="#FFF" size={24} />
+                            </Pressable>
+                        </View>
+
+                        {/* Bottom Bar: Progress Vector */}
+                        <View style={styles.bottomControls}>
+                            <Text style={styles.timeText}>{formatTime(status.positionMillis)}</Text>
+                            <View style={styles.progressTrackWrapper}>
+                                <View style={styles.progressTrack}>
+                                    <View style={[styles.progressFill, { width: `${status.durationMillis ? (status.positionMillis / status.durationMillis) * 100 : 0}%` }]} />
+                                </View>
+                            </View>
+                            <Text style={styles.timeText}>{formatTime(status.durationMillis)}</Text>
+                        </View>
+                    </Animated.View>
+                )}
+            </Pressable>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        aspectRatio: 16 / 9,
+        backgroundColor: '#000',
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: '#1E293B',
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
+    },
+    videoWrapper: {
+        flex: 1,
+        position: 'relative',
+    },
+    video: {
+        flex: 1,
+    },
+    loaderOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    spinning: {
+        // rotation animation skipped for brevity, using lucide static
+    },
+    loaderText: {
+        color: COLORS.orange,
+        fontFamily: 'Bangers_400Regular',
+        fontSize: 20,
+        marginTop: 10,
+        letterSpacing: 2,
+    },
+    controlsOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'space-between',
+        padding: 16,
+    },
+    topControls: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    speedBtn: {
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
+    },
+    speedText: {
+        color: '#FFF',
+        fontFamily: 'System',
+        fontWeight: '800',
+        fontSize: 14,
+    },
+    centerControls: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 24,
+    },
+    controlCircle: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        backgroundColor: 'rgba(59, 130, 246, 0.8)', // Primary blue
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.5)',
+    },
+    controlCircleSmall: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    bottomControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 8,
+    },
+    timeText: {
+        color: '#FFF',
+        fontFamily: 'System',
+        fontWeight: '700',
+        fontSize: 12,
+        width: 36,
+        textAlign: 'center',
+    },
+    progressTrackWrapper: {
+        flex: 1,
+        height: 20,
+        justifyContent: 'center',
+    },
+    progressTrack: {
+        height: 6,
+        backgroundColor: 'rgba(255,255,255,0.3)',
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: COLORS.orange, // Elite orange
+    }
+});

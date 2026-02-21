@@ -1,0 +1,150 @@
+/* 💥 Global Modern Design System 💥 */
+
+:root {
+    --comic-cyan: #2563EB;
+    /* Blue-600 */
+    --comic-orange: #F59E0B;
+    /* Amber-500 */
+    --comic-yellow: #FACC15;
+    /* Yellow-400 */
+    --comic-navy: #111827;
+    /* Gray-900 */
+    --comic-black: #000000;
+    --comic-white: #FFFFFF;
+    --comic-paper: #F9FAFB;
+    /* Clean off-white surface */
+
+    --comic-border-width: 1px;
+    --comic-radius: 16px;
+    --comic-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    --comic-shadow-active: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 📰 Clean Background */
+.comic-bg {
+    background-color: var(--comic-paper);
+    /* Removed Ben-Day dots */
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+body {
+    background-color: var(--comic-paper) !important;
+    color: var(--comic-navy) !important;
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow-x: hidden;
+}
+
+/* 🎨 Global Component Refinements */
+
+.bangers {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    /* Let components decide */
+}
+
+/* Modern Elevated Card */
+.comic-card {
+    background: var(--comic-white);
+    border: var(--comic-border-width) solid #E5E7EB;
+    border-radius: var(--comic-radius);
+    box-shadow: var(--comic-shadow);
+    padding: 2rem;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Removed the ::before staggered border */
+
+/* Modern Button */
+.comic-btn {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 2rem;
+    /* Pill shape */
+    background: var(--comic-yellow);
+    color: var(--comic-navy);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.comic-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.comic-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--comic-shadow-active);
+}
+
+.comic-btn-primary {
+    background: var(--comic-cyan);
+    color: var(--comic-white);
+}
+
+.comic-btn-secondary {
+    background: var(--comic-orange);
+    color: var(--comic-white);
+}
+
+/* Input Styling */
+.comic-input {
+    border: 1px solid #D1D5DB;
+    border-radius: 12px;
+    padding: 1rem;
+    background: var(--comic-white);
+    font-size: 1rem;
+    color: var(--comic-navy);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s;
+}
+
+.comic-input:focus {
+    outline: none;
+    border-color: var(--comic-cyan);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Sidebar Tab */
+.comic-tab {
+    padding: 0.85rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    /* standard rounded instead of extreme right-pill */
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: transparent;
+    cursor: pointer;
+    color: #4B5563;
+    width: 100%;
+}
+
+.comic-tab:hover {
+    background: #F3F4F6;
+    color: var(--comic-navy);
+}
+
+.comic-tab.active {
+    background: #F3F4F6;
+    color: var(--comic-navy);
+    font-weight: 700;
+}

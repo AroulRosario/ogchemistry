@@ -1,0 +1,437 @@
+import { DuoHeader } from '@/components/DuoHeader';
+import { DynamicBackground } from '@/components/DynamicBackground';
+import { EliteNavigation } from '@/components/EliteNavigation';
+import { CertificateCard } from '@/components/gamification/CertificateCard';
+import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { supabase } from '@/constants/supabase';
+import { COLORS } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'expo-router';
+import { Award, Calendar, CheckCircle2, ChevronRight, Settings, Zap } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+
+export default function ProfileScreen() {
+    const { user, signOut } = useAuth();
+    const router = useRouter();
+    const { width } = useWindowDimensions();
+    const isDesktop = width > 800;
+    const isWide = width > 1200;
+    const [profile, setProfile] = useState<any>(null);
+    const [certificates, setCertificates] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
+    const fetchProfile = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user?.id)
+                .single();
+            if (data) setProfile(data);
+
+            const { data: certData } = await supabase
+                .from('certificates')
+                .select('*, lessons(title)')
+                .eq('user_id', user?.id);
+            if (certData) setCertificates(certData);
+        } catch (err) {
+            console.error('Error fetching profile:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const HeroSection = () => (
+        <View style={[styles.heroCard, !isDesktop && { padding: 24, borderRadius: 24 }]}>
+            <View style={[styles.heroContent, !isDesktop && { gap: 20 }]}>
+                <View style={[styles.avatarWrapper, !isDesktop && { width: 80, height: 80, borderRadius: 40 }]}>
+                    <Text style={[styles.avatarEmoji, !isDesktop && { fontSize: 36 }]}>🎓</Text>
+                </View>
+                <View style={[styles.heroInfo, { flex: 1 }]}>
+                    <Text
+                        style={[styles.heroName, !isDesktop && { fontSize: 28, letterSpacing: -0.5 }]}
+                        numberOfLines={2}
+                        adjustsFontSizeToFit
+                    >
+                        {profile?.full_name || 'Student Model'}
+                    </Text>
+                    <Text style={[styles.heroEmail, !isDesktop && { fontSize: 14 }]} numberOfLines={1}>{profile?.email || user?.email}</Text>
+                    <View style={[styles.statusBadge, !isDesktop && { paddingHorizontal: 12, paddingVertical: 6, marginTop: 10 }]}>
+                        <CheckCircle2 size={isDesktop ? 14 : 12} color="#059669" />
+                        <Text style={[styles.statusText, !isDesktop && { fontSize: 11 }]}>ELITE LEARNER</Text>
+                    </View>
+                </View>
+            </View>
+            <Pressable style={[styles.settingsBtn, !isDesktop && { padding: 8 }]}>
+                <Settings size={isDesktop ? 22 : 18} color="#64748B" />
+            </Pressable>
+        </View>
+    );
+
+    const AchievementGallery = () => (
+        <View style={[styles.sectionCard, { flex: 1.5 }]}>
+            <View style={styles.sectionHeader}>
+                <Award size={20} color={COLORS.blue} />
+                <Text style={styles.sectionTitle}>Achievement Gallery</Text>
+            </View>
+            <View style={styles.achievementGrid}>
+                {[
+                    { icon: '🔥', label: '7 Day Streak', color: '#FFF7ED' },
+                    { icon: '🧪', label: 'Lab Pro', color: '#F0F9FF' },
+                    { icon: '⚡', label: 'Speed Demon', color: '#FAF5FF' },
+                    { icon: '⭐', label: 'Perfect Score', color: '#FEFCE8' },
+                    { icon: '📚', label: 'Bookworm', color: '#F0FDF4' },
+                    { icon: '🧩', label: 'Logic Master', color: '#FFF1F2' },
+                ].map((item, i) => (
+                    <View key={i} style={[styles.achievementBadge, { backgroundColor: item.color }]}>
+                        <Text style={styles.achievementIcon}>{item.icon}</Text>
+                        <Text style={styles.achievementLabel}>{item.label}</Text>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+
+    const SkillMastery = () => (
+        <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+            <View style={styles.sectionHeader}>
+                <Zap size={20} color={COLORS.yellow} fill={COLORS.yellow} />
+                <Text style={styles.sectionTitle}>Skill Visualization</Text>
+            </View>
+            <View style={styles.skillList}>
+                {[
+                    { label: 'Organic Chemistry', value: 85, color: COLORS.blue },
+                    { label: 'Inorganic Chemistry', value: 62, color: COLORS.red },
+                    { label: 'Biochemistry', value: 45, color: '#10B981' },
+                    { label: 'Physical Chemistry', value: 30, color: COLORS.yellow },
+                ].map((skill, i) => (
+                    <View key={i} style={styles.skillItem}>
+                        <View style={styles.skillInfo}>
+                            <Text style={styles.skillLabel}>{skill.label}</Text>
+                            <Text style={styles.skillValue}>{skill.value}%</Text>
+                        </View>
+                        <View style={styles.skillTrack}>
+                            <View style={[styles.skillFill, { width: `${skill.value}%`, backgroundColor: skill.color }]} />
+                        </View>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+
+    const ConsistencyHeatmap = () => (
+        <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+            <View style={styles.sectionHeader}>
+                <Calendar size={20} color="#6366F1" />
+                <Text style={styles.sectionTitle}>Learning Consistency</Text>
+            </View>
+            <View style={styles.heatmapContainer}>
+                <View style={styles.heatmapRow}>
+                    {Array.from({ length: 14 }).map((_, i) => (
+                        <View
+                            key={i}
+                            style={[
+                                styles.heatmapCell,
+                                { backgroundColor: i % 3 === 0 ? '#BFDBFE' : i % 5 === 0 ? '#3B82F6' : '#F1F5F9' }
+                            ]}
+                        />
+                    ))}
+                </View>
+                <Text style={styles.heatmapHelper}>Last 2 weeks of activity</Text>
+            </View>
+        </View>
+    );
+
+    if (loading) {
+        return (
+            <View style={styles.loader}>
+                <ActivityIndicator size="large" color={COLORS.blue} />
+            </View>
+        );
+    }
+
+    return (
+        <DynamicBackground>
+            <EliteNavigation />
+
+            <View style={[styles.mainContent, isDesktop && styles.desktopMainContent]}>
+                <DuoHeader
+                    streak={profile?.streak_count || 0}
+                    xp={profile?.xp || 0}
+                    gems={profile?.gems || 0}
+                />
+
+                <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+                    <ResponsiveContainer fullWidth>
+                        <View style={styles.dashboardLayout}>
+                            <HeroSection />
+
+                            <View style={[styles.statsRow, !isDesktop && { gap: 16 }]}>
+                                <SkillMastery />
+                                <AchievementGallery />
+                            </View>
+
+                            <View style={styles.columns}>
+                                <View style={[styles.mainColumn, !isDesktop && { minWidth: '100%' }]}>
+                                    <ConsistencyHeatmap />
+                                    <View style={{ height: 24 }} />
+                                    <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+                                        <Text style={styles.sectionTitle}>Certifications</Text>
+                                        {certificates.length > 0 ? (
+                                            certificates.map(cert => (
+                                                <CertificateCard
+                                                    key={cert.id}
+                                                    certificate={cert}
+                                                    courseName={cert.lessons?.title || 'Elite Course'}
+                                                />
+                                            ))
+                                        ) : (
+                                            <View style={styles.emptyState}>
+                                                <Text style={styles.emptyStateText}>Gain mastery to unlock certificates!</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                </View>
+
+                                <View style={styles.sideColumn}>
+                                    <View style={styles.actionCard}>
+                                        <Text style={styles.actionCardTitle}>Ready for more?</Text>
+                                        <Text style={styles.actionCardBody}>Your path is calling. Complete the next milestone today.</Text>
+                                        <Pressable
+                                            style={styles.actionBtn}
+                                            onPress={() => router.push('/')}
+                                        >
+                                            <Text style={styles.actionBtnText}>Let's Go</Text>
+                                            <ChevronRight size={18} color="#FFF" />
+                                        </Pressable>
+                                    </View>
+                                </View>
+                            </View>
+
+                            <Pressable style={styles.logoutBtn} onPress={() => signOut()}>
+                                <Text style={styles.logoutText}>Sign Out Account</Text>
+                            </Pressable>
+                        </View>
+                    </ResponsiveContainer>
+                </ScrollView>
+            </View>
+        </DynamicBackground>
+    );
+}
+
+const styles = StyleSheet.create({
+    loader: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
+    mainContent: { flex: 1, backgroundColor: '#F8FAFC' },
+    desktopMainContent: { paddingLeft: 260 },
+    scroll: { paddingVertical: 32 },
+    dashboardLayout: {
+        gap: 24,
+        width: '100%',
+    },
+
+    heroCard: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        padding: 40,
+        backgroundColor: COLORS.white,
+        borderRadius: 32,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        elevation: 2,
+    },
+    heroContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 32,
+    },
+    avatarWrapper: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: '#F1F5F9',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatarEmoji: { fontSize: 56 },
+    heroInfo: { gap: 6 },
+    heroName: {
+        fontFamily: 'System',
+        fontWeight: '900',
+        fontSize: 42,
+        color: '#0F172A',
+        letterSpacing: -1.5,
+    },
+    heroEmail: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#64748B',
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 16,
+        backgroundColor: '#ECFDF5',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 20,
+        alignSelf: 'flex-start',
+    },
+    statusText: { fontSize: 13, fontWeight: '900', color: '#065F46', letterSpacing: 0.5 },
+    settingsBtn: {
+        padding: 14,
+        borderRadius: 16,
+        backgroundColor: '#F8FAFC',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+
+    statsRow: {
+        flexDirection: 'row',
+        gap: 24,
+        flexWrap: 'wrap',
+        width: '100%',
+    },
+    sectionCard: {
+        flex: 1,
+        minWidth: Platform.OS === 'web' ? 400 : '100%',
+        padding: 32,
+        backgroundColor: COLORS.white,
+        borderRadius: 32,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 28,
+    },
+    sectionTitle: {
+        fontSize: 22,
+        fontWeight: '900',
+        color: '#1E293B',
+        letterSpacing: -0.5,
+    },
+
+    achievementGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 16,
+    },
+    achievementBadge: {
+        width: '31%',
+        aspectRatio: 1,
+        borderRadius: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 12,
+        gap: 10,
+    },
+    achievementIcon: { fontSize: 32 },
+    achievementLabel: {
+        fontSize: 12,
+        fontWeight: '800',
+        color: '#1E293B',
+        textAlign: 'center',
+    },
+
+    skillList: { gap: 20 },
+    skillItem: { gap: 10 },
+    skillInfo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    skillLabel: { fontSize: 14, fontWeight: '800', color: '#475569' },
+    skillValue: { fontSize: 15, fontWeight: '900', color: '#1E293B' },
+    skillTrack: {
+        height: 10,
+        backgroundColor: '#F1F5F9',
+        borderRadius: 5,
+        overflow: 'hidden',
+    },
+    skillFill: {
+        height: '100%',
+        borderRadius: 5,
+    },
+
+    heatmapContainer: {
+        alignItems: 'center',
+        gap: 16,
+    },
+    heatmapRow: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    heatmapCell: {
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+    },
+    heatmapHelper: {
+        fontSize: 13,
+        color: '#94A3B8',
+        fontWeight: '700',
+    },
+
+    columns: {
+        flexDirection: 'row',
+        gap: 24,
+        flexWrap: 'wrap',
+        width: '100%',
+    },
+    mainColumn: { flex: 2.2, minWidth: 350 },
+    sideColumn: { flex: 1, minWidth: 300 },
+
+    emptyState: {
+        paddingVertical: 60,
+        alignItems: 'center',
+    },
+    emptyStateText: {
+        color: '#94A3B8',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+
+    actionCard: {
+        padding: 40,
+        backgroundColor: COLORS.blue,
+        borderRadius: 32,
+        gap: 16,
+    },
+    actionCardTitle: { fontWeight: '900', fontSize: 28, color: '#FFF', letterSpacing: -1 },
+    actionCardBody: { fontSize: 17, color: '#E0F2FE', fontWeight: '600', lineHeight: 26, marginBottom: 16 },
+    actionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        backgroundColor: COLORS.black,
+        paddingVertical: 16,
+        borderRadius: 20,
+    },
+    actionBtnText: { fontWeight: '900', fontSize: 17, color: '#FFF' },
+
+    logoutBtn: {
+        marginTop: 60,
+        padding: 20,
+        backgroundColor: '#FFF',
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+        borderRadius: 24,
+        alignItems: 'center',
+        alignSelf: 'center',
+        width: '100%',
+        maxWidth: 300,
+        marginBottom: 60,
+    },
+    logoutText: { fontWeight: '800', fontSize: 15, color: COLORS.red },
+});

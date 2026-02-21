@@ -1,98 +1,339 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { DuoHeader } from '@/components/DuoHeader';
+import { EliteNavigation } from '@/components/EliteNavigation';
+import { PathNode } from '@/components/PathNode';
+import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { RightSidebar } from '@/components/RightSidebar';
+import { supabase } from '@/constants/supabase';
+import { COLORS, STYLES } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'expo-router';
+import { Sparkles, Trophy } from 'lucide-react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { user } = useAuth();
+  const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isDesktop = width > 800;
+  const isWide = width > 1200;
+  const [rawLessons, setRawLessons] = useState<any[]>([]);
+  const [stats, setStats] = useState({ streak_count: 0, xp: 0, gems: 0 });
+  const [loading, setLoading] = useState(true);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  useEffect(() => {
+    if (user) fetchData();
+  }, [user]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [{ data: profile }, { data: lessonsData }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user?.id).single(),
+        supabase.from('lessons').select('*, chapters(*)').order('order')
+      ]);
+
+      if (profile) setStats(profile);
+      if (lessonsData) setRawLessons(lessonsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const flatPath = useMemo(() => {
+    const path: any[] = [];
+    rawLessons.forEach(lesson => {
+      const sorted = (lesson.chapters || []).sort((a: any, b: any) => a.order - b.order);
+      sorted.forEach((ch: any) => path.push({ ...ch, lessonTitle: lesson.title }));
+    });
+    return path;
+  }, [rawLessons]);
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={COLORS.blue} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.main}>
+      <EliteNavigation />
+
+      <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
+        <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
+
+        <View style={styles.layoutContainer}>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            <ResponsiveContainer fullWidth>
+              {/* Welcome Hero - Fluid */}
+              <View style={styles.heroSection}>
+                <View style={[styles.heroContent, !isDesktop && { flexDirection: 'column', alignItems: 'flex-start', gap: 16 }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.heroGreeting, !isDesktop && { fontSize: 24 }]}>Welcome back, {user?.email?.split('@')[0] || 'Chemist'}! 👋</Text>
+                    <Text style={styles.heroSub}>You're on a {stats.streak_count} day streak. Master the next chapter to hit Gold!</Text>
+                  </View>
+                  <View style={styles.heroStats}>
+                    <View style={styles.miniStat}>
+                      <Trophy size={20} color={COLORS.yellow} />
+                      <View>
+                        <Text style={styles.miniStatValue}>TOP 5%</Text>
+                        <Text style={styles.miniStatLabel}>This Week</Text>
+                      </View>
+                    </View>
+                    <View style={styles.miniDivider} />
+                    <View style={styles.miniStat}>
+                      <Sparkles size={20} color={COLORS.blue} />
+                      <View>
+                        <Text style={styles.miniStatValue}>+450 XP</Text>
+                        <Text style={styles.miniStatLabel}>Past 24h</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.pathWrapper}>
+                <View style={styles.journeyHeader}>
+                  <View style={styles.missionBadge}>
+                    <Text style={styles.missionBadgeText}>CURRENT MISSION</Text>
+                  </View>
+                  <Text style={styles.journeyTitle}>THE ORGANIC ODYSSEY</Text>
+                  <View style={styles.journeyProgress}>
+                    <View style={[styles.journeyBar, { width: '45%' }]} />
+                    <Text style={styles.journeyPercent}>45% Complete</Text>
+                  </View>
+                </View>
+
+                {flatPath.length === 0 ? (
+                  <View style={styles.emptyCard}>
+                    <Text style={styles.emptyText}>No training modules found yet, Recruit!</Text>
+                  </View>
+                ) : (
+                  flatPath.map((item, index) => (
+                    <View key={item.id} style={{ width: '100%', alignItems: 'center' }}>
+                      {index % 4 === 0 && index !== 0 && (
+                        <View style={styles.milestoneMarker}>
+                          <View style={styles.milestoneLine} />
+                          <View style={styles.milestoneBadge}>
+                            <Text style={styles.milestoneText}>UNIVERSE {Math.floor(index / 4) + 1}</Text>
+                          </View>
+                          <View style={styles.milestoneLine} />
+                        </View>
+                      )}
+                      <AnimatedCard delay={index * 100}>
+                        <PathNode
+                          index={index}
+                          title={item.title || item.data?.title}
+                          type="chapter"
+                          isLocked={index > 0}
+                          isCompleted={false}
+                          offset={isDesktop ? Math.sin(index * 0.8) * 120 : Math.sin(index * 1.0) * 40}
+                          onPress={() => router.push(`/chapter/${item.id}`)}
+                        />
+                      </AnimatedCard>
+                    </View>
+                  ))
+                )}
+
+                <View style={styles.pathFooter}>
+                  <View style={styles.finishFlag}>
+                    <Text style={styles.finishText}>THE MASTER LAB AWAITS...</Text>
+                  </View>
+                </View>
+              </View>
+            </ResponsiveContainer>
+          </ScrollView>
+
+          {isWide && <RightSidebar />}
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  main: { flex: 1, backgroundColor: '#F8FAFC' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
+  contentArea: { flex: 1 },
+  desktopContentArea: { paddingLeft: 260 },
+  layoutContainer: { flex: 1, flexDirection: 'row' },
+  scrollContent: { flexGrow: 1 },
+  heroSection: {
+    ...STYLES.card,
+    marginTop: 24,
+    padding: 32,
+    shadowOpacity: 0.04,
+  },
+  heroContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 24,
+  },
+  heroGreeting: {
+    fontSize: Platform.OS === 'web' ? 32 : 28,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: -1,
+  },
+  heroSub: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#64748B',
+    marginTop: 6,
+  },
+  heroStats: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: '#F8FAFC',
+    padding: 16,
+    borderRadius: 20,
+    gap: 20,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  miniStat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  miniStatValue: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#1E293B',
+  },
+  miniStatLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  miniDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#E2E8F0',
+  },
+  pathWrapper: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    minHeight: 1200,
+    width: '100%',
+  },
+  journeyHeader: {
+    alignItems: 'center',
+    marginBottom: 60,
+    width: '100%',
+  },
+  missionBadge: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  missionBadgeText: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: COLORS.blue,
+    letterSpacing: 1.5,
+  },
+  journeyTitle: {
+    fontWeight: '900',
+    fontSize: Platform.OS === 'web' ? 48 : 36,
+    color: '#111827',
+    textAlign: 'center',
+    letterSpacing: -1.5,
+  },
+  journeyProgress: {
+    width: 300,
+    height: 40,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 20,
+    marginTop: 20,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  journeyBar: {
     position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: COLORS.blue,
   },
+  journeyPercent: {
+    fontSize: 14,
+    fontWeight: '900',
+    color: '#1E293B',
+    zIndex: 1,
+  },
+  milestoneMarker: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: Platform.OS === 'web' ? 80 : 20,
+    marginVertical: 60,
+  },
+  milestoneLine: {
+    flex: 1,
+    height: 4,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 2,
+  },
+  milestoneBadge: {
+    ...STYLES.card,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 3,
+    borderColor: '#F1F5F9',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginHorizontal: 24,
+    shadowOpacity: 0.05,
+  },
+  milestoneText: {
+    fontWeight: '900',
+    fontSize: 15,
+    color: COLORS.blue,
+    letterSpacing: 1,
+  },
+  emptyCard: {
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    padding: 40,
+    borderRadius: 24,
+    marginTop: 40,
+  },
+  emptyText: {
+    fontWeight: '600',
+    fontSize: 18,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  pathFooter: {
+    marginTop: 80,
+    marginBottom: 100,
+  },
+  finishFlag: {
+    ...STYLES.card,
+    backgroundColor: COLORS.black,
+    paddingHorizontal: 40,
+    paddingVertical: 20,
+    borderRadius: 40,
+  },
+  finishText: {
+    fontWeight: '900',
+    fontSize: 18,
+    color: COLORS.white,
+    letterSpacing: 1,
+  }
 });

@@ -48,7 +48,13 @@ export default function ExploreScreen() {
       <View style={[styles.mainContent, isDesktop && styles.desktopContent]}>
         <DuoHeader streak={0} xp={0} gems={0} />
 
-        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scroll,
+            { paddingHorizontal: isDesktop ? 0 : 12 }
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
           <ResponsiveContainer fullWidth>
             {/* Search & Filter Header */}
             <View style={styles.headerControls}>
@@ -77,18 +83,18 @@ export default function ExploreScreen() {
 
             {/* Featured Section */}
             <View style={styles.featuredSection}>
-              <View style={[styles.featuredCard, { backgroundColor: COLORS.blue }, !isDesktop && { padding: 20, borderRadius: 24 }]}>
+              <View style={[styles.featuredCard, { backgroundColor: COLORS.blue }, !isDesktop && { padding: 16, borderRadius: 24 }]}>
                 <View style={styles.heroContent}>
                   <View style={{ flex: 1.2 }}>
                     <View style={[styles.featuredBadge, !isDesktop && { marginBottom: 12 }]}>
                       <Sparkles size={14} color={COLORS.white} />
                       <Text style={styles.featuredBadgeText}>FEATURED UNIVERSE</Text>
                     </View>
-                    <Text style={[styles.featuredTitle, { fontSize: isDesktop ? 48 : 24 }]}>QUANTUM CHEMISTRY</Text>
-                    <Text style={[styles.featuredDesc, !isDesktop && { fontSize: 15, marginBottom: 16 }]}>Dive into the subatomic world and master electron configurations.</Text>
-                    <View style={[styles.featuredAction, !isDesktop && { paddingVertical: 10, paddingHorizontal: 16 }]}>
+                    <Text style={[styles.featuredTitle, { fontSize: isDesktop ? 48 : 22 }]}>QUANTUM CHEMISTRY</Text>
+                    <Text style={[styles.featuredDesc, !isDesktop && { fontSize: 13, marginBottom: 16 }]}>Dive into the subatomic world and master electron configurations.</Text>
+                    <View style={[styles.featuredAction, !isDesktop && { paddingVertical: 8, paddingHorizontal: 12 }]}>
                       <PlayCircle size={20} color={COLORS.blue} />
-                      <Text style={[styles.featuredActionText, !isDesktop && { fontSize: 13 }]}>START ADVENTURE</Text>
+                      <Text style={[styles.featuredActionText, !isDesktop && { fontSize: 12 }]}>START ADVENTURE</Text>
                     </View>
                   </View>
                   {isDesktop && (

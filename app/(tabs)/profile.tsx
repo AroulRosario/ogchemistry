@@ -48,27 +48,27 @@ export default function ProfileScreen() {
     };
 
     const HeroSection = () => (
-        <View style={[styles.heroCard, !isDesktop && { padding: 20, borderRadius: 24 }]}>
-            <View style={[styles.heroContent, !isDesktop && { gap: 16 }]}>
-                <View style={[styles.avatarWrapper, !isDesktop && { width: 70, height: 70, borderRadius: 35 }]}>
-                    <Text style={[styles.avatarEmoji, !isDesktop && { fontSize: 32 }]}>🎓</Text>
+        <View style={[styles.heroCard, !isDesktop && { padding: 16, borderRadius: 20 }]}>
+            <View style={[styles.heroContent, !isDesktop && { gap: 12 }]}>
+                <View style={[styles.avatarWrapper, !isDesktop && { width: 60, height: 60, borderRadius: 30 }]}>
+                    <Text style={[styles.avatarEmoji, !isDesktop && { fontSize: 28 }]}>🎓</Text>
                 </View>
                 <View style={[styles.heroInfo, { flex: 1 }]}>
                     <Text
-                        style={[styles.heroName, !isDesktop && { fontSize: 24, letterSpacing: -0.5 }]}
+                        style={[styles.heroName, !isDesktop && { fontSize: 22, letterSpacing: -0.5 }]}
                         numberOfLines={1}
                         adjustsFontSizeToFit
                     >
                         {profile?.full_name || 'Student Model'}
                     </Text>
                     <Text style={[styles.heroEmail, !isDesktop && { fontSize: 13 }]} numberOfLines={1}>{profile?.email || user?.email}</Text>
-                    <View style={[styles.statusBadge, !isDesktop && { paddingHorizontal: 10, paddingVertical: 4, marginTop: 8 }]}>
+                    <View style={[styles.statusBadge, !isDesktop && { paddingHorizontal: 10, paddingVertical: 4, marginTop: 6 }]}>
                         <CheckCircle2 size={isDesktop ? 14 : 11} color="#059669" />
                         <Text style={[styles.statusText, !isDesktop && { fontSize: 10 }]}>ELITE LEARNER</Text>
                     </View>
                 </View>
             </View>
-            <Pressable style={[styles.settingsBtn, !isDesktop && { padding: 6 }]}>
+            <Pressable style={[styles.settingsBtn, !isDesktop && { padding: 4 }]}>
                 <Settings size={isDesktop ? 22 : 16} color="#64748B" />
             </Pressable>
         </View>
@@ -107,10 +107,10 @@ export default function ProfileScreen() {
         const physProg = Math.min(100, (baseXP / 1000) * 100);
 
         return (
-            <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+            <View style={[styles.sectionCard, !isDesktop && { padding: 16 }]}>
                 <View style={styles.sectionHeader}>
                     <Zap size={20} color={COLORS.yellow} fill={COLORS.yellow} />
-                    <Text style={styles.sectionTitle}>Skill Visualization</Text>
+                    <Text style={[styles.sectionTitle, { lineHeight: 24 }]}>Skill Visualization</Text>
                 </View>
                 <View style={styles.skillList}>
                     {[
@@ -187,7 +187,7 @@ export default function ProfileScreen() {
                 <ScrollView
                     contentContainerStyle={[
                         styles.scroll,
-                        { paddingHorizontal: isDesktop ? 0 : 4 }, // Minimal padding for the scroll itself
+                        { paddingHorizontal: isDesktop ? 0 : 12 }, // Unified 12px gutter
                         !isDesktop && { paddingVertical: 16 }
                     ]}
                     showsVerticalScrollIndicator={false}

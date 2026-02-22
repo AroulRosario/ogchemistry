@@ -23,11 +23,11 @@ export function GlobalStatsHero({
     const isWide = width > 1200;
 
     return (
-        <View style={[styles.container, !isDesktop && { padding: 16, borderRadius: 20 }]}>
+        <View style={[styles.container, !isDesktop && { padding: 12, borderRadius: 20 }]}>
             <View style={[styles.topSection, !isDesktop && { marginBottom: 16 }]}>
                 <View style={styles.mainInfo}>
-                    <Text style={styles.greeting}>Library Dashboard</Text>
-                    <Text style={styles.subGreeting}>Continue your journey to mastery.</Text>
+                    <Text style={[styles.greeting, !isDesktop && { fontSize: 20 }]}>Library Dashboard</Text>
+                    <Text style={[styles.subGreeting, !isDesktop && { fontSize: 13 }]}>Continue your journey to mastery.</Text>
                 </View>
                 <View style={styles.badge}>
                     <Trophy size={16} color={COLORS.yellow} />
@@ -36,7 +36,7 @@ export function GlobalStatsHero({
             </View>
 
             <View style={[styles.statsGrid, !isWide && { flexDirection: 'column' }]}>
-                <View style={[styles.mainStatBox, { width: isWide ? '60%' : '100%' }, !isDesktop && { padding: 16, gap: 16 }]}>
+                <View style={[styles.mainStatBox, { width: isWide ? '60%' : '100%' }, !isDesktop && { padding: 12, gap: 12 }]}>
                     <View style={[styles.progressCircle, !isDesktop && { width: 64, height: 64, borderWidth: 4 }]}>
                         <Text style={[styles.progressValue, !isDesktop && { fontSize: 16 }]}>{totalProgress}%</Text>
                         <Text style={[styles.progressLabel, !isDesktop && { fontSize: 7 }]}>COMPLETE</Text>
@@ -47,13 +47,13 @@ export function GlobalStatsHero({
                     </View>
                 </View>
 
-                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }, !isDesktop && { padding: 16 }]}>
+                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }, !isDesktop && { padding: 12 }]}>
                     <View style={styles.resumeInfo}>
                         <View style={styles.resumeHeader}>
                             <Play size={12} color={COLORS.blue} fill={COLORS.blue} />
                             <Text style={styles.resumeLabel}>PICK UP WHERE YOU LEFT OFF</Text>
                         </View>
-                        <Text style={styles.resumeTitle} numberOfLines={1}>{lastChapterTitle}</Text>
+                        <Text style={[styles.resumeTitle, !isDesktop && { fontSize: 16 }]} numberOfLines={1}>{lastChapterTitle}</Text>
                     </View>
                     <Pressable style={styles.resumeBtn} onPress={onResume}>
                         <Text style={styles.resumeBtnText}>Resume</Text>

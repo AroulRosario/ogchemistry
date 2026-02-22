@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E5E7EB',
         borderRadius: 24,
-        marginHorizontal: Platform.OS === 'web' ? 16 : 4,
+        marginHorizontal: Platform.OS === 'web' ? 16 : 12,
         marginVertical: 12,
         paddingVertical: 6,
         paddingHorizontal: Platform.OS === 'web' ? 8 : 4,

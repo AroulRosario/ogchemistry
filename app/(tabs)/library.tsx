@@ -70,7 +70,7 @@ export default function LibraryScreen() {
                     <ScrollView
                         contentContainerStyle={[
                             styles.scrollContent,
-                            { paddingHorizontal: isDesktop ? 0 : 4 }
+                            { paddingHorizontal: isDesktop ? 0 : 12 }
                         ]}
                         showsVerticalScrollIndicator={false}
                     >

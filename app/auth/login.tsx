@@ -76,7 +76,7 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.mainLayout}>
-            <ResponsiveContainer>
+            <ResponsiveContainer style={{ flex: 1 }} contentContainerStyle={{ justifyContent: 'center' }}>
                 <View style={[styles.contentLayout, isDesktop && styles.desktopLayout]}>
 
                     {/* LEFT PANE: Hero Graphic (Desktop Only) */}
@@ -235,11 +235,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
     },
     mobilePane: {
-        padding: 24,
+        padding: 16,
     },
     mobileHeader: {
         alignItems: 'center',
-        marginBottom: 48,
+        marginBottom: 32,
+        marginTop: 10,
     },
     mobileLogoContainer: {
         marginBottom: 16,

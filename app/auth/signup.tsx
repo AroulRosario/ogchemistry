@@ -1,5 +1,4 @@
 import { AuthHeroGraphic } from '@/components/auth/AuthHeroGraphic';
-import { DynamicBackground } from '@/components/DynamicBackground';
 import { ModernComicButton } from '@/components/ModernComicButton';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
@@ -68,9 +67,9 @@ export default function SignUpScreen() {
     }
 
     return (
-        <DynamicBackground>
-            <ResponsiveContainer>
-                <View style={[styles.mainLayout, isDesktop && styles.desktopLayout]}>
+        <View style={styles.mainLayout}>
+            <ResponsiveContainer style={{ flex: 1 }} contentContainerStyle={{ justifyContent: 'center' }}>
+                <View style={[styles.contentLayout, isDesktop && styles.desktopLayout]}>
 
                     {/* LEFT PANE: Hero Graphic (Desktop Only) */}
                     {isDesktop && (
@@ -145,13 +144,15 @@ export default function SignUpScreen() {
 
                 </View>
             </ResponsiveContainer>
-        </DynamicBackground>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     mainLayout: {
         flex: 1,
+    },
+    contentLayout: {
         width: '100%',
         minHeight: '100%',
         flexDirection: 'column',
@@ -184,13 +185,12 @@ const styles = StyleSheet.create({
         padding: 40,
     },
     mobilePane: {
-        padding: 24,
-        paddingTop: 60,
-        backgroundColor: 'transparent',
+        padding: 16,
     },
     mobileHeader: {
         alignItems: 'center',
         marginBottom: 32,
+        marginTop: 10,
     },
     mobileTitle: {
         fontFamily: 'System',

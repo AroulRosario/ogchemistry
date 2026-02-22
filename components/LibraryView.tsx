@@ -1,5 +1,5 @@
 import { AnimatedCard } from '@/components/AnimatedCard';
-import { COLORS, STYLES } from '@/constants/theme';
+import { COLORS } from '@/constants/theme';
 import { Book, ChevronRight, Play, Search, SlidersHorizontal } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
@@ -83,7 +83,7 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
             ) : (
                 filteredLessons.map((lesson: any) => (
                     <View key={lesson.id} style={styles.lessonSection}>
-                        <View style={styles.sectionHeader}>
+                        <View style={[styles.sectionHeader, !isDesktop && { gap: 12, marginBottom: 16 }]}>
                             <View style={styles.headerIconWrapper}>
                                 <Book size={24} color={COLORS.blue} strokeWidth={3} />
                             </View>
@@ -107,11 +107,12 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                                         onPress={() => onSelect(chapter.id, 'chapter')}
                                         style={({ pressed }) => [
                                             styles.card,
+                                            !isDesktop && { padding: 16 }, // Dynamic override
                                             pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
                                         ]}
                                     >
                                         <View style={styles.cardHeader}>
-                                            <Text style={styles.chapterTitle} numberOfLines={2}>{chapter.title}</Text>
+                                            <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
                                             <View style={styles.iconCircle}>
                                                 <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
                                             </View>
@@ -165,8 +166,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         height: 60,
         gap: 16,
-        ...STYLES.card,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.03,
+        shadowRadius: 8,
+        elevation: 2,
     },
     searchInput: {
         flex: 1,
@@ -195,8 +199,11 @@ const styles = StyleSheet.create({
     },
     filterTabActive: {
         backgroundColor: '#FFF',
-        ...STYLES.card,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 2,
     },
     filterLabel: {
         fontSize: 14,
@@ -267,7 +274,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E2E8F0',
         borderRadius: 32,
-        ...STYLES.card,
         shadowOpacity: 0.04,
     },
     cardHeader: {

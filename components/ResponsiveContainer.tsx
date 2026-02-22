@@ -5,11 +5,18 @@ import { Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native'
 interface ResponsiveContainerProps {
     children: React.ReactNode;
     style?: ViewStyle;
+    contentContainerStyle?: ViewStyle;
     scrollable?: boolean;
     fullWidth?: boolean;
 }
 
-export function ResponsiveContainer({ children, style, scrollable = true, fullWidth = false }: ResponsiveContainerProps) {
+export function ResponsiveContainer({
+    children,
+    style,
+    contentContainerStyle,
+    scrollable = true,
+    fullWidth = false
+}: ResponsiveContainerProps) {
     const Container = scrollable ? ScrollView : View;
 
     return (
@@ -20,7 +27,7 @@ export function ResponsiveContainer({ children, style, scrollable = true, fullWi
                     fullWidth ? { maxWidth: '100%' } : styles.maxWidth,
                     style
                 ]}
-                contentContainerStyle={scrollable ? styles.content : undefined}
+                contentContainerStyle={scrollable ? [styles.content, contentContainerStyle] : undefined}
                 showsVerticalScrollIndicator={false}
             >
                 {children}
@@ -44,6 +51,6 @@ const styles = StyleSheet.create({
     content: {
         flexGrow: 1,
         paddingBottom: 40,
-        paddingHorizontal: Platform.OS === 'web' ? 40 : 8,
+        paddingHorizontal: Platform.OS === 'web' ? 40 : 0,
     },
 });

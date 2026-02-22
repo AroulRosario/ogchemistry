@@ -27,7 +27,7 @@ export function GlobalStatsHero({
                 </View>
                 <View style={styles.badge}>
                     <Trophy size={16} color={COLORS.yellow} />
-                    <Text style={styles.badgeText}>ELITE LEARNER</Text>
+                    <Text style={styles.badgeText}>OG LEARNER</Text>
                 </View>
             </View>
 

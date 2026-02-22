@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
     },
     mobilePane: {
         padding: 24,
+        paddingTop: 60,
         backgroundColor: 'transparent',
     },
     mobileHeader: {

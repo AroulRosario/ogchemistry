@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
 import { Flame, Hexagon, Star } from 'lucide-react-native';
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 interface DuoHeaderProps {
     streak: number;
@@ -57,18 +57,19 @@ const styles = StyleSheet.create({
     headerContainer: {
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: '#E5E7EB', // Soft gray border instead of 4px black
-        borderRadius: 24, // Pill shape
-        marginHorizontal: 16, // Reduced from 24
+        borderColor: '#E5E7EB',
+        borderRadius: 24,
+        marginHorizontal: Platform.OS === 'web' ? 16 : 8,
         marginVertical: 12,
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        alignSelf: 'center', // Don't stretch full width by default
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        alignSelf: 'center',
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 6,
         elevation: 3,
+        maxWidth: '95%',
     },
     content: {
         flexDirection: 'row',

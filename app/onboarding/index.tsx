@@ -1,4 +1,5 @@
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { COLORS } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -9,22 +10,22 @@ const SLIDES = [
         isLogo: true,
         title: 'OG CHEMISTRY',
         subtitle: 'By Rosario',
-        body: 'Your ultimate chemistry learning platform. Master reactions, bonds, and molecular structures with premium materials.',
-        accent: '#38BDF8', // Neon Blue
+        body: 'High-performance curriculum for the next generation of chemists. Professional, precise, and purely elemental.',
+        accent: COLORS.blue,
     },
     {
         emoji: '🧪',
         title: 'LEARN YOUR WAY',
         subtitle: 'Videos • Sims • Quizzes',
         body: 'Watch expert explanations, interact with 3D molecules, and test your mastery — all in one place.',
-        accent: '#FBBF24', // Neon Yellow
+        accent: COLORS.orange,
     },
     {
         emoji: '🚀',
         title: 'READY TO START?',
-        subtitle: 'Gatekept for Quality',
-        body: 'Create an account and wait for teacher approval. Once approved, you gain full access to all OG materials.',
-        accent: '#34D399', // Neon Green
+        subtitle: 'Elite Access',
+        body: 'Create an account and wait for approval. Once vetted, you gain full access to all OG materials.',
+        accent: COLORS.green,
     },
 ];
 
@@ -58,7 +59,7 @@ export default function OnboardingScreen() {
                                 key={i}
                                 style={[
                                     styles.progressBar,
-                                    i <= index ? { backgroundColor: slide.accent, shadowColor: slide.accent, shadowOpacity: 0.8, shadowRadius: 8, elevation: 4 } : {},
+                                    i <= index ? { backgroundColor: slide.accent } : { backgroundColor: '#E2E8F0' },
                                 ]}
                             />
                         ))}
@@ -67,7 +68,7 @@ export default function OnboardingScreen() {
                     {/* Content */}
                     <View style={styles.content}>
                         {slide.isLogo ? (
-                            <View style={styles.logoBlur}>
+                            <View style={styles.logoContainer}>
                                 <Image
                                     source={require('../../assets/images/logo.png')}
                                     style={styles.logo}
@@ -75,12 +76,12 @@ export default function OnboardingScreen() {
                                 />
                             </View>
                         ) : (
-                            <View style={[styles.emojiContainer, { shadowColor: slide.accent }]}>
+                            <View style={[styles.emojiContainer, { backgroundColor: slide.accent + '10' }]}>
                                 <Text style={styles.emoji}>{slide.emoji}</Text>
                             </View>
                         )}
 
-                        <Text style={[styles.title, { textShadowColor: slide.accent, textShadowRadius: 20 }]}>{slide.title}</Text>
+                        <Text style={styles.title}>{slide.title}</Text>
                         <Text style={[styles.subtitle, { color: slide.accent }]}>{slide.subtitle}</Text>
 
                         <View style={styles.card}>
@@ -92,14 +93,14 @@ export default function OnboardingScreen() {
                     <View style={styles.footer}>
                         <Pressable
                             style={({ pressed }) => [
-                                styles.glowBtn,
-                                { backgroundColor: slide.accent, shadowColor: slide.accent },
-                                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
+                                styles.primaryBtn,
+                                { backgroundColor: '#0F172A' },
+                                pressed && styles.btnPressed
                             ]}
                             onPress={goNext}
                         >
-                            <Text style={[styles.glowBtnText, { color: '#020617' }]}>
-                                {index === SLIDES.length - 1 ? "ENTER THE LAB" : "CONTINUE"}
+                            <Text style={styles.primaryBtnText}>
+                                {index === SLIDES.length - 1 ? "GET STARTED" : "CONTINUE"}
                             </Text>
                         </Pressable>
                         {index < SLIDES.length - 1 && (
@@ -117,126 +118,104 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        backgroundColor: '#020617', // Deep slate space black
+        backgroundColor: '#FFFFFF',
     },
     container: {
         flex: 1,
-        paddingTop: 80,
+        paddingTop: 60,
         paddingBottom: 40,
-        paddingHorizontal: 30,
+        paddingHorizontal: 24,
     },
     progressRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: 8,
         marginBottom: 60,
-        paddingHorizontal: 20,
+        paddingHorizontal: 40,
     },
     progressBar: {
         flex: 1,
         height: 4,
         borderRadius: 2,
-        backgroundColor: '#1E293B',
     },
     content: {
         flex: 1,
         alignItems: 'center',
-        marginTop: 20,
     },
-    logoBlur: {
-        marginBottom: 40,
-        shadowColor: '#38BDF8',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.5,
-        shadowRadius: 40,
-        elevation: 10,
+    logoContainer: {
+        marginBottom: 48,
     },
     logo: {
-        width: 180,
-        height: 180,
+        width: 160,
+        height: 160,
     },
     emojiContainer: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,
-        backgroundColor: '#0F172A',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 40,
-        borderWidth: 1,
-        borderColor: '#1E293B',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 30,
-        elevation: 15,
+        marginBottom: 48,
     },
     emoji: {
-        fontSize: 72,
+        fontSize: 64,
     },
     title: {
-        fontFamily: 'System',
+        fontSize: 32,
         fontWeight: '900',
-        fontSize: 42,
-        color: '#FFFFFF',
+        color: '#0F172A',
         textAlign: 'center',
-        letterSpacing: 2,
-        textShadowOffset: { width: 0, height: 0 },
+        letterSpacing: -1,
     },
     subtitle: {
-        fontFamily: 'System',
-        fontWeight: '800',
         fontSize: 14,
+        fontWeight: '700',
         textAlign: 'center',
         marginTop: 8,
-        letterSpacing: 4,
+        letterSpacing: 2,
         textTransform: 'uppercase',
     },
     card: {
-        marginTop: 40,
-        padding: 24,
+        marginTop: 32,
+        paddingHorizontal: 12,
         width: '100%',
-        backgroundColor: 'rgba(15, 23, 42, 0.6)',
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: '#1E293B',
     },
     body: {
-        fontFamily: 'System',
-        fontSize: 16,
-        color: '#94A3B8',
+        fontSize: 17,
+        color: '#64748B',
         textAlign: 'center',
-        lineHeight: 26,
+        lineHeight: 28,
         fontWeight: '500',
     },
     footer: {
         paddingTop: 20,
-        gap: 16,
+        gap: 12,
     },
-    glowBtn: {
+    primaryBtn: {
         width: '100%',
-        paddingVertical: 18,
+        height: 56,
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 20,
-        elevation: 10,
     },
-    glowBtnText: {
-        fontFamily: 'System',
-        fontWeight: '900',
+    primaryBtnText: {
+        color: '#FFFFFF',
+        fontWeight: '700',
         fontSize: 16,
-        letterSpacing: 2,
+        letterSpacing: 1,
+    },
+    btnPressed: {
+        opacity: 0.9,
+        transform: [{ scale: 0.98 }],
     },
     skipBtn: {
         alignItems: 'center',
         paddingVertical: 12,
     },
     skipBtnText: {
-        color: '#64748B',
-        fontFamily: 'System',
+        color: '#94A3B8',
         fontWeight: '700',
         fontSize: 14,
         letterSpacing: 1,
     }
 });
+

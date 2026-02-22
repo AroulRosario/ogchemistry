@@ -177,14 +177,17 @@ export default function ProfileScreen() {
         <DynamicBackground>
             <EliteNavigation />
 
-            <View style={[styles.mainContent, isDesktop && styles.desktopMainContent]}>
+            <View style={[styles.mainContent, isDesktop && styles.desktopMainContent, !isDesktop && { paddingTop: 0 }]}>
                 <DuoHeader
                     streak={profile?.streak_count || 0}
                     xp={profile?.xp || 0}
                     gems={profile?.gems || 0}
                 />
 
-                <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+                <ScrollView
+                    contentContainerStyle={[styles.scroll, !isDesktop && { paddingVertical: 16 }]}
+                    showsVerticalScrollIndicator={false}
+                >
                     <ResponsiveContainer fullWidth>
                         <View style={styles.dashboardLayout}>
                             <HeroSection />
@@ -354,7 +357,7 @@ const styles = StyleSheet.create({
     },
     achievementIcon: { fontSize: 32 },
     achievementLabel: {
-        fontSize: 12,
+        fontSize: 10,
         fontWeight: '800',
         color: '#1E293B',
         textAlign: 'center',
@@ -386,17 +389,20 @@ const styles = StyleSheet.create({
     },
     heatmapRow: {
         flexDirection: 'row',
-        gap: 12,
+        gap: 8,
+        flexWrap: 'wrap',
+        justifyContent: 'center',
     },
     heatmapCell: {
-        width: 40,
-        height: 40,
+        width: 30,
+        height: 30,
         borderRadius: 8,
     },
     heatmapHelper: {
-        fontSize: 13,
+        fontSize: 12,
         color: '#94A3B8',
         fontWeight: '700',
+        marginTop: 8,
     },
 
     columns: {

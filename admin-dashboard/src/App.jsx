@@ -241,69 +241,69 @@ function App() {
                 </div>
             )}
 
-            <header className="header" style={{ marginBottom: '3rem', padding: '1.5rem 4rem' }}>
+            <header className="header">
                 <div className="logo-container">
                     <img src="/logo.png" className="logo-img" alt="logo" onError={(e) => e.target.src = 'https://via.placeholder.com/48?text=Atom'} />
-                    <h1 className="logo-text bangers" style={{ fontSize: '2rem', letterSpacing: '-0.04em' }}>OG CHEMISTRY <span style={{ color: 'var(--blue)' }}>COMMAND</span></h1>
+                    <h1 className="logo-text">OG CHEMISTRY CMD</h1>
                 </div>
                 <div className="header-actions">
-                    <button className={`refresh-btn ${fetching ? 'spinning' : ''}`} style={{ border: '2px solid var(--border)', borderRadius: '1rem', padding: '0.6rem' }} onClick={() => fetchAll(true)} disabled={fetching}>
-                        <RefreshCw size={20} />
+                    <button className={`refresh-btn ${fetching ? 'spinning' : ''}`} onClick={() => fetchAll(true)} disabled={fetching}>
+                        <RefreshCw size={18} />
                     </button>
-                    <div className="badge badge-approved" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem', border: '2px solid currentColor' }}>SYSTEM: {fetching ? 'BUSY' : 'OPERATIONAL'}</div>
+                    <div className="badge badge-approved" style={{ fontSize: '0.75rem', fontWeight: '700' }}>
+                        {fetching ? 'SYNCING...' : 'LIVE'}
+                    </div>
                 </div>
             </header>
 
             <main className="container">
                 <div className="grid">
                     <aside className="tabs-sidebar" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
-                        <div className="card" style={{ padding: '2rem', background: 'var(--white)', border: '1px solid var(--border)' }}>
-                            <h3 className="bangers" style={{ marginBottom: '1.5rem', fontSize: '1.2rem', color: '#64748B', letterSpacing: '0.05em' }}>CORE COMMAND HOOKS</h3>
+                        <div className="card" style={{ padding: '1.5rem' }}>
+                            <h3 style={{ marginBottom: '1.25rem', fontSize: '0.8rem', color: 'var(--gray-500)', letterSpacing: '0.1em', fontWeight: '800', textTransform: 'uppercase' }}>Command Center</h3>
                             <div className="tabs">
                                 <button className={`tab ${tab === 'analytics' ? 'active' : ''}`} onClick={() => setTab('analytics')}>
-                                    <BarChart3 size={20} /> Analytics
+                                    <BarChart3 size={18} /> Analytics
                                 </button>
                                 <button className={`tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
-                                    <Users size={20} /> Students
+                                    <Users size={18} /> Students
                                 </button>
                                 <button className={`tab ${tab === 'builder' ? 'active' : ''}`} onClick={() => setTab('builder')}>
-                                    <BookOpen size={20} /> Course Builder
+                                    <BookOpen size={18} /> Course Builder
                                 </button>
                                 <button className={`tab ${tab === 'visual-path' ? 'active' : ''}`} onClick={() => setTab('visual-path')}>
-                                    <Map size={20} /> Visual Path
+                                    <Map size={18} /> Visual Path
                                 </button>
                                 <button className={`tab ${tab === 'grading' ? 'active' : ''}`} onClick={() => setTab('grading')}>
-                                    <GraduationCap size={20} /> Grading Hub
+                                    <GraduationCap size={18} /> Grading Hub
                                 </button>
                                 <button className={`tab ${tab === 'qa' ? 'active' : ''}`} onClick={() => setTab('qa')}>
-                                    <MessageSquare size={20} /> Q&A Board
+                                    <MessageSquare size={18} /> Q&A Board
                                 </button>
                                 <button className={`tab ${tab === 'advanced' ? 'active' : ''}`} onClick={() => setTab('advanced')}>
-                                    <AlertCircle size={20} /> Advanced
+                                    <AlertCircle size={18} /> Advanced
                                 </button>
                                 <button className={`tab ${tab === 'settings' ? 'active' : ''}`} onClick={() => setTab('settings')}>
-                                    <Settings size={20} /> Settings
+                                    <Settings size={18} /> Settings
                                 </button>
                                 <button className={`tab ${tab === 'docs' ? 'active' : ''}`} onClick={() => setTab('docs')} style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                                    <BookText size={20} color="var(--blue)" /> HELP & GUIDE
+                                    <BookText size={18} color="var(--blue)" /> HELP & GUIDE
                                 </button>
                             </div>
                         </div>
 
-                        <div className="card" style={{ padding: '1.5rem', background: 'var(--surface)', marginTop: '2rem', border: '1px solid var(--border)', boxShadow: 'none' }}>
-                            <h4 className="bangers" style={{ color: '#94A3B8', fontSize: '1rem', marginBottom: '1.25rem' }}>SYNC METRICS</h4>
-                            <div className="stats-list" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--black)' }}>
-                                <div className="stat-item" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>TOTAL:</span>
-                                    <span>{profiles.length}</span>
+                        <div className="card" style={{ padding: '1.25rem', marginTop: '1.5rem', background: 'var(--gray-50)', border: 'none', boxShadow: 'none' }}>
+                            <h4 style={{ color: 'var(--gray-500)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '1rem', textTransform: 'uppercase' }}>Fleet Status</h4>
+                            <div className="stats-list" style={{ fontSize: '0.9rem', color: 'var(--black)' }}>
+                                <div className="stat-item" style={{ marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: 'var(--gray-500)', fontWeight: '500' }}>Active Users</span>
+                                    <span style={{ fontWeight: '700' }}>{profiles.length}</span>
                                 </div>
-                                <div className="stat-item" style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', color: 'var(--success)' }}>
-                                    <span>ACTIVE:</span>
-                                    <span>{profiles.filter(p => p.status === 'approved').length}</span>
-                                </div>
-                                <div className="stat-item" style={{ display: 'flex', justifyContent: 'space-between', color: '#D97706' }}>
-                                    <span>PENDING:</span>
-                                    <span>{profiles.filter(p => p.status === 'pending').length}</span>
+                                <div className="stat-item" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ color: 'var(--gray-500)', fontWeight: '500' }}>Pending Approval</span>
+                                    <span style={{ fontWeight: '700', color: profiles.some(p => !p.approved) ? 'var(--error)' : 'inherit' }}>
+                                        {profiles.filter(p => !p.approved).length}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -321,8 +321,8 @@ function App() {
                         {tab === 'docs' && <Documentation />}
                     </section>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
 

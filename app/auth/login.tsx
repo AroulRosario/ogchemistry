@@ -2,68 +2,58 @@ import { AuthHeroGraphic } from '@/components/auth/AuthHeroGraphic';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { Link } from 'expo-router';
-import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-
-const WEB_CSS = `
-@keyframes loginFloat1 {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
-}
-@keyframes loginFloat2 {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(-30px, 60px) scale(1.2); }
-    66% { transform: translate(20px, -20px) scale(0.8); }
-    100% { transform: translate(0px, 0px) scale(1); }
-}
-.animated-bg {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    z-index: 0;
-    pointer-events: none;
-    background-color: #020617;
-}
-.animated-bg .orb1 {
-    position: absolute;
-    top: -10%; left: -10%;
-    width: 50vw; height: 50vw;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(2,6,23,0) 70%);
-    animation: loginFloat1 15s ease-in-out infinite;
-}
-.animated-bg .orb2 {
-    position: absolute;
-    bottom: -20%; right: -10%;
-    width: 60vw; height: 60vw;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.1) 0%, rgba(2,6,23,0) 70%);
-    animation: loginFloat2 20s ease-in-out infinite;
-}
-.animated-bg .orb3 {
-    position: absolute;
-    top: 40%; right: 20%;
-    width: 30vw; height: 30vw;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(2,6,23,0) 70%);
-    animation: loginFloat1 12s ease-in-out infinite reverse;
-}
-`;
+import { useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function LoginScreen() {
+    const [step, setStep] = useState(1); // 1: Email, 2: Password
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
     const { width } = useWindowDimensions();
     const isDesktop = width > 900;
 
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+    const slideAnim = useRef(new Animated.Value(0)).current;
+
+    const transitionTo = (nextStep: number) => {
+        // Simple fade out
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true,
+        }).start(() => {
+            setStep(nextStep);
+            // Fade in
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 250,
+                useNativeDriver: true,
+            }).start();
+        });
+    };
+
+    const handleNext = () => {
+        if (!email.trim()) {
+            setError('Please enter your email address.');
+            return;
+        }
+        setError('');
+        transitionTo(2);
+    };
+
+    const handleBack = () => {
+        setError('');
+        transitionTo(1);
+    };
+
     async function signIn() {
         setError('');
-        if (!email.trim() || !password) {
-            setError('Please enter your email and password.');
+        if (!password) {
+            setError('Please enter your password.');
             return;
         }
         setLoading(true);
@@ -86,16 +76,6 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.mainLayout}>
-            {Platform.OS === 'web' && (
-                <>
-                    <style dangerouslySetInnerHTML={{ __html: WEB_CSS }} />
-                    <div className="animated-bg">
-                        <div className="orb1" />
-                        <div className="orb2" />
-                        <div className="orb3" />
-                    </div>
-                </>
-            )}
             <ResponsiveContainer>
                 <View style={[styles.contentLayout, isDesktop && styles.desktopLayout]}>
 
@@ -108,68 +88,106 @@ export default function LoginScreen() {
 
                     {/* RIGHT PANE: Auth Form */}
                     <View style={[styles.rightPane, !isDesktop && styles.mobilePane]}>
-                        <View style={styles.card}>
+                        <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+
                             {!isDesktop && (
                                 <View style={styles.mobileHeader}>
-                                    <View style={styles.glowOrb} />
-                                    <Text style={styles.mobileTitle}>OG CHEMISTRY</Text>
-                                    <View style={styles.badge}><Text style={styles.badgeText}>ELITE ACCESS</Text></View>
+                                    <View style={styles.mobileLogoContainer}>
+                                        <Text style={styles.mobileTitle}>OG CHEM</Text>
+                                    </View>
                                 </View>
                             )}
 
-                            <Text style={styles.cardTitle}>SIGN IN</Text>
+                            <View style={styles.stepHeader}>
+                                <Text style={styles.stepTitle}>
+                                    {step === 1 ? 'Sign in' : 'Security check'}
+                                </Text>
+                                <Text style={styles.stepSubtitle}>
+                                    {step === 1
+                                        ? 'Enter your email to access your dashboard'
+                                        : 'Please enter your account password'}
+                                </Text>
+                            </View>
 
                             {error ? (
                                 <View style={styles.errorBox}>
-                                    <Text style={styles.errorText}>⚠️ {error}</Text>
+                                    <Text style={styles.errorText}>{error}</Text>
                                 </View>
                             ) : null}
 
-                            <Text style={styles.label}>EMAIL ADDRESS</Text>
-                            <TextInput
-                                style={[styles.input, error ? styles.inputError : null]}
-                                onChangeText={(t) => { setEmail(t); setError(''); }}
-                                value={email}
-                                placeholder="hero@example.com"
-                                placeholderTextColor="#475569"
-                                autoCapitalize="none"
-                                keyboardType="email-address"
-                            />
+                            {step === 1 ? (
+                                <View>
+                                    <Text style={styles.label}>EMAIL ADDRESS</Text>
+                                    <TextInput
+                                        style={[styles.input, error ? styles.inputError : null]}
+                                        onChangeText={(t) => { setEmail(t); setError(''); }}
+                                        value={email}
+                                        placeholder="name@example.com"
+                                        placeholderTextColor="#94A3B8"
+                                        autoCapitalize="none"
+                                        keyboardType="email-address"
+                                        onSubmitEditing={handleNext}
+                                    />
 
-                            <Text style={styles.label}>SECRET PASSWORD</Text>
-                            <TextInput
-                                style={[styles.input, error ? styles.inputError : null]}
-                                onChangeText={(t) => { setPassword(t); setError(''); }}
-                                value={password}
-                                secureTextEntry
-                                placeholder="Enter your password..."
-                                placeholderTextColor="#475569"
-                                autoCapitalize="none"
-                            />
+                                    <Pressable
+                                        style={({ pressed }) => [
+                                            styles.primaryBtn,
+                                            pressed && styles.btnPressed
+                                        ]}
+                                        onPress={handleNext}
+                                    >
+                                        <Text style={styles.primaryBtnText}>Continue</Text>
+                                    </Pressable>
+                                </View>
+                            ) : (
+                                <View>
+                                    <View style={styles.emailDisplay}>
+                                        <Text style={styles.emailDisplayText}>{email}</Text>
+                                        <Pressable onPress={handleBack}>
+                                            <Text style={styles.changeBtn}>Change</Text>
+                                        </Pressable>
+                                    </View>
 
-                            <View style={styles.btnWrap}>
-                                <Pressable
-                                    style={({ pressed }) => [
-                                        styles.glowBtn,
-                                        pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-                                        loading && { opacity: 0.5 }
-                                    ]}
-                                    onPress={signIn}
-                                    disabled={loading}
-                                >
-                                    <Text style={styles.glowBtnText}>
-                                        {loading ? "AUTHENTICATING..." : "ENTER PLATFORM"}
-                                    </Text>
-                                </Pressable>
-                            </View>
+                                    <Text style={styles.label}>PASSWORD</Text>
+                                    <TextInput
+                                        style={[styles.input, error ? styles.inputError : null]}
+                                        onChangeText={(t) => { setPassword(t); setError(''); }}
+                                        value={password}
+                                        secureTextEntry
+                                        placeholder="••••••••"
+                                        placeholderTextColor="#94A3B8"
+                                        autoCapitalize="none"
+                                        onSubmitEditing={signIn}
+                                        autoFocus
+                                    />
+
+                                    <Pressable
+                                        style={({ pressed }) => [
+                                            styles.primaryBtn,
+                                            pressed && styles.btnPressed,
+                                            loading && styles.btnDisabled
+                                        ]}
+                                        onPress={signIn}
+                                        disabled={loading}
+                                    >
+                                        <Text style={styles.primaryBtnText}>
+                                            {loading ? 'Authenticating...' : 'Sign In'}
+                                        </Text>
+                                    </Pressable>
+
+                                    <Pressable style={styles.backBtn} onPress={handleBack}>
+                                        <Text style={styles.backBtnText}>Back</Text>
+                                    </Pressable>
+                                </View>
+                            )}
 
                             <View style={styles.footer}>
-                                <Text style={styles.footerText}>New recruit? </Text>
+                                <Text style={styles.footerText}>New to OG Chemistry? </Text>
                                 <Link href="/auth/signup" asChild>
-                                    <Text style={styles.footerLink}>Create your Hero Profile</Text>
+                                    <Text style={styles.footerLink}>Create account</Text>
                                 </Link>
                             </View>
-                        </View>
+                        </Animated.View>
                     </View>
 
                 </View>
@@ -183,178 +201,179 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         minHeight: '100%',
-        backgroundColor: '#020617', // Deep cinematic black
+        backgroundColor: '#F8FAFC',
         justifyContent: 'center',
-        position: 'relative',
     },
     contentLayout: {
         flexDirection: 'column',
-        zIndex: 10,
     },
     desktopLayout: {
         flexDirection: 'row',
         alignItems: 'stretch',
-        borderRadius: 32,
+        borderRadius: 24,
         overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'rgba(15, 23, 42, 0.5)',
+        backgroundColor: '#FFFFFF',
         marginVertical: 40,
-        shadowColor: '#38BDF8',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.2,
-        shadowRadius: 50,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 30,
         elevation: 10,
-        ...(Platform.OS === 'web' && { backdropFilter: 'blur(30px)' }),
+        minHeight: 650,
     },
     leftPane: {
-        flex: 1.2,
+        flex: 1.1,
+        backgroundColor: '#FFFFFF',
         borderRightWidth: 1,
-        borderRightColor: 'rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'transparent',
+        borderRightColor: '#F1F5F9',
     },
     rightPane: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(2, 6, 23, 0.4)',
-        padding: 40,
+        padding: 60,
+        backgroundColor: '#FFFFFF',
     },
     mobilePane: {
         padding: 24,
-        backgroundColor: 'transparent',
     },
     mobileHeader: {
         alignItems: 'center',
-        marginBottom: 40,
-        position: 'relative',
+        marginBottom: 48,
     },
-    glowOrb: {
-        position: 'absolute',
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: '#38BDF8',
-        opacity: 0.15,
-        top: -20,
-        filter: 'blur(30px)',
+    mobileLogoContainer: {
+        marginBottom: 16,
     },
     mobileTitle: {
-        fontFamily: 'System',
+        fontSize: 28,
         fontWeight: '900',
-        fontSize: 36,
-        color: '#FFFFFF',
-        textAlign: 'center',
-        letterSpacing: 1,
-        marginBottom: 12,
-        textShadowColor: '#38BDF8',
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10,
-    },
-    badge: {
-        backgroundColor: 'rgba(56, 189, 248, 0.1)', // Subtle neon blue tint
-        paddingHorizontal: 16,
-        paddingVertical: 6,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(56, 189, 248, 0.3)',
-    },
-    badgeText: {
-        fontFamily: 'System',
-        fontWeight: '800',
-        fontSize: 12,
-        color: '#38BDF8',
-        letterSpacing: 2,
+        color: '#0F172A',
+        letterSpacing: -1,
     },
     card: {
         width: '100%',
-        maxWidth: 440,
+        maxWidth: 400,
     },
-    cardTitle: {
-        fontFamily: 'System',
-        fontWeight: '900',
+    stepHeader: {
+        marginBottom: 40,
+    },
+    stepTitle: {
         fontSize: 32,
-        color: '#FFFFFF',
+        fontWeight: '800',
+        color: '#0F172A',
+        letterSpacing: -0.5,
         marginBottom: 8,
-        letterSpacing: 1,
+    },
+    stepSubtitle: {
+        fontSize: 16,
+        color: '#64748B',
+        lineHeight: 24,
     },
     errorBox: {
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        borderWidth: 1,
-        borderColor: '#EF4444',
+        backgroundColor: '#FEF2F2',
         borderRadius: 12,
         padding: 16,
-        marginBottom: 24,
+        marginBottom: 32,
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
     },
     errorText: {
-        fontFamily: 'System',
         fontSize: 14,
-        color: '#FCA5A5',
+        color: '#B91C1C',
         fontWeight: '600',
     },
-    label: {
-        fontFamily: 'System',
+    emailDisplay: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#F8FAFC',
+        padding: 12,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        marginBottom: 32,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+    },
+    emailDisplayText: {
+        fontSize: 15,
+        color: '#475569',
+        fontWeight: '600',
+    },
+    changeBtn: {
+        fontSize: 14,
+        color: '#2563EB',
         fontWeight: '700',
-        fontSize: 13,
+    },
+    label: {
+        fontSize: 12,
+        fontWeight: '700',
         color: '#94A3B8',
         letterSpacing: 1,
-        marginBottom: 8,
+        marginBottom: 10,
+        textTransform: 'uppercase',
     },
     input: {
-        backgroundColor: 'rgba(15, 23, 42, 0.5)',
+        backgroundColor: '#F8FAFC',
         height: 56,
         paddingHorizontal: 16,
         borderRadius: 12,
         fontSize: 16,
-        fontFamily: 'System',
-        color: '#FFFFFF',
+        color: '#0F172A',
         borderWidth: 1,
-        borderColor: '#1E293B',
-        marginBottom: 24,
-    },
-    inputError: {
-        borderColor: '#EF4444',
-    },
-    btnWrap: {
-        marginTop: 8,
+        borderColor: '#E2E8F0',
         marginBottom: 32,
     },
-    glowBtn: {
-        width: '100%',
-        paddingVertical: 20,
-        borderRadius: 16,
-        backgroundColor: '#38BDF8',
+    inputError: {
+        borderColor: '#FDA4AF',
+        backgroundColor: '#FFF1F2',
+    },
+    primaryBtn: {
+        backgroundColor: '#0F172A',
+        height: 56,
+        borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#38BDF8',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.8,
-        shadowRadius: 20,
-        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 2,
     },
-    glowBtnText: {
-        fontFamily: 'System',
-        fontWeight: '900',
+    primaryBtnText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    btnPressed: {
+        opacity: 0.9,
+        transform: [{ scale: 0.99 }],
+    },
+    btnDisabled: {
+        opacity: 0.6,
+    },
+    backBtn: {
+        alignItems: 'center',
+        paddingVertical: 16,
+        marginTop: 8,
+    },
+    backBtnText: {
+        color: '#64748B',
         fontSize: 15,
-        color: '#020617',
-        letterSpacing: 2,
+        fontWeight: '600',
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center',
-        flexWrap: 'wrap',
+        marginTop: 48,
     },
     footerText: {
-        fontFamily: 'System',
         color: '#64748B',
         fontSize: 15,
-        fontWeight: '500',
     },
     footerLink: {
-        fontFamily: 'System',
-        color: '#38BDF8',
+        color: '#2563EB',
         fontSize: 15,
         fontWeight: '700',
     },
 });
+

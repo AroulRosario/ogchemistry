@@ -12,7 +12,7 @@ export default function StudentManagement({ profiles, fetchAll, showNotification
         try {
             const { error } = await supabase.from('profiles').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
             if (error) throw error;
-            showNotification(`Student status updated to ${status} `);
+            showNotification(`Student status updated to ${status}`);
             await fetchAll();
         } catch (error) {
             showNotification('Status update failed', 'error');
@@ -57,7 +57,6 @@ export default function StudentManagement({ profiles, fetchAll, showNotification
 
     const resetDeviceSession = async (id) => {
         if (!window.confirm("Disconnect active session for this user? They will be logged out.")) return;
-        // Mock session wipe action
         showNotification('User session invalidated.');
     };
 
@@ -98,65 +97,70 @@ export default function StudentManagement({ profiles, fetchAll, showNotification
 
     return (
         <div className="fade-in">
-            <div className="section-header">
-                <h2 className="bangers" style={{ fontSize: '2.5rem', color: '#1E293B' }}>STUDENT MANAGEMENT</h2>
-                <div className="badge badge-approved">{profiles.length} TOTAL STUDENTS</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                <div>
+                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>Recruit Management</h2>
+                    <p style={{ color: 'var(--gray-500)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Oversee and authorize elite personnel access.</p>
+                </div>
+                <div style={{ padding: '0.4rem 1rem', borderRadius: '2rem', border: '1px solid var(--border)', backgroundColor: 'var(--white)', fontSize: '0.75rem', fontWeight: '700', color: 'var(--gray-600)' }}>
+                    {profiles.length} TOTAL RECRUITS
+                </div>
             </div>
 
-            {profiles.length === 0 && <div className="empty-state">No student profiles found.</div>}
+            {profiles.length === 0 && <div className="card" style={{ padding: '4rem', textAlign: 'center', color: 'var(--gray-400)' }}>No student profiles found.</div>}
 
-            <div className="student-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
                 {profiles.map(p => (
-                    <div key={p.id} className="card student-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--white)', border: '1px solid var(--border)' }}>
+                    <div key={p.id} className="card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div style={{ flex: 1 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-                                    <h4 className="bangers" style={{ margin: 0, fontSize: '1.6rem', color: 'var(--black)', letterSpacing: '-0.02em' }}>{p.full_name || p.email}</h4>
-                                    <span className={`badge badge-${p.status || 'pending'}`} style={{ fontWeight: 800 }}>{p.status || 'pending'}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: 'var(--black)' }}>{p.full_name || p.email}</h4>
+                                    <span className={`badge badge-${p.status || 'pending'}`} style={{ fontSize: '0.7rem', fontWeight: '800' }}>{(p.status || 'pending').toUpperCase()}</span>
                                 </div>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>USER_ID: {p.id.slice(0, 12)}... | JOINED: {new Date(p.updated_at).toLocaleDateString()}</p>
+                                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--gray-400)', fontWeight: '600', fontFamily: 'monospace' }}>ID: {p.id.slice(0, 16).toUpperCase()}</p>
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button className="action-btn" style={{ padding: '0.6rem', border: '1px solid var(--border)', borderRadius: '0.75rem', color: 'var(--blue)' }} onClick={() => openEditModal(p)}>
-                                    <Edit3 size={18} />
+                                <button className="btn btn-secondary" style={{ padding: '0.4rem', minWidth: '36px', height: '36px' }} onClick={() => openEditModal(p)}>
+                                    <Edit3 size={16} />
                                 </button>
                                 {p.status !== 'approved' && (
-                                    <button className="action-btn btn-approve" style={{ padding: '0.6rem 1.2rem', fontWeight: 800 }} onClick={() => updateProfileStatus(p.id, 'approved')} disabled={loading}>
-                                        <CheckCircle size={18} /> APPROVE
+                                    <button className="btn btn-primary" style={{ height: '36px', fontSize: '0.75rem', padding: '0 0.75rem' }} onClick={() => updateProfileStatus(p.id, 'approved')} disabled={loading}>
+                                        <CheckCircle size={14} /> APPROVE
                                     </button>
                                 )}
                                 {p.status !== 'rejected' && (
-                                    <button className="action-btn btn-delete" style={{ padding: '0.6rem 1.2rem', fontWeight: 800 }} onClick={() => updateProfileStatus(p.id, 'rejected')} disabled={loading}>
-                                        <Shield size={18} /> BLOCK
+                                    <button className="btn btn-secondary" style={{ height: '36px', fontSize: '0.75rem', padding: '0 0.75rem', color: 'var(--error)' }} onClick={() => updateProfileStatus(p.id, 'rejected')} disabled={loading}>
+                                        <Shield size={14} /> BLOCK
                                     </button>
                                 )}
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1.5rem', background: 'var(--surface)', padding: '1.25rem', borderRadius: '1rem', border: '1px solid var(--border)' }}>
-                            <div className="stat-pill" onClick={() => updateProfileStat(p.id, 'streak_count', p.streak_count || 0)} style={{ background: 'var(--white)' }}>
-                                <Flame size={18} color="#F97316" fill="#F97316" />
-                                <span style={{ fontWeight: 800, color: '#F97316' }}>{p.streak_count || 0} STREAK</span>
+                        <div style={{ display: 'flex', gap: '1.5rem', background: 'var(--blue-soft)', padding: '1rem', borderRadius: '0.75rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <Flame size={14} color="#F97316" fill="#F97316" />
+                                <span style={{ fontWeight: '800', color: '#F97316', fontSize: '0.8rem' }}>{p.streak_count || 0}</span>
                             </div>
-                            <div className="stat-pill" onClick={() => updateProfileStat(p.id, 'gems', p.gems || 0)} style={{ background: 'var(--white)' }}>
-                                <Hexagon size={18} color="var(--blue)" fill="var(--blue)22" />
-                                <span style={{ fontWeight: 800, color: 'var(--blue)' }}>{p.gems || 0} GEMS</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <Hexagon size={14} color="var(--blue)" fill="var(--blue)" style={{ opacity: 0.2 }} />
+                                <span style={{ fontWeight: '800', color: 'var(--blue)', fontSize: '0.8rem' }}>{p.gems || 0}</span>
                             </div>
-                            <div className="stat-pill" onClick={() => updateProfileStat(p.id, 'xp', p.xp || 0)} style={{ background: 'var(--white)' }}>
-                                <Star size={18} color="#EAB308" fill="#EAB308" />
-                                <span style={{ fontWeight: 800, color: '#854D0E' }}>{p.xp || 0} XP</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <Star size={14} color="#EAB308" fill="#EAB308" />
+                                <span style={{ fontWeight: '800', color: '#854D0E', fontSize: '0.8rem' }}>{p.xp || 0} XP</span>
                             </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                            <button className="btn btn-secondary" style={{ flex: 1, height: '44px', fontSize: '0.85rem', background: '#F8FAFC', border: '1px solid var(--border)', color: 'var(--black)' }} onClick={() => awardCertificate(p.id)}>
-                                <Medal size={16} /> AWARD CERT
+                        <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--gray-100)', paddingTop: '1.25rem' }}>
+                            <button className="btn btn-secondary" style={{ flex: 1, height: '36px', fontSize: '0.7rem' }} onClick={() => awardCertificate(p.id)}>
+                                <Medal size={14} /> CERTIFICATE
                             </button>
-                            <button className="btn" style={{ flex: 1, height: '44px', fontSize: '0.85rem', background: 'var(--blue)', color: 'white' }} onClick={() => checkVideoProgress(p.id, p.full_name || p.email)}>
-                                <PlaySquare size={16} /> VIDEO LOGS
+                            <button className="btn btn-secondary" style={{ flex: 1, height: '36px', fontSize: '0.7rem' }} onClick={() => checkVideoProgress(p.id, p.full_name || p.email)}>
+                                <PlaySquare size={14} /> LOGS
                             </button>
-                            <button className="btn" style={{ flex: 1, height: '44px', fontSize: '0.85rem', background: 'rgba(0,0,0,0.03)', color: '#64748B', border: '1px dashed #CBD5E1' }} onClick={() => resetDeviceSession(p.id)}>
-                                <RotateCcw size={16} /> WIPE SESSION
+                            <button className="btn btn-secondary" style={{ flex: 1, height: '36px', fontSize: '0.7rem' }} onClick={() => resetDeviceSession(p.id)}>
+                                <RotateCcw size={14} /> SESSION
                             </button>
                         </div>
                     </div>
@@ -164,48 +168,50 @@ export default function StudentManagement({ profiles, fetchAll, showNotification
             </div>
 
             {editingProfile && (
-                <div className="modal-overlay">
-                    <div className="card modal-card" style={{ width: '500px', padding: '2.5rem', position: 'relative' }}>
-                        <button className="close-btn" onClick={() => setEditingProfile(null)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', border: 'none', background: 'none', cursor: 'pointer' }}>
-                            <X size={24} color="#64748B" />
-                        </button>
-
-                        <h3 className="bangers" style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>MASTER PROFILE EDITOR</h3>
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
+                    <div className="card" style={{ width: '450px', padding: '2.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--black)' }}>Profile Override</h3>
+                            <button onClick={() => setEditingProfile(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }}><X size={24} /></button>
+                        </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             <div className="form-group">
-                                <label>FULL NAME</label>
+                                <label>Full Name</label>
                                 <input className="input" value={editForm.full_name} onChange={e => setEditForm({ ...editForm, full_name: e.target.value })} />
                             </div>
 
-                            <div className="form-group" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label>STREAK</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="form-group">
+                                    <label>Streak</label>
                                     <input type="number" className="input" value={editForm.streak_count} onChange={e => setEditForm({ ...editForm, streak_count: parseInt(e.target.value) || 0 })} />
                                 </div>
-                                <div>
-                                    <label>GEMS</label>
+                                <div className="form-group">
+                                    <label>Gems</label>
                                     <input type="number" className="input" value={editForm.gems} onChange={e => setEditForm({ ...editForm, gems: parseInt(e.target.value) || 0 })} />
                                 </div>
                             </div>
 
                             <div className="form-group">
-                                <label>XP POINTS</label>
+                                <label>Experience (XP)</label>
                                 <input type="number" className="input" value={editForm.xp} onChange={e => setEditForm({ ...editForm, xp: parseInt(e.target.value) || 0 })} />
                             </div>
 
                             <div className="form-group">
-                                <label>ACCOUNT STATUS</label>
+                                <label>Access Status</label>
                                 <select className="input" value={editForm.status} onChange={e => setEditForm({ ...editForm, status: e.target.value })}>
-                                    <option value="pending">PENDING</option>
-                                    <option value="approved">APPROVED</option>
-                                    <option value="rejected">REJECTED</option>
+                                    <option value="pending">PENDING AUTHORIZATION</option>
+                                    <option value="approved">AUTHORIZED ACCESS</option>
+                                    <option value="rejected">REVOKED ACCESS</option>
                                 </select>
                             </div>
 
-                            <button className="btn btn-primary" style={{ marginTop: '1rem', height: '56px', fontSize: '1.1rem' }} onClick={saveMasterEdit} disabled={loading}>
-                                {loading ? 'SAVING CHANGES...' : 'COMMIT MASTER OVERRIDE'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                                <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingProfile(null)}>Cancel</button>
+                                <button className="btn btn-primary" style={{ flex: 1 }} onClick={saveMasterEdit} disabled={loading}>
+                                    {loading ? 'Committing...' : 'Commit Changes'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

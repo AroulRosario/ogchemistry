@@ -1,5 +1,5 @@
 import { STYLES } from '@/constants/theme';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 import { Platform } from 'react-native';
@@ -12,13 +12,24 @@ export function SimulationView({ content, style }: { content: { html?: string; u
         return (
             <View style={[styles.container, style]}>
                 {content.html ? (
-                    <div dangerouslySetInnerHTML={{ __html: content.html }} style={{ width: '100%', height: '100%' }} />
-                ) : (
+                    <iframe
+                        srcDoc={content.html}
+                        style={{ width: '100%', height: '100%', border: 'none', backgroundColor: 'transparent', borderRadius: 16 }}
+                        title="Simulation HTML"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    />
+                ) : content.url || content.uri ? (
                     <iframe
                         src={content.url || content.uri}
-                        style={{ width: '100%', height: '100%', border: 'none' }}
-                        title="Simulation"
+                        style={{ width: '100%', height: '100%', border: 'none', borderRadius: 16 }}
+                        title="Simulation URL"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                     />
+                ) : (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{ color: '#64748B', fontFamily: 'System', fontWeight: '600' }}>No simulation data provided.</Text>
+                    </View>
                 )}
             </View>
         );

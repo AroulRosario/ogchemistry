@@ -226,8 +226,8 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 </div>
             </div>
 
-            {/* Rich Editor Panel */}
-            <div style={{ flex: 2, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+            {/* Center: Rich Editor Panel */}
+            <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                 <h2 className="bangers" style={{ fontSize: '2rem', margin: 0, marginBottom: '1rem', color: 'var(--comic-navy)' }}>EDITOR</h2>
 
                 {selectedItem ? (
@@ -332,6 +332,59 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                         <p style={{ color: '#64748B', maxWidth: '350px', margin: '1rem auto', fontWeight: 600, fontSize: '1rem', lineHeight: '1.6' }}>Select a module or chapter from the sidebar to begin crafting your elite curriculum.</p>
                     </div>
                 )}
+            </div>
+
+            {/* Right: Live Preview Panel */}
+            <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column', overflowY: 'auto', background: 'var(--white)', border: '1px solid var(--border)', borderRadius: '1.5rem', overflow: 'hidden' }}>
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                    <h2 className="bangers" style={{ fontSize: '1.5rem', margin: 0, color: 'var(--comic-navy)' }}>LIVE PREVIEW</h2>
+                </div>
+                <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', backgroundColor: '#F8FAFC' }}>
+                    {!selectedItem ? (
+                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>Select an item to preview</div>
+                    ) : selectedItem.type !== 'content' ? (
+                        <div style={{ padding: '1rem' }}>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1E293B', marginBottom: '0.5rem' }}>{formState.title || 'Untitled'}</h3>
+                            <p style={{ color: '#64748B', whiteSpace: 'pre-wrap' }}>{formState.description}</p>
+                        </div>
+                    ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E293B', marginBottom: '1rem' }}>{formState.title || 'Untitled'}</h3>
+
+                            {['video', 'audio'].includes(formState.content_type) && formState.url && (
+                                <div style={{ width: '100%', aspectRatio: '16/9', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
+                                    {formState.url.includes('youtube') || formState.url.includes('youtu.be') ? (
+                                        <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${formState.url.match(/(?:youtu\.be\/|v=)([^&]+)/)?.[1]}?autoplay=0`} frameBorder="0" allowFullScreen />
+                                    ) : (
+                                        <video src={formState.url} controls style={{ width: '100%', height: '100%' }} />
+                                    )}
+                                </div>
+                            )}
+
+                            {formState.content_type === 'html_sim' && (
+                                <div style={{ width: '100%', minHeight: '400px', flex: 1, border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden', backgroundColor: '#fff' }}>
+                                    <iframe srcDoc={formState.content} style={{ width: '100%', height: '100%', border: 'none' }} sandbox="allow-scripts allow-same-origin" />
+                                </div>
+                            )}
+
+                            {formState.content_type === 'text' && (
+                                <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #E5E7EB', minHeight: '300px' }}>
+                                    {/* Exceedingly simple markdown preview for admin */}
+                                    <div dangerouslySetInnerHTML={{ __html: formState.content.replace(/\n\n/g, '<br/><br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/#(.*?)\n/g, '<h2>$1</h2>') }} />
+                                </div>
+                            )}
+
+                            {formState.content_type === 'quiz' && (
+                                <div style={{ backgroundColor: '#fff', padding: '1.5rem', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                                    <h4 style={{ color: '#10B981', fontWeight: 800, marginBottom: '1rem' }}>QUIZ PREVIEW</h4>
+                                    <p style={{ fontFamily: 'monospace', fontSize: '12px', color: '#64748B', whiteSpace: 'pre-wrap' }}>
+                                        {formState.content.slice(0, 300)}...
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -3,7 +3,54 @@ import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+
+const WEB_CSS = `
+@keyframes loginFloat1 {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
+@keyframes loginFloat2 {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(-30px, 60px) scale(1.2); }
+    66% { transform: translate(20px, -20px) scale(0.8); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
+.animated-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+    background-color: #020617;
+}
+.animated-bg .orb1 {
+    position: absolute;
+    top: -10%; left: -10%;
+    width: 50vw; height: 50vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, rgba(2,6,23,0) 70%);
+    animation: loginFloat1 15s ease-in-out infinite;
+}
+.animated-bg .orb2 {
+    position: absolute;
+    bottom: -20%; right: -10%;
+    width: 60vw; height: 60vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(234,179,8,0.1) 0%, rgba(2,6,23,0) 70%);
+    animation: loginFloat2 20s ease-in-out infinite;
+}
+.animated-bg .orb3 {
+    position: absolute;
+    top: 40%; right: 20%;
+    width: 30vw; height: 30vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(2,6,23,0) 70%);
+    animation: loginFloat1 12s ease-in-out infinite reverse;
+}
+`;
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -39,6 +86,16 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.mainLayout}>
+            {Platform.OS === 'web' && (
+                <>
+                    <style dangerouslySetInnerHTML={{ __html: WEB_CSS }} />
+                    <div className="animated-bg">
+                        <div className="orb1" />
+                        <div className="orb2" />
+                        <div className="orb3" />
+                    </div>
+                </>
+            )}
             <ResponsiveContainer>
                 <View style={[styles.contentLayout, isDesktop && styles.desktopLayout]}>
 
@@ -128,36 +185,39 @@ const styles = StyleSheet.create({
         minHeight: '100%',
         backgroundColor: '#020617', // Deep cinematic black
         justifyContent: 'center',
+        position: 'relative',
     },
     contentLayout: {
         flexDirection: 'column',
+        zIndex: 10,
     },
     desktopLayout: {
         flexDirection: 'row',
         alignItems: 'stretch',
-        borderRadius: 24,
+        borderRadius: 32,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: '#1E293B',
-        backgroundColor: '#0F172A',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(15, 23, 42, 0.5)',
         marginVertical: 40,
         shadowColor: '#38BDF8',
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 40,
+        shadowOpacity: 0.2,
+        shadowRadius: 50,
         elevation: 10,
+        ...(Platform.OS === 'web' && { backdropFilter: 'blur(30px)' }),
     },
     leftPane: {
         flex: 1.2,
         borderRightWidth: 1,
-        borderRightColor: '#1E293B',
-        backgroundColor: '#020617',
+        borderRightColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'transparent',
     },
     rightPane: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#0F172A', // Slate 900
+        backgroundColor: 'rgba(2, 6, 23, 0.4)',
         padding: 40,
     },
     mobilePane: {
@@ -208,14 +268,14 @@ const styles = StyleSheet.create({
     },
     card: {
         width: '100%',
-        maxWidth: 480,
+        maxWidth: 440,
     },
     cardTitle: {
         fontFamily: 'System',
         fontWeight: '900',
-        fontSize: 28,
+        fontSize: 32,
         color: '#FFFFFF',
-        marginBottom: 32,
+        marginBottom: 8,
         letterSpacing: 1,
     },
     errorBox: {
@@ -261,15 +321,15 @@ const styles = StyleSheet.create({
     },
     glowBtn: {
         width: '100%',
-        paddingVertical: 18,
+        paddingVertical: 20,
         borderRadius: 16,
         backgroundColor: '#38BDF8',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#38BDF8',
         shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.6,
-        shadowRadius: 15,
+        shadowOpacity: 0.8,
+        shadowRadius: 20,
         elevation: 10,
     },
     glowBtnText: {

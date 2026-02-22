@@ -44,6 +44,6 @@ const styles = StyleSheet.create({
     content: {
         flexGrow: 1,
         paddingBottom: 40,
-        paddingHorizontal: Platform.OS === 'web' ? 40 : 20,
+        paddingHorizontal: Platform.OS === 'web' ? 40 : 8,
     },
 });

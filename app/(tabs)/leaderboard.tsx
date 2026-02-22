@@ -92,7 +92,7 @@ export default function LeaderboardScreen() {
         const [first, second, third] = leaders;
 
         return (
-            <View style={styles.podiumContainer}>
+            <View style={[styles.podiumContainer, !isDesktop && { height: 260, marginTop: 40 }]}>
                 {/* 2nd Place */}
                 <View style={[styles.podiumCol, styles.podiumCol2, !isDesktop && { height: 180 }]}>
                     <View style={styles.podiumAvatarWrapper}>
@@ -111,7 +111,7 @@ export default function LeaderboardScreen() {
                 </View>
 
                 {/* 1st Place */}
-                <View style={[styles.podiumCol, styles.podiumCol1, !isDesktop && { height: 220 }]}>
+                <View style={[styles.podiumCol, styles.podiumCol1, !isDesktop && { height: 220 }, !isDesktop && { marginHorizontal: -10 }]}>
                     <View style={styles.podiumAvatarWrapper}>
                         <Crown size={40} color={COLORS.yellow} fill={COLORS.yellow} style={styles.crown} />
                         <View style={[styles.podiumAvatar, { borderColor: COLORS.yellow, width: isDesktop ? 110 : 80, height: isDesktop ? 110 : 80, borderRadius: isDesktop ? 55 : 40, borderWidth: isDesktop ? 6 : 4 }]}>
@@ -202,14 +202,14 @@ export default function LeaderboardScreen() {
                     <FlatList
                         data={leaders}
                         ListHeaderComponent={() => (
-                            <View style={styles.headerArea}>
+                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 4 }]}>
                                 <LeagueHeader />
                                 <PodiumSection />
                             </View>
                         )}
                         renderItem={renderLeader}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={styles.scroll}
+                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 4 }]}
                         showsVerticalScrollIndicator={false}
                     />
                 </ResponsiveContainer>
@@ -330,16 +330,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        marginTop: isDesktop ? 60 : 40,
+        marginTop: 60,
         marginBottom: 40,
-        height: isDesktop ? 320 : 260,
+        height: 320,
     },
     podiumCol: {
         flex: 1,
         alignItems: 'center',
         maxWidth: 240,
     },
-    podiumCol1: { zIndex: 3, marginHorizontal: isDesktop ? -20 : -10 },
+    podiumCol1: { zIndex: 3, marginHorizontal: -20 },
     podiumCol2: { zIndex: 2 },
     podiumCol3: { zIndex: 1 },
 

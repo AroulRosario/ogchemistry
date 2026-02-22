@@ -187,26 +187,26 @@ export default function ProfileScreen() {
                 <ScrollView
                     contentContainerStyle={[
                         styles.scroll,
-                        { paddingHorizontal: isDesktop ? 0 : 16 },
+                        { paddingHorizontal: isDesktop ? 0 : 4 }, // Minimal padding for the scroll itself
                         !isDesktop && { paddingVertical: 16 }
                     ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <ResponsiveContainer fullWidth>
-                        <View style={styles.dashboardLayout}>
+                        <View style={[styles.dashboardLayout, !isDesktop && { gap: 20 }]}>
                             <HeroSection />
 
-                            <View style={[styles.statsRow, !isDesktop && { gap: 16 }]}>
-                                <View style={{ width: isWide ? '48%' : '100%' }}>
+                            <View style={[styles.statsRow, !isDesktop && { flexDirection: 'column', gap: 16 }]}>
+                                <View style={{ width: (isWide && isDesktop) ? '48%' : '100%' }}>
                                     <SkillMastery />
                                 </View>
-                                <View style={{ width: isWide ? '48%' : '100%' }}>
+                                <View style={{ width: (isWide && isDesktop) ? '48%' : '100%' }}>
                                     <AchievementGallery />
                                 </View>
                             </View>
 
-                            <View style={styles.columns}>
-                                <View style={[styles.mainColumn, { width: isDesktop ? '65%' : '100%' }]}>
+                            <View style={[styles.columns, !isDesktop && { flexDirection: 'column' }]}>
+                                <View style={[styles.mainColumn, { width: (isDesktop) ? '65%' : '100%' }]}>
                                     <ConsistencyHeatmap />
                                     <View style={{ height: 24 }} />
                                     <View style={styles.sectionCard}>
@@ -227,7 +227,7 @@ export default function ProfileScreen() {
                                     </View>
                                 </View>
 
-                                <View style={[styles.sideColumn, { width: isDesktop ? '30%' : '100%' }]}>
+                                <View style={[styles.sideColumn, { width: (isDesktop) ? '33%' : '100%' }]}>
                                     <View style={styles.actionCard}>
                                         <Text style={styles.actionCardTitle}>Ready for more?</Text>
                                         <Text style={styles.actionCardBody}>Your path is calling. Complete the next milestone today.</Text>

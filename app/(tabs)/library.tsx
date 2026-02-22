@@ -67,7 +67,13 @@ export default function LibraryScreen() {
             <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
                 <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
                 <ResponsiveContainer fullWidth>
-                    <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+                    <ScrollView
+                        contentContainerStyle={[
+                            styles.scrollContent,
+                            { paddingHorizontal: isDesktop ? 0 : 4 }
+                        ]}
+                        showsVerticalScrollIndicator={false}
+                    >
                         <GlobalStatsHero
                             totalProgress={globalStats.progress}
                             completedChapters={globalStats.completed}

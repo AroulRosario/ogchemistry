@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Award, Calendar, CheckCircle2, ChevronRight, Settings, Zap } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 export default function ProfileScreen() {
     const { user, signOut } = useAuth();
@@ -185,7 +185,11 @@ export default function ProfileScreen() {
                 />
 
                 <ScrollView
-                    contentContainerStyle={[styles.scroll, !isDesktop && { paddingVertical: 16 }]}
+                    contentContainerStyle={[
+                        styles.scroll,
+                        { paddingHorizontal: isDesktop ? 0 : 16 },
+                        !isDesktop && { paddingVertical: 16 }
+                    ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <ResponsiveContainer fullWidth>
@@ -321,8 +325,7 @@ const styles = StyleSheet.create({
     },
     sectionCard: {
         flex: 1,
-        minWidth: Platform.OS === 'web' ? 400 : '100%',
-        padding: 32,
+        padding: 24,
         backgroundColor: COLORS.white,
         borderRadius: 32,
         borderWidth: 1,
@@ -347,7 +350,7 @@ const styles = StyleSheet.create({
         gap: 16,
     },
     achievementBadge: {
-        width: '31%',
+        width: '30%',
         aspectRatio: 1,
         borderRadius: 24,
         alignItems: 'center',
@@ -370,7 +373,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    skillLabel: { fontSize: 14, fontWeight: '800', color: '#475569' },
+    skillLabel: { fontSize: 13, fontWeight: '800', color: '#475569', flex: 1 },
     skillValue: { fontSize: 15, fontWeight: '900', color: '#1E293B' },
     skillTrack: {
         height: 10,
@@ -394,9 +397,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     heatmapCell: {
-        width: 30,
-        height: 30,
-        borderRadius: 8,
+        width: 18,
+        height: 18,
+        borderRadius: 4,
     },
     heatmapHelper: {
         fontSize: 12,
@@ -411,8 +414,8 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         width: '100%',
     },
-    mainColumn: { flex: 2.2, minWidth: 350 },
-    sideColumn: { flex: 1, minWidth: 300 },
+    mainColumn: { flex: 2.2 },
+    sideColumn: { flex: 1 },
 
     emptyState: {
         paddingVertical: 60,

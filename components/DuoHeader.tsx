@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         marginHorizontal: Platform.OS === 'web' ? 16 : 8,
         marginVertical: 12,
         paddingVertical: 6,
-        paddingHorizontal: 12,
+        paddingHorizontal: 8,
         alignSelf: 'center',
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 2 },
@@ -70,17 +70,18 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 3,
         maxWidth: '95%',
+        minWidth: Platform.OS === 'web' ? 0 : '90%',
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 16, // Reduced from 24
+        gap: Platform.OS === 'web' ? 16 : 4,
     },
     stat: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: Platform.OS === 'web' ? 8 : 4,
     },
     iconCircle: {
         width: 32,

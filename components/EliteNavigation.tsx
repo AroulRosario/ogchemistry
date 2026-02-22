@@ -112,15 +112,18 @@ export function EliteNavigation() {
                     {!isDesktop && (
                         <View style={styles.mobileProfileHeader}>
                             <View style={styles.mobileAvatar}>
-                                <Text style={{ fontSize: 32 }}>🎓</Text>
+                                <Text style={{ fontSize: 24 }}>🎓</Text>
                             </View>
-                            <View>
-                                <Text style={styles.mobileName}>Student Model</Text>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.mobileName} numberOfLines={1}>Student Model</Text>
                                 <View style={styles.mobileStatusBadge}>
                                     <View style={styles.dot} />
-                                    <Text style={styles.mobileStatusText}>ELITE LEARNER</Text>
+                                    <Text style={styles.mobileStatusText}>OG LEARNER</Text>
                                 </View>
                             </View>
+                            <Pressable style={styles.closeBtn} onPress={toggleMenu}>
+                                <X size={24} color={COLORS.black} strokeWidth={2.5} />
+                            </Pressable>
                         </View>
                     )}
 
@@ -309,20 +312,24 @@ const styles = StyleSheet.create({
     },
     mobileProfileHeader: {
         backgroundColor: '#F3F4F6',
-        padding: 24,
+        padding: 16,
         marginHorizontal: -20,
         marginTop: -32,
         marginBottom: 24,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#EFEFEF',
     },
+    closeBtn: {
+        padding: 8,
+        marginRight: -4,
+    },
     mobileAvatar: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         backgroundColor: '#FFF',
         justifyContent: 'center',
         alignItems: 'center',

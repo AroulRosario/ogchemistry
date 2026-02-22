@@ -131,7 +131,6 @@ const styles = StyleSheet.create({
     },
     mainStatBox: {
         flex: 2,
-        minWidth: 300,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F8FAFC',
@@ -176,7 +175,6 @@ const styles = StyleSheet.create({
     },
     resumeCard: {
         flex: 1,
-        minWidth: 250,
         backgroundColor: '#EFF6FF',
         padding: 20,
         borderRadius: 20,

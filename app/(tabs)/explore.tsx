@@ -77,18 +77,18 @@ export default function ExploreScreen() {
 
             {/* Featured Section */}
             <View style={styles.featuredSection}>
-              <View style={[styles.featuredCard, { backgroundColor: COLORS.blue }]}>
+              <View style={[styles.featuredCard, { backgroundColor: COLORS.blue }, !isDesktop && { padding: 20, borderRadius: 24 }]}>
                 <View style={styles.heroContent}>
                   <View style={{ flex: 1.2 }}>
-                    <View style={styles.featuredBadge}>
+                    <View style={[styles.featuredBadge, !isDesktop && { marginBottom: 12 }]}>
                       <Sparkles size={14} color={COLORS.white} />
                       <Text style={styles.featuredBadgeText}>FEATURED UNIVERSE</Text>
                     </View>
-                    <Text style={[styles.featuredTitle, { fontSize: isDesktop ? 48 : 28 }]}>QUANTUM CHEMISTRY</Text>
-                    <Text style={styles.featuredDesc}>Dive into the subatomic world and master electron configurations.</Text>
-                    <View style={styles.featuredAction}>
+                    <Text style={[styles.featuredTitle, { fontSize: isDesktop ? 48 : 24 }]}>QUANTUM CHEMISTRY</Text>
+                    <Text style={[styles.featuredDesc, !isDesktop && { fontSize: 15, marginBottom: 16 }]}>Dive into the subatomic world and master electron configurations.</Text>
+                    <View style={[styles.featuredAction, !isDesktop && { paddingVertical: 10, paddingHorizontal: 16 }]}>
                       <PlayCircle size={20} color={COLORS.blue} />
-                      <Text style={styles.featuredActionText}>START ADVENTURE</Text>
+                      <Text style={[styles.featuredActionText, !isDesktop && { fontSize: 13 }]}>START ADVENTURE</Text>
                     </View>
                   </View>
                   {isDesktop && (

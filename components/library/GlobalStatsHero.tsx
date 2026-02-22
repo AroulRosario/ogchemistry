@@ -23,8 +23,8 @@ export function GlobalStatsHero({
     const isWide = width > 1200;
 
     return (
-        <View style={styles.container}>
-            <View style={styles.topSection}>
+        <View style={[styles.container, !isDesktop && { padding: 16, borderRadius: 20 }]}>
+            <View style={[styles.topSection, !isDesktop && { marginBottom: 16 }]}>
                 <View style={styles.mainInfo}>
                     <Text style={styles.greeting}>Library Dashboard</Text>
                     <Text style={styles.subGreeting}>Continue your journey to mastery.</Text>
@@ -36,18 +36,18 @@ export function GlobalStatsHero({
             </View>
 
             <View style={[styles.statsGrid, !isWide && { flexDirection: 'column' }]}>
-                <View style={[styles.mainStatBox, { width: isWide ? '60%' : '100%' }]}>
-                    <View style={styles.progressCircle}>
-                        <Text style={styles.progressValue}>{totalProgress}%</Text>
-                        <Text style={styles.progressLabel}>COMPLETE</Text>
+                <View style={[styles.mainStatBox, { width: isWide ? '60%' : '100%' }, !isDesktop && { padding: 16, gap: 16 }]}>
+                    <View style={[styles.progressCircle, !isDesktop && { width: 64, height: 64, borderWidth: 4 }]}>
+                        <Text style={[styles.progressValue, !isDesktop && { fontSize: 16 }]}>{totalProgress}%</Text>
+                        <Text style={[styles.progressLabel, !isDesktop && { fontSize: 7 }]}>COMPLETE</Text>
                     </View>
                     <View style={styles.mainStatContent}>
-                        <Text style={styles.statTitle}>Global Progress</Text>
-                        <Text style={styles.statDesc} numberOfLines={2}>Mastered {completedChapters} of {totalChapters} chapters.</Text>
+                        <Text style={[styles.statTitle, !isDesktop && { fontSize: 15 }]}>Global Progress</Text>
+                        <Text style={[styles.statDesc, !isDesktop && { fontSize: 12 }]} numberOfLines={2}>Mastered {completedChapters} of {totalChapters} chapters.</Text>
                     </View>
                 </View>
 
-                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }]}>
+                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }, !isDesktop && { padding: 16 }]}>
                     <View style={styles.resumeInfo}>
                         <View style={styles.resumeHeader}>
                             <Play size={12} color={COLORS.blue} fill={COLORS.blue} />

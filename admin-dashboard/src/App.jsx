@@ -244,7 +244,7 @@ function App() {
             <header className="header" style={{ marginBottom: '3rem', padding: '1.5rem 4rem' }}>
                 <div className="logo-container">
                     <img src="/logo.png" className="logo-img" alt="logo" onError={(e) => e.target.src = 'https://via.placeholder.com/48?text=Atom'} />
-                    <h1 className="logo-text bangers" style={{ fontSize: '2rem', letterSpacing: '-0.04em' }}>ELITE CHEMISTRY <span style={{ color: 'var(--blue)' }}>COMMAND</span></h1>
+                    <h1 className="logo-text bangers" style={{ fontSize: '2rem', letterSpacing: '-0.04em' }}>OG CHEMISTRY <span style={{ color: 'var(--blue)' }}>COMMAND</span></h1>
                 </div>
                 <div className="header-actions">
                     <button className={`refresh-btn ${fetching ? 'spinning' : ''}`} style={{ border: '2px solid var(--border)', borderRadius: '1rem', padding: '0.6rem' }} onClick={() => fetchAll(true)} disabled={fetching}>

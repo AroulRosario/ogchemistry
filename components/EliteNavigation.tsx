@@ -1,9 +1,9 @@
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { COLORS, STYLES } from '@/constants/theme';
 import { usePathname, useRouter } from 'expo-router';
-import { BookOpen, Compass, Layout, Menu, Rocket, Trophy, User, X } from 'lucide-react-native';
+import { BookOpen, Compass, Layout, Menu, Trophy, User, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 export function EliteNavigation() {
     const router = useRouter();
@@ -125,10 +125,8 @@ export function EliteNavigation() {
                     )}
 
                     <View style={styles.header}>
-                        <View style={styles.logoCircle}>
-                            <Rocket size={24} color={COLORS.white} strokeWidth={3} />
-                        </View>
-                        <Text style={styles.logoText}>ELITE CHEM</Text>
+                        <Image source={require('../assets/images/logo.png')} style={{ width: 40, height: 40, marginRight: 12 }} resizeMode="contain" />
+                        <Text style={styles.logoText}>OG CHEM</Text>
                     </View>
 
                     <NotificationCenter />

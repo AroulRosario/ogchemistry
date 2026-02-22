@@ -197,15 +197,19 @@ export default function ProfileScreen() {
                             <HeroSection />
 
                             <View style={[styles.statsRow, !isDesktop && { gap: 16 }]}>
-                                <SkillMastery />
-                                <AchievementGallery />
+                                <View style={{ width: isWide ? '48%' : '100%' }}>
+                                    <SkillMastery />
+                                </View>
+                                <View style={{ width: isWide ? '48%' : '100%' }}>
+                                    <AchievementGallery />
+                                </View>
                             </View>
 
                             <View style={styles.columns}>
-                                <View style={[styles.mainColumn, !isDesktop && { minWidth: '100%' }]}>
+                                <View style={[styles.mainColumn, { width: isDesktop ? '65%' : '100%' }]}>
                                     <ConsistencyHeatmap />
                                     <View style={{ height: 24 }} />
-                                    <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+                                    <View style={styles.sectionCard}>
                                         <Text style={styles.sectionTitle}>Certifications</Text>
                                         {certificates.length > 0 ? (
                                             certificates.map(cert => (
@@ -223,7 +227,7 @@ export default function ProfileScreen() {
                                     </View>
                                 </View>
 
-                                <View style={styles.sideColumn}>
+                                <View style={[styles.sideColumn, { width: isDesktop ? '30%' : '100%' }]}>
                                     <View style={styles.actionCard}>
                                         <Text style={styles.actionCardTitle}>Ready for more?</Text>
                                         <Text style={styles.actionCardBody}>Your path is calling. Complete the next milestone today.</Text>

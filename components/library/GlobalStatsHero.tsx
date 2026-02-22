@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
 import { BookOpen, ChevronRight, Play, Star, Trophy } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 interface GlobalStatsHeroProps {
     totalProgress: number; // 0 to 100
@@ -18,6 +18,10 @@ export function GlobalStatsHero({
     onResume,
     lastChapterTitle = "Atomic Structure"
 }: GlobalStatsHeroProps) {
+    const { width } = useWindowDimensions();
+    const isDesktop = width > 800;
+    const isWide = width > 1200;
+
     return (
         <View style={styles.container}>
             <View style={styles.topSection}>
@@ -31,19 +35,19 @@ export function GlobalStatsHero({
                 </View>
             </View>
 
-            <View style={styles.statsGrid}>
-                <View style={styles.mainStatBox}>
+            <View style={[styles.statsGrid, !isWide && { flexDirection: 'column' }]}>
+                <View style={[styles.mainStatBox, { width: isWide ? '60%' : '100%' }]}>
                     <View style={styles.progressCircle}>
                         <Text style={styles.progressValue}>{totalProgress}%</Text>
                         <Text style={styles.progressLabel}>COMPLETE</Text>
                     </View>
                     <View style={styles.mainStatContent}>
                         <Text style={styles.statTitle}>Global Progress</Text>
-                        <Text style={styles.statDesc}>You have mastered {completedChapters} out of {totalChapters} chapters across all universes.</Text>
+                        <Text style={styles.statDesc} numberOfLines={2}>Mastered {completedChapters} of {totalChapters} chapters.</Text>
                     </View>
                 </View>
 
-                <View style={styles.resumeCard}>
+                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }]}>
                     <View style={styles.resumeInfo}>
                         <View style={styles.resumeHeader}>
                             <Play size={12} color={COLORS.blue} fill={COLORS.blue} />

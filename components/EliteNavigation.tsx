@@ -91,11 +91,11 @@ export function EliteNavigation() {
 
     return (
         <>
-            {!isDesktop && (
+            {!isDesktop && !isOpen && (
                 <Pressable style={styles.menuToggle} onPress={toggleMenu}>
                     <View style={styles.toggleCard}>
                         <View style={styles.menuToggleContent}>
-                            {isOpen ? <X size={28} color={COLORS.black} strokeWidth={2.5} /> : <Menu size={28} color={COLORS.black} strokeWidth={2.5} />}
+                            <Menu size={28} color={COLORS.black} strokeWidth={2.5} />
                         </View>
                     </View>
                 </Pressable>

@@ -16,6 +16,9 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
         url: '',
         content: '', // Markdown or HTML
         passing_score: 80,
+        notes: '',
+        flashcards: '',
+        resources: '',
     });
 
     const [addingTo, setAddingTo] = useState(null); // { type, parentId }
@@ -29,7 +32,10 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
             content_type: data.type || 'video',
             url: data.data?.url || '',
             content: data.data?.html || data.data?.text || '',
-            passing_score: data.data?.passing_score || 80
+            passing_score: data.data?.passing_score || 80,
+            notes: data.data?.notes || '',
+            flashcards: JSON.stringify(data.data?.flashcards || [], null, 2),
+            resources: JSON.stringify(data.data?.resources || [], null, 2)
         });
     };
 
@@ -96,6 +102,9 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 const dataToSave = { title: formState.title };
                 if (formState.content_type === 'video' || formState.content_type === 'audio') {
                     dataToSave.url = formState.url;
+                    dataToSave.notes = formState.notes;
+                    try { dataToSave.flashcards = JSON.parse(formState.flashcards); } catch (e) { dataToSave.flashcards = []; }
+                    try { dataToSave.resources = JSON.parse(formState.resources); } catch (e) { dataToSave.resources = []; }
                 } else if (formState.content_type === 'html_sim') {
                     dataToSave.html = formState.content;
                 } else if (formState.content_type === 'quiz') {
@@ -258,10 +267,24 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                                 </div>
 
                                 {['video', 'audio'].includes(formState.content_type) && (
-                                    <div className="form-group">
-                                        <label className="bangers" style={{ color: 'var(--comic-navy)', fontSize: '1rem' }}>MEDIA URL</label>
-                                        <input className="comic-input" style={{ width: '100%' }} placeholder="https://..." value={formState.url} onChange={e => setFormState({ ...formState, url: e.target.value })} />
-                                    </div>
+                                    <>
+                                        <div className="form-group">
+                                            <label className="bangers" style={{ color: 'var(--comic-navy)', fontSize: '1rem' }}>MEDIA URL</label>
+                                            <input className="comic-input" style={{ width: '100%' }} placeholder="https://..." value={formState.url} onChange={e => setFormState({ ...formState, url: e.target.value })} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="bangers" style={{ color: 'var(--comic-navy)', fontSize: '1rem' }}>MARKDOWN NOTES</label>
+                                            <textarea className="comic-input" style={{ width: '100%', height: '100px', resize: 'vertical' }} placeholder="# Chapter Summary" value={formState.notes} onChange={e => setFormState({ ...formState, notes: e.target.value })} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="bangers" style={{ color: 'var(--comic-navy)', fontSize: '1rem' }}>FLASHCARDS (JSON ARRAY)</label>
+                                            <textarea className="comic-input" style={{ width: '100%', height: '100px', resize: 'vertical', fontFamily: 'monospace', fontSize: '14px' }} placeholder='[{"front": "Q", "back": "A"}]' value={formState.flashcards} onChange={e => setFormState({ ...formState, flashcards: e.target.value })} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="bangers" style={{ color: 'var(--comic-navy)', fontSize: '1rem' }}>RESOURCES (JSON ARRAY)</label>
+                                            <textarea className="comic-input" style={{ width: '100%', height: '80px', resize: 'vertical', fontFamily: 'monospace', fontSize: '14px' }} placeholder='[{"title": "Link", "url": "https", "type": "pdf"}]' value={formState.resources} onChange={e => setFormState({ ...formState, resources: e.target.value })} />
+                                        </div>
+                                    </>
                                 )}
 
                                 {['text', 'html_sim', 'assignment', 'quiz'].includes(formState.content_type) && (

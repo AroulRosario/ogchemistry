@@ -3,34 +3,43 @@ import { DuoHeader } from '@/components/DuoHeader';
 import { DynamicBackground } from '@/components/DynamicBackground';
 import { EliteNavigation } from '@/components/EliteNavigation';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
 import { Clock, GraduationCap, Lock, PlayCircle, Search, Sparkles, TrendingUp } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function ExploreScreen() {
   const { width } = useWindowDimensions();
   const isDesktop = width > 800;
   const isWide = width > 1200;
+  const { user } = useAuth();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeChip, setActiveChip] = useState('All');
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [stats, setStats] = useState({ xp: 0, gems: 0, streak_count: 0 });
 
-  const topics = [
-    { emoji: '⚛️', title: 'Organic Chemistry', desc: 'Carbon compounds and reactions.', lessons: 24, duration: '12h', difficulty: 'Advanced', category: 'Core' },
-    { emoji: '🧪', title: 'Inorganic Chemistry', desc: 'Metals and coordination compounds.', lessons: 18, duration: '8h', difficulty: 'Intermediate', category: 'Core' },
-    { emoji: '🔥', title: 'Physical Chemistry', desc: 'Thermodynamics and kinetics.', lessons: 32, duration: '15h', difficulty: 'Advanced', category: 'Core' },
-    { emoji: '🧬', title: 'Biochemistry', desc: 'Proteins and metabolic pathways.', lessons: 15, duration: '6h', difficulty: 'Intermediate', category: 'Bio' },
-    { emoji: '⚡', title: 'Electrochemistry', desc: 'Redox and galvanic cells.', lessons: 12, duration: '5h', difficulty: 'Beginner', category: 'Applied' },
-    { emoji: '💎', title: 'Solid State', desc: 'Crystal structures and unit cells.', lessons: 10, duration: '4h', difficulty: 'Intermediate', category: 'Applied' },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, [user]);
+
+  const fetchData = async () => {
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profile) setStats(profile);
+    }
+    const { data: lessonsData } = await supabase.from('lessons').select('*, chapters(*)').order('order');
+    if (lessonsData) setLessons(lessonsData);
+  };
 
   const filteredTopics = useMemo(() => {
-    return topics.filter(t => {
-      const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesChip = activeChip === 'All' || t.category === activeChip || t.difficulty === activeChip;
-      return matchesSearch && matchesChip;
+    return lessons.filter(l => {
+      const titleMatch = l.title?.toLowerCase().includes(searchQuery.toLowerCase()) || '';
+      return titleMatch;
     });
-  }, [searchQuery, activeChip]);
+  }, [searchQuery, activeChip, lessons]);
 
   return (
     <DynamicBackground>
@@ -101,20 +110,20 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.grid}>
-              {filteredTopics.map((topic, i) => (
-                <AnimatedCard key={i} delay={i * 100} style={[
+              {filteredTopics.map((lesson, i) => (
+                <AnimatedCard key={lesson.id} delay={i * 100} style={[
                   styles.cardWrapper,
                   isWide ? { width: '23.5%' } : isDesktop ? { width: '31%' } : { width: '100%' }
                 ]}>
                   <View style={styles.card}>
                     <View style={styles.cardTop}>
                       <View style={styles.emojiContainer}>
-                        <Text style={styles.emoji}>{topic.emoji}</Text>
+                        <Text style={styles.emoji}>{'🧪'}</Text>
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.cardTitle}>{topic.title.toUpperCase()}</Text>
+                        <Text style={styles.cardTitle}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
                         <View style={styles.difficultyBadge}>
-                          <Text style={styles.difficultyText}>{topic.difficulty}</Text>
+                          <Text style={styles.difficultyText}>{lesson.category || 'Core'}</Text>
                         </View>
                       </View>
                       <View style={styles.lockBadge}>
@@ -122,16 +131,16 @@ export default function ExploreScreen() {
                       </View>
                     </View>
 
-                    <Text style={styles.cardDesc} numberOfLines={2}>{topic.desc}</Text>
+                    <Text style={styles.cardDesc} numberOfLines={2}>{lesson.description || 'Master the fundamentals of this topic.'}</Text>
 
                     <View style={styles.cardMetrics}>
                       <View style={styles.metric}>
                         <GraduationCap size={14} color="#64748B" />
-                        <Text style={styles.metricText}>{topic.lessons} Lessons</Text>
+                        <Text style={styles.metricText}>{lesson.chapters?.length || 0} Lessons</Text>
                       </View>
                       <View style={styles.metric}>
                         <Clock size={14} color="#64748B" />
-                        <Text style={styles.metricText}>{topic.duration}</Text>
+                        <Text style={styles.metricText}>{'~2h'}</Text>
                       </View>
                     </View>
                   </View>

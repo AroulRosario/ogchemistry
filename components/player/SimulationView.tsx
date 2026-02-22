@@ -2,9 +2,28 @@ import { STYLES } from '@/constants/theme';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 
+import { Platform } from 'react-native';
+
 export function SimulationView({ content, style }: { content: { html?: string; url?: string; uri?: string }, style?: StyleProp<ViewStyle> }) {
     // If url is local (file://), might need different handling in production.
     // For now assume remote or handled by expo-asset.
+
+    if (Platform.OS === 'web') {
+        return (
+            <View style={[styles.container, style]}>
+                {content.html ? (
+                    <div dangerouslySetInnerHTML={{ __html: content.html }} style={{ width: '100%', height: '100%' }} />
+                ) : (
+                    <iframe
+                        src={content.url || content.uri}
+                        style={{ width: '100%', height: '100%', border: 'none' }}
+                        title="Simulation"
+                    />
+                )}
+            </View>
+        );
+    }
+
     return (
         <View style={[styles.container, style]}>
             <WebView

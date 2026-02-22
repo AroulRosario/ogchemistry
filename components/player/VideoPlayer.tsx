@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ResizeMode, Video } from 'expo-av';
 import { FastForward, Loader2, Pause, Play } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface VideoPlayerProps {
     url: string;
@@ -12,6 +12,13 @@ interface VideoPlayerProps {
 }
 
 export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
+    const isYouTube = url?.includes('youtube.com') || url?.includes('youtu.be');
+
+    const getYouTubeId = (url: string) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
     const videoRef = useRef<Video>(null);
     const { user } = useAuth();
 
@@ -101,6 +108,27 @@ export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
         const seconds = totalSeconds % 60;
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     };
+
+    if (isYouTube) {
+        const videoId = getYouTubeId(url);
+        return (
+            <View style={styles.container}>
+                {Platform.OS === 'web' ? (
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ borderRadius: 18 }}
+                    />
+                ) : (
+                    <Text style={{ color: 'white', padding: 20 }}>YouTube playback requires the web version or a dedicated library on mobile.</Text>
+                )}
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>

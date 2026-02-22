@@ -1,11 +1,8 @@
-import { DynamicBackground } from '@/components/DynamicBackground';
-import { ModernComicButton } from '@/components/ModernComicButton';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
-import { COLORS, STYLES } from '@/constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const SLIDES = [
     {
@@ -13,21 +10,21 @@ const SLIDES = [
         title: 'OG CHEMISTRY',
         subtitle: 'By Rosario',
         body: 'Your ultimate chemistry learning platform. Master reactions, bonds, and molecular structures with premium materials.',
-        accent: COLORS.blue,
+        accent: '#38BDF8', // Neon Blue
     },
     {
         emoji: '🧪',
         title: 'LEARN YOUR WAY',
         subtitle: 'Videos • Sims • Quizzes',
         body: 'Watch expert explanations, interact with 3D molecules, and test your mastery — all in one place.',
-        accent: COLORS.yellow,
+        accent: '#FBBF24', // Neon Yellow
     },
     {
         emoji: '🚀',
         title: 'READY TO START?',
         subtitle: 'Gatekept for Quality',
         body: 'Create an account and wait for teacher approval. Once approved, you gain full access to all OG materials.',
-        accent: COLORS.green,
+        accent: '#34D399', // Neon Green
     },
 ];
 
@@ -51,7 +48,7 @@ export default function OnboardingScreen() {
     };
 
     return (
-        <DynamicBackground>
+        <View style={styles.mainContainer}>
             <ResponsiveContainer>
                 <View style={styles.container}>
                     {/* Progress */}
@@ -61,7 +58,7 @@ export default function OnboardingScreen() {
                                 key={i}
                                 style={[
                                     styles.progressBar,
-                                    i <= index ? { backgroundColor: slide.accent } : {},
+                                    i <= index ? { backgroundColor: slide.accent, shadowColor: slide.accent, shadowOpacity: 0.8, shadowRadius: 8, elevation: 4 } : {},
                                 ]}
                             />
                         ))}
@@ -70,108 +67,176 @@ export default function OnboardingScreen() {
                     {/* Content */}
                     <View style={styles.content}>
                         {slide.isLogo ? (
-                            <Image
-                                source={require('../../assets/images/logo.png')}
-                                style={styles.logo}
-                                resizeMode="contain"
-                            />
+                            <View style={styles.logoBlur}>
+                                <Image
+                                    source={require('../../assets/images/logo.png')}
+                                    style={styles.logo}
+                                    resizeMode="contain"
+                                />
+                            </View>
                         ) : (
-                            <Text style={styles.emoji}>{slide.emoji}</Text>
+                            <View style={[styles.emojiContainer, { shadowColor: slide.accent }]}>
+                                <Text style={styles.emoji}>{slide.emoji}</Text>
+                            </View>
                         )}
 
-                        <Text style={styles.title}>{slide.title}</Text>
+                        <Text style={[styles.title, { textShadowColor: slide.accent, textShadowRadius: 20 }]}>{slide.title}</Text>
                         <Text style={[styles.subtitle, { color: slide.accent }]}>{slide.subtitle}</Text>
 
-                        <View style={[styles.card, STYLES.card]}>
+                        <View style={styles.card}>
                             <Text style={styles.body}>{slide.body}</Text>
                         </View>
                     </View>
 
                     {/* Actions */}
                     <View style={styles.footer}>
-                        <ModernComicButton
-                            title={index === SLIDES.length - 1 ? "ENTER THE LAB" : "CONTINUE"}
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.glowBtn,
+                                { backgroundColor: slide.accent, shadowColor: slide.accent },
+                                pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] }
+                            ]}
                             onPress={goNext}
-                            variant={index === SLIDES.length - 1 ? "primary" : "secondary"}
-                        />
+                        >
+                            <Text style={[styles.glowBtnText, { color: '#020617' }]}>
+                                {index === SLIDES.length - 1 ? "ENTER THE LAB" : "CONTINUE"}
+                            </Text>
+                        </Pressable>
                         {index < SLIDES.length - 1 && (
-                            <ModernComicButton
-                                title="SKIP"
-                                onPress={skip}
-                                variant="outline"
-                                style={{ marginTop: 12 }}
-                            />
+                            <Pressable style={styles.skipBtn} onPress={skip}>
+                                <Text style={styles.skipBtnText}>SKIP</Text>
+                            </Pressable>
                         )}
                     </View>
                 </View>
             </ResponsiveContainer>
-        </DynamicBackground>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    mainContainer: {
+        flex: 1,
+        backgroundColor: '#020617', // Deep slate space black
+    },
     container: {
         flex: 1,
-        paddingTop: 60,
+        paddingTop: 80,
         paddingBottom: 40,
         paddingHorizontal: 30,
     },
     progressRow: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 40,
+        gap: 12,
+        marginBottom: 60,
         paddingHorizontal: 20,
     },
     progressBar: {
         flex: 1,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: COLORS.gray,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: '#1E293B',
     },
     content: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 20,
+    },
+    logoBlur: {
+        marginBottom: 40,
+        shadowColor: '#38BDF8',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.5,
+        shadowRadius: 40,
+        elevation: 10,
     },
     logo: {
+        width: 180,
+        height: 180,
+    },
+    emojiContainer: {
         width: 140,
         height: 140,
-        marginBottom: 20,
+        borderRadius: 70,
+        backgroundColor: '#0F172A',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 40,
+        borderWidth: 1,
+        borderColor: '#1E293B',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 30,
+        elevation: 15,
     },
     emoji: {
         fontSize: 72,
-        marginBottom: 16,
     },
     title: {
-        fontFamily: 'Bangers_400Regular',
-        fontSize: 40,
-        color: COLORS.black,
+        fontFamily: 'System',
+        fontWeight: '900',
+        fontSize: 42,
+        color: '#FFFFFF',
         textAlign: 'center',
         letterSpacing: 2,
+        textShadowOffset: { width: 0, height: 0 },
     },
     subtitle: {
-        fontFamily: 'LuckiestGuy_400Regular',
-        fontSize: 12,
+        fontFamily: 'System',
+        fontWeight: '800',
+        fontSize: 14,
         textAlign: 'center',
-        marginTop: 4,
-        letterSpacing: 1,
+        marginTop: 8,
+        letterSpacing: 4,
         textTransform: 'uppercase',
     },
     card: {
-        marginTop: 32,
+        marginTop: 40,
         padding: 24,
         width: '100%',
-        backgroundColor: COLORS.white,
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: '#1E293B',
     },
     body: {
         fontFamily: 'System',
-        fontSize: 15,
-        color: COLORS.textSecondary,
+        fontSize: 16,
+        color: '#94A3B8',
         textAlign: 'center',
-        lineHeight: 22,
-        fontWeight: '600',
+        lineHeight: 26,
+        fontWeight: '500',
     },
     footer: {
         paddingTop: 20,
+        gap: 16,
     },
+    glowBtn: {
+        width: '100%',
+        paddingVertical: 18,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    glowBtnText: {
+        fontFamily: 'System',
+        fontWeight: '900',
+        fontSize: 16,
+        letterSpacing: 2,
+    },
+    skipBtn: {
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+    skipBtnText: {
+        color: '#64748B',
+        fontFamily: 'System',
+        fontWeight: '700',
+        fontSize: 14,
+        letterSpacing: 1,
+    }
 });

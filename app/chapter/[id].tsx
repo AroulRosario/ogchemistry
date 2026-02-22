@@ -36,12 +36,14 @@ export default function ChapterScreen() {
         if (!user) return router.back();
 
         try {
+            // 1. Mark current item as complete
             await supabase.from('user_progress').upsert({
                 user_id: user.id,
                 content_item_id: items[items.length - 1]?.id || id,
                 completed_at: new Date().toISOString()
             }, { onConflict: 'user_id,content_item_id' });
 
+            // 2. Award XP/Gems
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('xp, gems')
@@ -57,9 +59,36 @@ export default function ChapterScreen() {
             }
 
             Alert.alert("Awesome!", "You earned 10 XP and 5 Gems! ⭐💎");
+
+            // 3. Find the next chapter in the lesson
+            // First, find the current chapter to get its lesson_id and order
+            const { data: currentChapter } = await supabase
+                .from('chapters')
+                .select('lesson_id, order')
+                .eq('id', id)
+                .single();
+
+            if (currentChapter) {
+                // Then, find the next chapter in the same lesson
+                const { data: nextChapter } = await supabase
+                    .from('chapters')
+                    .select('id')
+                    .eq('lesson_id', currentChapter.lesson_id)
+                    .gt('order', currentChapter.order)
+                    .order('order', { ascending: true })
+                    .limit(1)
+                    .single();
+
+                if (nextChapter) {
+                    // Route to next chapter
+                    return router.replace(`/chapter/${nextChapter.id}`);
+                }
+            }
+
+            // Fallback: If no next chapter or error, go back to tabs
             router.replace('/(tabs)');
         } catch (error) {
-            console.error('Error completing chapter:', error);
+            console.error('Error completing chapter/routing to next:', error);
             router.back();
         }
     };

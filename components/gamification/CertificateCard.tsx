@@ -8,7 +8,7 @@ interface CertificateCardProps {
     courseName?: string;
 }
 
-export function CertificateCard({ certificate, courseName = 'Elite Chemistry Mastery' }: CertificateCardProps) {
+export function CertificateCard({ certificate, courseName = 'OG Chem Mastery' }: CertificateCardProps) {
 
     const handleDownload = () => {
         if (certificate.certificate_url) {

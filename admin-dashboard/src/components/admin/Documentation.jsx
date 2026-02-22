@@ -5,7 +5,7 @@ export default function Documentation() {
         {
             title: "OVERVIEW",
             icon: <HelpCircle size={20} color="var(--blue)" />,
-            content: "The Elite Chemistry Command is a high-density administrative ecosystem designed for zero-friction platform management. Use the sidebar hooks to navigate between analytics, users, and curriculum architecture."
+            content: "The OG Chem Command is a high-density administrative ecosystem designed for zero-friction platform management. Use the sidebar hooks to navigate between analytics, users, and curriculum architecture."
         },
         {
             title: "STUDENT MANAGEMENT",

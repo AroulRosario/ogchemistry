@@ -82,14 +82,14 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.achievementGrid}>
                 {[
-                    { icon: '🔥', label: '7 Day Streak', color: '#FFF7ED' },
-                    { icon: '🧪', label: 'Lab Pro', color: '#F0F9FF' },
-                    { icon: '⚡', label: 'Speed Demon', color: '#FAF5FF' },
-                    { icon: '⭐', label: 'Perfect Score', color: '#FEFCE8' },
-                    { icon: '📚', label: 'Bookworm', color: '#F0FDF4' },
-                    { icon: '🧩', label: 'Logic Master', color: '#FFF1F2' },
+                    { icon: '🔥', label: 'Started Streak', color: profile?.streak_count >= 1 ? '#FFF7ED' : '#F1F5F9', unlocked: profile?.streak_count >= 1 },
+                    { icon: '🧪', label: '100 XP Club', color: profile?.xp >= 100 ? '#F0F9FF' : '#F1F5F9', unlocked: profile?.xp >= 100 },
+                    { icon: '💎', label: 'First Gem', color: profile?.gems >= 1 ? '#FAF5FF' : '#F1F5F9', unlocked: profile?.gems >= 1 },
+                    { icon: '⭐', label: '500 XP Elite', color: profile?.xp >= 500 ? '#FEFCE8' : '#F1F5F9', unlocked: profile?.xp >= 500 },
+                    { icon: '📚', label: 'Scholar', color: certificates.length >= 1 ? '#F0FDF4' : '#F1F5F9', unlocked: certificates.length >= 1 },
+                    { icon: '🏆', label: 'Master', color: certificates.length >= 5 ? '#FFF1F2' : '#F1F5F9', unlocked: certificates.length >= 5 },
                 ].map((item, i) => (
-                    <View key={i} style={[styles.achievementBadge, { backgroundColor: item.color }]}>
+                    <View key={i} style={[styles.achievementBadge, { backgroundColor: item.color, opacity: item.unlocked ? 1 : 0.4 }]}>
                         <Text style={styles.achievementIcon}>{item.icon}</Text>
                         <Text style={styles.achievementLabel}>{item.label}</Text>
                     </View>
@@ -98,32 +98,41 @@ export default function ProfileScreen() {
         </View>
     );
 
-    const SkillMastery = () => (
-        <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
-            <View style={styles.sectionHeader}>
-                <Zap size={20} color={COLORS.yellow} fill={COLORS.yellow} />
-                <Text style={styles.sectionTitle}>Skill Visualization</Text>
-            </View>
-            <View style={styles.skillList}>
-                {[
-                    { label: 'Organic Chemistry', value: 85, color: COLORS.blue },
-                    { label: 'Inorganic Chemistry', value: 62, color: COLORS.red },
-                    { label: 'Biochemistry', value: 45, color: '#10B981' },
-                    { label: 'Physical Chemistry', value: 30, color: COLORS.yellow },
-                ].map((skill, i) => (
-                    <View key={i} style={styles.skillItem}>
-                        <View style={styles.skillInfo}>
-                            <Text style={styles.skillLabel}>{skill.label}</Text>
-                            <Text style={styles.skillValue}>{skill.value}%</Text>
+    const SkillMastery = () => {
+        // Simple logic to map global XP to some specific bars to look active
+        const baseXP = profile?.xp || 0;
+        const orgProg = Math.min(100, (baseXP / 100) * 100);
+        const inorgProg = Math.min(100, (baseXP / 200) * 100);
+        const bioProg = Math.min(100, (baseXP / 500) * 100);
+        const physProg = Math.min(100, (baseXP / 1000) * 100);
+
+        return (
+            <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
+                <View style={styles.sectionHeader}>
+                    <Zap size={20} color={COLORS.yellow} fill={COLORS.yellow} />
+                    <Text style={styles.sectionTitle}>Skill Visualization</Text>
+                </View>
+                <View style={styles.skillList}>
+                    {[
+                        { label: 'Organic Chemistry', value: isNaN(orgProg) ? 0 : Math.round(orgProg), color: COLORS.blue },
+                        { label: 'Inorganic Chemistry', value: isNaN(inorgProg) ? 0 : Math.round(inorgProg), color: COLORS.red },
+                        { label: 'Biochemistry', value: isNaN(bioProg) ? 0 : Math.round(bioProg), color: '#10B981' },
+                        { label: 'Physical Chemistry', value: isNaN(physProg) ? 0 : Math.round(physProg), color: COLORS.yellow },
+                    ].map((skill, i) => (
+                        <View key={i} style={styles.skillItem}>
+                            <View style={styles.skillInfo}>
+                                <Text style={styles.skillLabel}>{skill.label}</Text>
+                                <Text style={styles.skillValue}>{skill.value}%</Text>
+                            </View>
+                            <View style={styles.skillTrack}>
+                                <View style={[styles.skillFill, { width: `${skill.value}%`, backgroundColor: skill.color }]} />
+                            </View>
                         </View>
-                        <View style={styles.skillTrack}>
-                            <View style={[styles.skillFill, { width: `${skill.value}%`, backgroundColor: skill.color }]} />
-                        </View>
-                    </View>
-                ))}
+                    ))}
+                </View>
             </View>
-        </View>
-    );
+        );
+    };
 
     const ConsistencyHeatmap = () => (
         <View style={[styles.sectionCard, !isDesktop && { padding: 24 }]}>
@@ -133,15 +142,23 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.heatmapContainer}>
                 <View style={styles.heatmapRow}>
-                    {Array.from({ length: 14 }).map((_, i) => (
-                        <View
-                            key={i}
-                            style={[
-                                styles.heatmapCell,
-                                { backgroundColor: i % 3 === 0 ? '#BFDBFE' : i % 5 === 0 ? '#3B82F6' : '#F1F5F9' }
-                            ]}
-                        />
-                    ))}
+                    {Array.from({ length: 14 }).map((_, i) => {
+                        // Color the last few days if streak > 0
+                        let streakColor = '#F1F5F9';
+                        if (profile?.streak_count > 0 && i >= (14 - profile.streak_count)) {
+                            streakColor = '#3B82F6';
+                        }
+
+                        return (
+                            <View
+                                key={i}
+                                style={[
+                                    styles.heatmapCell,
+                                    { backgroundColor: streakColor }
+                                ]}
+                            />
+                        );
+                    })}
                 </View>
                 <Text style={styles.heatmapHelper}>Last 2 weeks of activity</Text>
             </View>

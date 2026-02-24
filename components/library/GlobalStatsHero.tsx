@@ -53,7 +53,7 @@ export function GlobalStatsHero({
                             <Play size={12} color={COLORS.blue} fill={COLORS.blue} />
                             <Text style={styles.resumeLabel}>PICK UP WHERE YOU LEFT OFF</Text>
                         </View>
-                        <Text style={[styles.resumeTitle, !isDesktop && { fontSize: 16 }]} numberOfLines={1}>{lastChapterTitle}</Text>
+                        <Text style={[styles.resumeTitle, !isDesktop && { fontSize: 16 }]} numberOfLines={2} adjustsFontSizeToFit>{lastChapterTitle}</Text>
                     </View>
                     <Pressable style={styles.resumeBtn} onPress={onResume}>
                         <Text style={styles.resumeBtnText}>Resume</Text>
@@ -62,7 +62,7 @@ export function GlobalStatsHero({
                 </View>
             </View>
 
-            <View style={styles.miniStatsRow}>
+            <View style={[styles.miniStatsRow, !isDesktop && { flexWrap: 'wrap', gap: 8 }]}>
                 <View style={styles.miniStat}>
                     <Star size={14} color={COLORS.yellow} fill={COLORS.yellow} />
                     <Text style={styles.miniStatText}><Text style={styles.bold}>12</Text> Achievements</Text>

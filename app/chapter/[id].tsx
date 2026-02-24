@@ -126,7 +126,7 @@ export default function ChapterScreen() {
                     <View style={[styles.mainVideoArea, isDesktop && { flex: 3 }]}>
                         <View style={styles.videoHeader}>
                             <View style={styles.typeBadge}>
-                                <Text style={styles.typeBadgeText}>{TYPE_EMOJI[item.type] || '📄'} {item.type.toUpperCase()}</Text>
+                                <Text style={styles.typeBadgeText}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
                             </View>
                             <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 22 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
                         </View>
@@ -208,7 +208,7 @@ export default function ChapterScreen() {
                                                 {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
                                             </View>
                                             <View style={styles.sidebarItemContent}>
-                                                <Text style={[styles.sidebarItemType, isActive && { color: COLORS.red }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type.toUpperCase()}</Text>
+                                                <Text style={[styles.sidebarItemType, isActive && { color: COLORS.red }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
                                                 <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
                                                     {it.data?.title || `Content Part ${idx + 1}`}
                                                 </Text>

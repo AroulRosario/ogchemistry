@@ -29,9 +29,9 @@ export function GlobalStatsHero({
                     <Text style={[styles.greeting, !isDesktop && { fontSize: 20 }]}>Library Dashboard</Text>
                     <Text style={[styles.subGreeting, !isDesktop && { fontSize: 13 }]}>Continue your journey to mastery.</Text>
                 </View>
-                <View style={styles.badge}>
-                    <Trophy size={16} color={COLORS.yellow} />
-                    <Text style={styles.badgeText}>OG LEARNER</Text>
+                <View style={[styles.badge, !isDesktop && { paddingHorizontal: 8, gap: 4 }]}>
+                    <Trophy size={14} color={COLORS.yellow} />
+                    <Text style={[styles.badgeText, !isDesktop && { fontSize: 9 }]}>OG LEARNER</Text>
                 </View>
             </View>
 
@@ -73,7 +73,7 @@ export function GlobalStatsHero({
                     <Text style={styles.miniStatText}><Text style={styles.bold}>4</Text> Certifications</Text>
                 </View>
             </View>
-        </View>
+        </View >
     );
 }
 

@@ -2,7 +2,7 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 import { COLORS } from '@/constants/theme';
 import { Book, ChevronRight, Play, Search, SlidersHorizontal } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 interface LibraryViewProps {
     lessons: any[];
@@ -153,8 +153,8 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     controlsSection: {
-        marginBottom: 40,
-        gap: 20,
+        marginBottom: 24,
+        gap: 16,
     },
     searchBar: {
         flexDirection: 'row',
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
         borderColor: '#E2E8F0',
         borderRadius: 20,
         paddingHorizontal: 20,
-        height: 60,
-        gap: 16,
+        height: Platform.OS === 'web' ? 60 : 50,
+        gap: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.03,

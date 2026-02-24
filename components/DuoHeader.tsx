@@ -39,7 +39,7 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                         <View style={[styles.iconCircle, { backgroundColor: COLORS.green }]}>
                             <Star size={16} color={COLORS.white} fill={COLORS.white} />
                         </View>
-                        <View>
+                        <View style={Platform.OS !== 'web' ? { flexDirection: 'row', alignItems: 'baseline', gap: 2 } : {}}>
                             <Text style={[styles.statText, { color: COLORS.green }]}>{xp}</Text>
                             <Text style={styles.xpMiniLabel}>XP</Text>
                         </View>
@@ -101,10 +101,11 @@ const styles = StyleSheet.create({
     },
     xpMiniLabel: {
         fontFamily: 'System',
-        fontWeight: '600',
+        fontWeight: '800',
         fontSize: 10,
         color: '#9CA3AF',
-        marginTop: -2,
+        marginLeft: Platform.OS === 'web' ? 0 : 2,
+        marginTop: Platform.OS === 'web' ? -2 : 0,
         letterSpacing: 0.5,
     },
     vDivider: {

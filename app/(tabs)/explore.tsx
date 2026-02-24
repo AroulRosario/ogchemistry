@@ -6,7 +6,7 @@ import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { Clock, GraduationCap, Lock, PlayCircle, Search, Sparkles, TrendingUp } from 'lucide-react-native';
+import { Clock, GraduationCap, Lock, Search, TrendingUp } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
@@ -51,7 +51,7 @@ export default function ExploreScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scroll,
-            { paddingHorizontal: isDesktop ? 0 : 12 }
+            { paddingHorizontal: isDesktop ? 0 : 4 }
           ]}
           showsVerticalScrollIndicator={false}
         >
@@ -81,31 +81,6 @@ export default function ExploreScreen() {
               </ScrollView>
             </View>
 
-            {/* Featured Section */}
-            <View style={styles.featuredSection}>
-              <View style={[styles.featuredCard, { backgroundColor: COLORS.blue }, !isDesktop && { padding: 16, borderRadius: 24 }]}>
-                <View style={styles.heroContent}>
-                  <View style={{ flex: 1.2 }}>
-                    <View style={[styles.featuredBadge, !isDesktop && { marginBottom: 12 }]}>
-                      <Sparkles size={14} color={COLORS.white} />
-                      <Text style={styles.featuredBadgeText}>FEATURED UNIVERSE</Text>
-                    </View>
-                    <Text style={[styles.featuredTitle, { fontSize: isDesktop ? 48 : 22 }]}>QUANTUM CHEMISTRY</Text>
-                    <Text style={[styles.featuredDesc, !isDesktop && { fontSize: 13, marginBottom: 16 }]}>Dive into the subatomic world and master electron configurations.</Text>
-                    <View style={[styles.featuredAction, !isDesktop && { paddingVertical: 8, paddingHorizontal: 12 }]}>
-                      <PlayCircle size={20} color={COLORS.blue} />
-                      <Text style={[styles.featuredActionText, !isDesktop && { fontSize: 12 }]}>START ADVENTURE</Text>
-                    </View>
-                  </View>
-                  {isDesktop && (
-                    <View style={styles.heroVisual}>
-                      <View style={styles.visualOrb} />
-                      <Text style={{ fontSize: 80 }}>⚛️</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            </View>
 
             <View style={styles.sectionHeaderRow}>
               <View>
@@ -154,20 +129,6 @@ export default function ExploreScreen() {
               ))}
             </View>
 
-            {/* Recommended Row */}
-            <View style={styles.recommendedSection}>
-              <Text style={styles.recommendedTitle}>RECOMMENDED FOR YOU</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedScroll}>
-                {['Lab Safety', 'Stoichiometry', 'Redox Pro', 'Hybridization', 'Valence', 'Bonding', 'Kinetics'].map((item, i) => (
-                  <View key={i} style={styles.recommendCard}>
-                    <View style={styles.recommendIcon}>
-                      <Sparkles size={18} color={COLORS.blue} />
-                    </View>
-                    <Text style={styles.recommendText}>{item}</Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
           </ResponsiveContainer>
         </ScrollView>
       </View>

@@ -5,7 +5,7 @@ import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { COLORS, STYLES } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
-import { Crown, Shield, Timer, Trophy, Users } from 'lucide-react-native';
+import { Crown, Shield, Timer, Trophy } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
@@ -17,11 +17,10 @@ export default function LeaderboardScreen() {
     const [leaders, setLeaders] = useState<any[]>([]);
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState<'global' | 'university'>('global');
 
     useEffect(() => {
         fetchLeaderboard();
-    }, [viewMode]);
+    }, []);
 
     const fetchLeaderboard = async () => {
         setLoading(true);
@@ -68,22 +67,6 @@ export default function LeaderboardScreen() {
                 </View>
             </View>
 
-            <View style={styles.modeToggle}>
-                <Pressable
-                    onPress={() => setViewMode('global')}
-                    style={[styles.toggleBtn, viewMode === 'global' && styles.toggleBtnActive]}
-                >
-                    <Users size={18} color={viewMode === 'global' ? '#FFF' : '#64748B'} />
-                    <Text style={[styles.toggleText, viewMode === 'global' && styles.toggleTextActive]}>Global Competition</Text>
-                </Pressable>
-                <Pressable
-                    onPress={() => setViewMode('university')}
-                    style={[styles.toggleBtn, viewMode === 'university' && styles.toggleBtnActive]}
-                >
-                    <Users size={18} color={viewMode === 'university' ? '#FFF' : '#64748B'} />
-                    <Text style={[styles.toggleText, viewMode === 'university' && styles.toggleTextActive]}>My University</Text>
-                </Pressable>
-            </View>
         </View>
     );
 
@@ -202,14 +185,14 @@ export default function LeaderboardScreen() {
                     <FlatList
                         data={leaders}
                         ListHeaderComponent={() => (
-                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 12 }]}>
+                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 4 }]}>
                                 <LeagueHeader />
                                 <PodiumSection />
                             </View>
                         )}
                         renderItem={renderLeader}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 12 }]}
+                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 4 }]}
                         showsVerticalScrollIndicator={false}
                     />
                 </ResponsiveContainer>

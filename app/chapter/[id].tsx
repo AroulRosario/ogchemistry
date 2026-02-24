@@ -1,15 +1,13 @@
 import { DuoButton } from '@/components/DuoButton';
 import { DynamicBackground } from '@/components/DynamicBackground';
 import { ModernComicButton } from '@/components/ModernComicButton';
-import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub';
 import { ContentPlayer } from '@/components/player/ContentPlayer';
-import { DiscussionPanel } from '@/components/player/DiscussionPanel';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { CheckCircle2, MessageCircle, PlayCircle } from 'lucide-react-native';
+import { CheckCircle2, PlayCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -18,7 +16,6 @@ export default function ChapterScreen() {
     const { user } = useAuth();
     const [items, setItems] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [showDiscussion, setShowDiscussion] = useState(false);
     const router = useRouter();
     const { width } = useWindowDimensions();
     const isDesktop = width > 800;
@@ -119,12 +116,6 @@ export default function ChapterScreen() {
                         <Text style={{ fontFamily: 'System', fontWeight: '600', fontSize: 16, color: COLORS.blue }}>← Back</Text>
                     </Pressable>
                 ),
-                headerRight: () => (
-                    <Pressable onPress={() => setShowDiscussion(true)} style={styles.qaBtn}>
-                        <MessageCircle size={18} color={'#4B5563'} strokeWidth={2.5} />
-                        {isDesktop && <Text style={styles.qaBtnText}>Community Q&A</Text>}
-                    </Pressable>
-                )
             }} />
 
             <ScrollView style={styles.fullscreenScroll} contentContainerStyle={styles.fullscreenContent}>
@@ -179,13 +170,6 @@ export default function ChapterScreen() {
                             </View>
                         </View>
 
-                        {/* INTERACTION HUB (Extra Features) */}
-                        {item.type === 'video' && (
-                            <ChapterInteractionHub
-                                notes={item.data?.notes}
-                                flashcards={item.data?.flashcards}
-                            />
-                        )}
                     </View>
 
                     {/* CHAPTER CONTENTS (SIDEBAR ON DESK, BELOW VIDEO ON MOBILE) */}
@@ -231,11 +215,6 @@ export default function ChapterScreen() {
                 </View>
             </ScrollView>
 
-            <DiscussionPanel
-                contentItemId={item.id}
-                visible={showDiscussion}
-                onClose={() => setShowDiscussion(false)}
-            />
         </DynamicBackground>
     );
 }

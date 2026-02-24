@@ -1,6 +1,7 @@
 import { DuoButton } from '@/components/DuoButton';
 import { DynamicBackground } from '@/components/DynamicBackground';
 import { ModernComicButton } from '@/components/ModernComicButton';
+import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub';
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
@@ -9,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { CheckCircle2, PlayCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 export default function ChapterScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -170,6 +171,13 @@ export default function ChapterScreen() {
                             </View>
                         </View>
 
+                        {/* INTERACTION HUB (Restored Flashcards/Notes) */}
+                        {item.type === 'video' && (
+                            <ChapterInteractionHub
+                                notes={item.data?.notes}
+                                flashcards={item.data?.flashcards}
+                            />
+                        )}
                     </View>
 
                     {/* CHAPTER CONTENTS (SIDEBAR ON DESK, BELOW VIDEO ON MOBILE) */}
@@ -214,7 +222,6 @@ export default function ChapterScreen() {
 
                 </View>
             </ScrollView>
-
         </DynamicBackground>
     );
 }
@@ -228,7 +235,7 @@ const styles = StyleSheet.create({
     desktopLayout: { flexDirection: 'row', alignItems: 'stretch' },
 
     // MAIN VIDEO AREA
-    mainVideoArea: { flex: 1, paddingHorizontal: 20, paddingVertical: 24, backgroundColor: '#FFFFFF' },
+    mainVideoArea: { flex: 1, paddingHorizontal: Platform.OS === 'web' ? 20 : 0, paddingVertical: 24, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
     chapterTitle: { fontFamily: 'System', fontWeight: '800', fontSize: 28, color: '#111827', letterSpacing: -0.5, marginTop: 8 },
     typeBadge: {
@@ -238,7 +245,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 4,
         paddingHorizontal: 12,
-        // Removed rotation and harsh shadows
     },
     typeBadgeText: { fontFamily: 'System', fontWeight: '700', fontSize: 13, color: COLORS.red, letterSpacing: 0.5 },
     contentArea: { width: '100%', minHeight: 300 },
@@ -262,7 +268,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#E5E7EB',
         overflow: 'hidden'
     },
-    progressFill: { height: '100%', backgroundColor: COLORS.blue }, // Removed borders on fill
+    progressFill: { height: '100%', backgroundColor: COLORS.blue },
     progressText: { fontFamily: 'System', fontWeight: '700', fontSize: 16, color: '#4B5563' },
 
     actionBox: { alignItems: 'flex-start' },
@@ -284,7 +290,7 @@ const styles = StyleSheet.create({
     sidebar: {
         backgroundColor: '#FFFFFF',
         borderLeftWidth: 1,
-        borderLeftColor: '#E5E7EB', // Subtle divider instead of thick black line
+        borderLeftColor: '#E5E7EB',
         padding: 24,
         minHeight: 400,
     },
@@ -292,7 +298,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     sidebarHeaderInner: {
-        // Flat, clean header
     },
     sidebarTitle: {
         fontFamily: 'System',
@@ -309,7 +314,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     sidebarItemActive: {
-        backgroundColor: '#F3F4F6', // Soft active state (YouTube gray)
+        backgroundColor: '#F3F4F6',
     },
     iconRail: { alignItems: 'center', marginRight: 16, width: 24 },
     railLine: { flex: 1, width: 2, backgroundColor: '#E5E7EB', marginVertical: 4, borderRadius: 1 },

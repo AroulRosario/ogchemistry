@@ -5,14 +5,14 @@
 4 silly config load:file:/Users/rosario/Desktop/LMS app/.npmrc
 5 silly config load:file:/Users/rosario/.npmrc
 6 silly config load:file:/usr/local/etc/npmrc
-7 verbose title npm exec vercel --name ogchemistry --prod --yes
-8 verbose argv "exec" "--" "vercel" "--name" "ogchemistry" "--prod" "--yes"
-9 verbose logfile logs-max:10 dir:/Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-02-24T03_37_38_481Z-
-10 verbose logfile /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-02-24T03_37_38_481Z-debug-0.log
+7 verbose title npm exec vercel --prod --yes --name ogchemistry
+8 verbose argv "exec" "--" "vercel" "--prod" "--yes" "--name" "ogchemistry"
+9 verbose logfile logs-max:10 dir:/Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-02-24T06_52_19_123Z-
+10 verbose logfile /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-02-24T06_52_19_123Z-debug-0.log
 11 silly logfile start cleaning logs, removing 1 files
 12 silly logfile done cleaning log files
 13 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
-14 http fetch GET 200 https://registry.npmjs.org/vercel 90ms (cache revalidated)
+14 http fetch GET 200 https://registry.npmjs.org/vercel 995ms (cache revalidated)
 15 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
 16 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
 17 verbose cwd /Users/rosario/Desktop/LMS app

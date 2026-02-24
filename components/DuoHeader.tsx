@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
 import { Flame, Hexagon, Star } from 'lucide-react-native';
 import React from 'react';
-import { Platform, SafeAreaView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 interface DuoHeaderProps {
     streak: number;
@@ -15,14 +15,17 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <View style={styles.headerContainer}>
-                <View style={styles.content}>
+            <View style={[
+                styles.headerContainer,
+                isMobile ? { paddingHorizontal: 12, paddingVertical: 10, marginHorizontal: 0, minWidth: '100%' } : { paddingHorizontal: 24, paddingVertical: 16, marginHorizontal: 16 }
+            ]}>
+                <View style={[styles.content, isMobile ? { gap: 8 } : { gap: 16 }]}>
                     {/* Streak */}
                     <View style={styles.stat}>
                         <View style={styles.iconCircle}>
                             <Flame size={18} color={COLORS.orange} fill={COLORS.orange} />
                         </View>
-                        <Text style={[styles.statText, { color: COLORS.orange }]}>{streak}</Text>
+                        <Text style={[styles.statText, { color: COLORS.orange }, isMobile && { fontSize: 14 }]}>{streak}</Text>
                     </View>
 
                     <View style={styles.vDivider} />
@@ -32,7 +35,7 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                         <View style={styles.iconCircle}>
                             <Hexagon size={18} color={COLORS.blue} fill={COLORS.blue} />
                         </View>
-                        <Text style={[styles.statText, { color: COLORS.blue }]}>{gems}</Text>
+                        <Text style={[styles.statText, { color: COLORS.blue }, isMobile && { fontSize: 14 }]}>{gems}</Text>
                     </View>
 
                     <View style={styles.vDivider} />
@@ -43,7 +46,7 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                             <Star size={16} color={COLORS.white} fill={COLORS.white} />
                         </View>
                         <View style={isMobile ? { flexDirection: 'row', alignItems: 'baseline', gap: 2 } : {}}>
-                            <Text style={[styles.statText, { color: COLORS.green }]}>{xp}</Text>
+                            <Text style={[styles.statText, { color: COLORS.green }, isMobile && { fontSize: 14 }]}>{xp}</Text>
                             <Text style={styles.xpMiniLabel}>XP</Text>
                         </View>
                     </View>
@@ -58,47 +61,44 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     headerContainer: {
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: COLORS.white,
         borderRadius: 24,
-        marginHorizontal: Platform.OS === 'web' ? 16 : 0,
-        marginVertical: 12,
-        paddingVertical: 6,
-        paddingHorizontal: Platform.OS === 'web' ? 8 : 4,
-        alignSelf: 'center',
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 2 },
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
-        shadowRadius: 6,
-        elevation: 3,
+        shadowRadius: 12,
+        marginVertical: 12,
+        alignSelf: 'center',
         maxWidth: '95%',
-        minWidth: Platform.OS === 'web' ? 0 : '90%',
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: Platform.OS === 'web' ? 16 : 4,
     },
     stat: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: Platform.OS === 'web' ? 8 : 4,
+        gap: 6,
     },
     iconCircle: {
         width: 32,
         height: 32,
         borderRadius: 16,
         backgroundColor: '#F9FAFB',
-        borderWidth: 0, // Remove 2px black border
         justifyContent: 'center',
         alignItems: 'center',
     },
     statText: {
         fontFamily: 'System',
-        fontWeight: '700',
-        fontSize: 16,
+        fontWeight: '900',
+        fontSize: 17,
         color: '#374151',
         letterSpacing: 0.5,
     },
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     vDivider: {
-        width: 1, // Thin modern divider
+        width: 1,
         height: 20,
         backgroundColor: '#E5E7EB',
     },

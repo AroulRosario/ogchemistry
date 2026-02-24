@@ -2,7 +2,7 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 import { COLORS } from '@/constants/theme';
 import { Book, ChevronRight, Play, Search, SlidersHorizontal } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
 interface LibraryViewProps {
     lessons: any[];
@@ -11,6 +11,7 @@ interface LibraryViewProps {
 
 export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
     const { width } = useWindowDimensions();
+    const isMobile = width < 600;
     const isDesktop = width > 800;
     const isWide = width > 1200;
     const [searchQuery, setSearchQuery] = useState('');
@@ -36,7 +37,11 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
         <View style={styles.container}>
             {/* Search and Filters */}
             <View style={styles.controlsSection}>
-                <View style={styles.searchBar}>
+                <View style={[
+                    styles.searchBar,
+                    isDesktop ? { height: 60 } : { height: 48 },
+                    isMobile ? { gap: 8 } : { gap: 12 }
+                ]}>
                     <Search size={20} color="#94A3B8" />
                     <TextInput
                         placeholder="Search courses or topics..."
@@ -107,7 +112,7 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                                         onPress={() => onSelect(chapter.id, 'chapter')}
                                         style={({ pressed }) => [
                                             styles.card,
-                                            !isDesktop && { padding: 16 }, // Dynamic override
+                                            !isDesktop && { padding: 16 },
                                             pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
                                         ]}
                                     >
@@ -164,8 +169,6 @@ const styles = StyleSheet.create({
         borderColor: '#E2E8F0',
         borderRadius: 20,
         paddingHorizontal: 20,
-        height: Platform.OS === 'web' ? 60 : 50,
-        gap: 12,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.03,

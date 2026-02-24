@@ -187,7 +187,7 @@ export default function ProfileScreen() {
                 <ScrollView
                     contentContainerStyle={[
                         styles.scroll,
-                        { paddingHorizontal: isDesktop ? 0 : 4 }, // Unified 4px gutter
+                        { paddingHorizontal: isDesktop ? 0 : 0 }, // Unified 0px gutter
                         !isDesktop && { paddingVertical: 16 }
                     ]}
                     showsVerticalScrollIndicator={false}

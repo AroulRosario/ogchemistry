@@ -185,14 +185,14 @@ export default function LeaderboardScreen() {
                     <FlatList
                         data={leaders}
                         ListHeaderComponent={() => (
-                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 4 }]}>
+                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 0 }]}>
                                 <LeagueHeader />
                                 <PodiumSection />
                             </View>
                         )}
                         renderItem={renderLeader}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 4 }]}
+                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 0 }]}
                         showsVerticalScrollIndicator={false}
                     />
                 </ResponsiveContainer>

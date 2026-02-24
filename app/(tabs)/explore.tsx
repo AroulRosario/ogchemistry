@@ -51,7 +51,7 @@ export default function ExploreScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scroll,
-            { paddingHorizontal: isDesktop ? 0 : 4 }
+            { paddingHorizontal: isDesktop ? 0 : 0 }
           ]}
           showsVerticalScrollIndicator={false}
         >

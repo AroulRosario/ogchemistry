@@ -14,6 +14,7 @@ export default function LibraryScreen() {
     const { user } = useAuth();
     const router = useRouter();
     const { width } = useWindowDimensions();
+    const isMobile = width < 600;
     const isDesktop = width > 800;
     const [lessons, setLessons] = useState<any[]>([]);
     const [stats, setStats] = useState({ streak_count: 0, xp: 0, gems: 0 });
@@ -70,7 +71,7 @@ export default function LibraryScreen() {
                     <ScrollView
                         contentContainerStyle={[
                             styles.scrollContent,
-                            { paddingHorizontal: isDesktop ? 0 : 0 }
+                            { paddingHorizontal: isMobile ? 0 : 0 }
                         ]}
                         showsVerticalScrollIndicator={false}
                     >

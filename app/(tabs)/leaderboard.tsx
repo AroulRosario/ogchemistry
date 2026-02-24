@@ -12,6 +12,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View, useWind
 export default function LeaderboardScreen() {
     const { user } = useAuth();
     const { width } = useWindowDimensions();
+    const isMobile = width < 600;
     const isDesktop = width > 800;
     const isWide = width > 1200;
     const [leaders, setLeaders] = useState<any[]>([]);

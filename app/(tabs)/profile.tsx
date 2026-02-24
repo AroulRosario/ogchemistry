@@ -15,6 +15,7 @@ export default function ProfileScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
     const { width } = useWindowDimensions();
+    const isMobile = width < 600;
     const isDesktop = width > 800;
     const isWide = width > 1200;
     const [profile, setProfile] = useState<any>(null);
@@ -187,7 +188,7 @@ export default function ProfileScreen() {
                 <ScrollView
                     contentContainerStyle={[
                         styles.scroll,
-                        { paddingHorizontal: isDesktop ? 0 : 0 }, // Unified 0px gutter
+                        { paddingHorizontal: isMobile ? 0 : 0 }, // Unified 0px gutter
                         !isDesktop && { paddingVertical: 16 }
                     ]}
                     showsVerticalScrollIndicator={false}

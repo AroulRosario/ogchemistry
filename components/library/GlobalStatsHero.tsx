@@ -25,9 +25,9 @@ export function GlobalStatsHero({
     return (
         <View style={[styles.container, !isDesktop && { padding: 12, borderRadius: 20 }]}>
             <View style={[styles.topSection, !isDesktop && { marginBottom: 16 }]}>
-                <View style={styles.mainInfo}>
+                <View style={[styles.mainInfo, !isDesktop && { flex: 1, minWidth: '100%' }]}>
                     <Text style={[styles.greeting, !isDesktop && { fontSize: 20 }]}>Library Dashboard</Text>
-                    <Text style={[styles.subGreeting, !isDesktop && { fontSize: 13 }]}>Continue your journey to mastery.</Text>
+                    <Text style={[styles.subGreeting, !isDesktop && { fontSize: 13 }]} numberOfLines={1}>Continue your journey to mastery.</Text>
                 </View>
                 <View style={[styles.badge, !isDesktop && { paddingHorizontal: 8, gap: 4 }]}>
                     <Trophy size={14} color={COLORS.yellow} />
@@ -94,11 +94,14 @@ const styles = StyleSheet.create({
     topSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: 'center', // Changed from flex-start
         marginBottom: 24,
+        flexWrap: 'wrap', // Added wrap
+        gap: 12, // Added gap
     },
     mainInfo: {
         gap: 4,
+        flexShrink: 1,
     },
     greeting: {
         fontSize: 24,
@@ -126,7 +129,7 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontWeight: '900',
         color: '#854D0E',
-        letterSpacing: 1,
+        letterSpacing: 0.5, // Reduced from 1
     },
     statsGrid: {
         flexDirection: 'row',

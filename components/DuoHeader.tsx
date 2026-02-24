@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
 import { Flame, Hexagon, Star } from 'lucide-react-native';
 import React from 'react';
-import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Platform, SafeAreaView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 interface DuoHeaderProps {
     streak: number;
@@ -10,6 +10,9 @@ interface DuoHeaderProps {
 }
 
 export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
+    const { width } = useWindowDimensions();
+    const isMobile = width < 600;
+
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.headerContainer}>
@@ -39,7 +42,7 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                         <View style={[styles.iconCircle, { backgroundColor: COLORS.green }]}>
                             <Star size={16} color={COLORS.white} fill={COLORS.white} />
                         </View>
-                        <View style={Platform.OS !== 'web' ? { flexDirection: 'row', alignItems: 'baseline', gap: 2 } : {}}>
+                        <View style={isMobile ? { flexDirection: 'row', alignItems: 'baseline', gap: 2 } : {}}>
                             <Text style={[styles.statText, { color: COLORS.green }]}>{xp}</Text>
                             <Text style={styles.xpMiniLabel}>XP</Text>
                         </View>
@@ -104,8 +107,7 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         fontSize: 10,
         color: '#9CA3AF',
-        marginLeft: Platform.OS === 'web' ? 0 : 2,
-        marginTop: Platform.OS === 'web' ? -2 : 0,
+        marginLeft: 2,
         letterSpacing: 0.5,
     },
     vDivider: {

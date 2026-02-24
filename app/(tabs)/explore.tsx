@@ -12,6 +12,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions
 
 export default function ExploreScreen() {
   const { width } = useWindowDimensions();
+  const isMobile = width < 600;
   const isDesktop = width > 800;
   const isWide = width > 1200;
   const { user } = useAuth();
@@ -51,7 +52,7 @@ export default function ExploreScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scroll,
-            { paddingHorizontal: isDesktop ? 0 : 0 }
+            { paddingHorizontal: isMobile ? 0 : 0 }
           ]}
           showsVerticalScrollIndicator={false}
         >

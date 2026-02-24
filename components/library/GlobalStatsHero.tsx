@@ -24,7 +24,7 @@ export function GlobalStatsHero({
 
     return (
         <View style={[styles.container, !isDesktop && { padding: 12, borderRadius: 20 }]}>
-            <View style={[styles.topSection, !isDesktop && { marginBottom: 16 }]}>
+            <View style={[styles.topSection, !isDesktop && { marginBottom: 16, flexDirection: 'column', alignItems: 'flex-start' }]}>
                 <View style={[styles.mainInfo, !isDesktop && { flex: 1, minWidth: '100%' }]}>
                     <Text style={[styles.greeting, !isDesktop && { fontSize: 20 }]}>Library Dashboard</Text>
                     <Text style={[styles.subGreeting, !isDesktop && { fontSize: 13 }]} numberOfLines={1}>Continue your journey to mastery.</Text>

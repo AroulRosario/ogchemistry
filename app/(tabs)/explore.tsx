@@ -37,8 +37,9 @@ export default function ExploreScreen() {
 
   const filteredTopics = useMemo(() => {
     return lessons.filter(l => {
-      const titleMatch = l.title?.toLowerCase().includes(searchQuery.toLowerCase()) || '';
-      return titleMatch;
+      const matchesSearch = l.title?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesChip = activeChip === 'All' || l.category === activeChip;
+      return matchesSearch && matchesChip;
     });
   }, [searchQuery, activeChip, lessons]);
 

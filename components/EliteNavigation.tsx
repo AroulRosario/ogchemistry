@@ -70,7 +70,7 @@ export function EliteNavigation() {
                         ]}>
                             <item.icon
                                 size={22}
-                                color={isActive ? COLORS.white : COLORS.black}
+                                color={isActive ? COLORS.white : 'rgba(255,255,255,0.7)'}
                                 strokeWidth={isActive ? 3.5 : 2.5}
                             />
                         </View>
@@ -122,7 +122,7 @@ export function EliteNavigation() {
                                 </View>
                             </View>
                             <Pressable style={styles.closeBtn} onPress={toggleMenu}>
-                                <X size={24} color={COLORS.black} strokeWidth={2.5} />
+                                <X size={24} color={COLORS.white} strokeWidth={2.5} />
                             </Pressable>
                         </View>
                     )}
@@ -174,16 +174,15 @@ const styles = StyleSheet.create({
     },
     inner: {
         flex: 1,
-        backgroundColor: '#FFFFFF', // Clean white background
+        backgroundColor: COLORS.blue,
         padding: 20,
         paddingTop: 32,
-        borderRightWidth: 1,
-        borderColor: '#EFEFEF', // Very subtle border instead of heavy black line
-        shadowColor: '#000', // Add a very soft drop shadow for depth
-        shadowOffset: { width: 2, height: 0 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 5,
+        borderRightWidth: 0,
+        shadowColor: '#000',
+        shadowOffset: { width: 5, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 20,
+        elevation: 10,
     },
     header: {
         flexDirection: 'row',
@@ -202,15 +201,15 @@ const styles = StyleSheet.create({
         // Removed heavy borders and comic shadows
     },
     logoText: {
-        fontFamily: 'System', // Shift from LuckiestGuy to System Sans
+        fontFamily: 'System',
         fontWeight: '800',
         fontSize: 22,
-        color: '#1A1A1A',
+        color: COLORS.white,
         letterSpacing: -0.5,
     },
     divider: {
         height: 1,
-        backgroundColor: '#EFEFEF', // Light gray divider
+        backgroundColor: 'rgba(255,255,255,0.1)',
         marginBottom: 24,
     },
     navItemsContainer: {
@@ -227,7 +226,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     activeNavItem: {
-        backgroundColor: '#F3F4F6', // Soft gray background for active state like YouTube
+        backgroundColor: 'rgba(255,255,255,0.15)',
     },
     iconBox: {
         width: 32,
@@ -240,13 +239,13 @@ const styles = StyleSheet.create({
     },
     navText: {
         fontFamily: 'System',
-        fontWeight: '500',
+        fontWeight: '600',
         fontSize: 16,
-        color: '#4B5563', // Soft gray text
+        color: 'rgba(255,255,255,0.7)',
     },
     activeNavText: {
-        color: '#111827', // Dark, bold active text
-        fontWeight: '700',
+        color: COLORS.white,
+        fontWeight: '800',
     },
     activeIndicator: {
         display: 'none', // Remove the blue dot indicator for a flatter cleaner look
@@ -264,16 +263,16 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontFamily: 'System',
-        fontWeight: '600',
+        fontWeight: '700',
         fontSize: 11,
-        color: '#6B7280',
+        color: 'rgba(255, 255, 255, 0.5)',
         letterSpacing: 0.5,
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: '#F3F4F6', // Light gray instead of stark black
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 20,
@@ -287,8 +286,8 @@ const styles = StyleSheet.create({
     statusText: {
         fontFamily: 'System',
         fontSize: 10,
-        fontWeight: '700',
-        color: '#4B5563',
+        fontWeight: '800',
+        color: 'rgba(255, 255, 255, 0.8)',
         letterSpacing: 0.5,
     },
     menuToggle: {
@@ -311,7 +310,7 @@ const styles = StyleSheet.create({
         padding: 0,
     },
     mobileProfileHeader: {
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         padding: 16,
         marginHorizontal: -20,
         marginTop: -32,
@@ -320,7 +319,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#EFEFEF',
+        borderBottomColor: 'rgba(255,255,255,0.1)',
     },
     closeBtn: {
         padding: 8,
@@ -338,7 +337,7 @@ const styles = StyleSheet.create({
     mobileName: {
         fontSize: 18,
         fontWeight: '800',
-        color: '#111827',
+        color: COLORS.white,
         marginBottom: 4,
     },
     mobileStatusBadge: {
@@ -348,8 +347,8 @@ const styles = StyleSheet.create({
     },
     mobileStatusText: {
         fontSize: 12,
-        fontWeight: '700',
-        color: COLORS.green,
+        fontWeight: '800',
+        color: '#86efac',
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,

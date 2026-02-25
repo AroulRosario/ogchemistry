@@ -23,10 +23,10 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                     marginLeft: 72, // Clear the hamburger menu area with more breathing room
                     marginRight: 16, // Don't stick to the right edge 
                     maxWidth: 'auto', // Override the 95% 
-                    alignSelf: 'flex-start' // Shrink to fit the content tightly
+                    alignSelf: 'stretch' // Stretch across the available top space
                 } : { paddingHorizontal: 24, paddingVertical: 16, marginHorizontal: 16 }
             ]}>
-                <View style={[styles.content, isMobile ? { gap: 8 } : { gap: 16 }]}>
+                <View style={[styles.content, isMobile ? { flex: 1, justifyContent: 'space-between', paddingHorizontal: 8 } : { gap: 16 }]}>
                     {/* Streak */}
                     <View style={styles.stat}>
                         <View style={styles.iconCircle}>

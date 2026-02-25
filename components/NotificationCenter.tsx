@@ -37,7 +37,7 @@ export function NotificationCenter() {
                 style={styles.bellBtn}
                 onPress={() => setIsOpen(true)}
             >
-                <Bell size={22} color={COLORS.grayDark} strokeWidth={2.5} />
+                <Bell size={22} color={COLORS.white} strokeWidth={2.5} />
                 {unreadCount > 0 && (
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>{unreadCount}</Text>
@@ -87,9 +87,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 12,
         borderRadius: 14,
-        backgroundColor: '#F8FAFC',
+        backgroundColor: 'rgba(255,255,255,0.1)',
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: 'rgba(255,255,255,0.2)',
         alignSelf: 'flex-start',
         marginBottom: 16
     },
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 2,
-        borderColor: COLORS.white,
+        borderColor: COLORS.blue,
     },
     badgeText: { color: COLORS.white, fontSize: 10, fontWeight: '800', fontFamily: 'System' },
     overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', padding: 24, justifyContent: 'center' },

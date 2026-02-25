@@ -107,13 +107,13 @@ export default function ChapterScreen() {
         <DynamicBackground>
             <Stack.Screen options={{
                 headerShown: true,
-                title: `MODULE ${currentIndex + 1} / ${items.length}`,
+                title: isMobile ? `MOD ${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} / ${items.length}`,
                 headerStyle: { backgroundColor: '#FFFFFF' },
                 headerTitleStyle: { fontFamily: 'System', fontWeight: '800', fontSize: 18, color: '#111827' },
                 headerTintColor: '#111827',
                 headerShadowVisible: false,
                 headerLeft: () => (
-                    <Pressable onPress={() => router.back()} style={{ marginLeft: 16, flexDirection: 'row', alignItems: 'center' }}>
+                    <Pressable onPress={() => router.back()} style={{ marginLeft: 0, flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{ fontFamily: 'System', fontWeight: '600', fontSize: 16, color: COLORS.blue }}>← Back</Text>
                     </Pressable>
                 ),
@@ -123,7 +123,7 @@ export default function ChapterScreen() {
                 <View style={[styles.mainLayout, isDesktop && styles.desktopLayout]}>
 
                     {/* MAIN CONTENT AREA */}
-                    <View style={[styles.mainVideoArea, isDesktop && { flex: 3 }]}>
+                    <View style={[styles.mainVideoArea, isDesktop && { flex: 3 }, !isDesktop && { paddingHorizontal: 16, paddingVertical: 16 }]}>
                         <View style={styles.videoHeader}>
                             <View style={styles.typeBadge}>
                                 <Text style={styles.typeBadgeText}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>

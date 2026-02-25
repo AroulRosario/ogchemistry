@@ -352,10 +352,11 @@ const styles = StyleSheet.create({
     achievementGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 16,
+        justifyContent: 'space-between',
+        rowGap: 16, // Use rowGap since space-between handles the horizontal spacing
     },
     achievementBadge: {
-        width: '30%',
+        width: '31%', // Exactly 3 items fit with ~3.5% padding between them
         aspectRatio: 1,
         borderRadius: 24,
         alignItems: 'center',

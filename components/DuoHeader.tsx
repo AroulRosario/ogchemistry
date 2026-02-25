@@ -20,7 +20,7 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                 isMobile ? {
                     paddingHorizontal: 12,
                     paddingVertical: 10,
-                    marginLeft: 60, // Clear the hamburger menu area
+                    marginLeft: 72, // Clear the hamburger menu area with more breathing room
                     marginRight: 16, // Don't stick to the right edge 
                     maxWidth: 'auto', // Override the 95% 
                     alignSelf: 'stretch' // Span the available horizontal space 

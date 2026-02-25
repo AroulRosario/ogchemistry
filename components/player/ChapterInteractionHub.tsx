@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
 import { BookOpen, FileText, HelpCircle, Layers, MessageSquare } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { FlashcardSet } from './FlashcardSet';
 
 interface ChapterInteractionHubProps {
@@ -28,7 +28,12 @@ export function ChapterInteractionHub({ notes, flashcards, resources }: ChapterI
 
     return (
         <View style={styles.container}>
-            <View style={styles.tabBar}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.tabBar}
+                contentContainerStyle={{ flexGrow: 1 }}
+            >
                 {tabs.map((tab) => {
                     const isActive = activeTab === tab.id;
                     const Icon = tab.icon;
@@ -43,7 +48,7 @@ export function ChapterInteractionHub({ notes, flashcards, resources }: ChapterI
                         </Pressable>
                     );
                 })}
-            </View>
+            </ScrollView>
 
             <View style={styles.content}>
                 {activeTab === 'notes' && (
@@ -129,7 +134,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 16,
+        paddingHorizontal: 12, // Ensure inner spacing on small screens when scrolled
         gap: 8,
+        minWidth: 100, // Make sure tabs don't squish too much
     },
     tabActive: {
         backgroundColor: '#FFFFFF',

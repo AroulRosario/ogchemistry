@@ -20,6 +20,7 @@ export default function ChapterScreen() {
     const router = useRouter();
     const { width } = useWindowDimensions();
     const isDesktop = width > 800;
+    const isMobile = width < 600;
 
     useEffect(() => { fetchContent(); }, [id]);
 

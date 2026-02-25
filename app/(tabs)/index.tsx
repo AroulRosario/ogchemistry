@@ -114,30 +114,30 @@ export default function HomeScreen() {
                     <Text style={styles.emptyText}>No training modules found yet, Recruit!</Text>
                   </View>
                 ) : (
-                  flatPath.map((item, index) => (
-                    <View key={item.id} style={{ width: '100%', alignItems: 'center' }}>
-                      {index % 4 === 0 && index !== 0 && (
-                        <View style={styles.milestoneMarker}>
-                          <View style={styles.milestoneLine} />
-                          <View style={styles.milestoneBadge}>
-                            <Text style={styles.milestoneText}>UNIVERSE {Math.floor(index / 4) + 1}</Text>
+                  <View style={styles.timelineWrapper}>
+                    {flatPath.map((item, index) => (
+                      <View key={item.id} style={{ width: '100%' }}>
+                        {index % 4 === 0 && index !== 0 && (
+                          <View style={styles.milestoneMarker}>
+                            <View style={styles.milestoneBadge}>
+                              <Text style={styles.milestoneText}>UNIVERSE {Math.floor(index / 4) + 1}</Text>
+                            </View>
                           </View>
-                          <View style={styles.milestoneLine} />
-                        </View>
-                      )}
-                      <AnimatedCard delay={index * 100}>
-                        <PathNode
-                          index={index}
-                          title={item.title || item.data?.title}
-                          type="chapter"
-                          isLocked={index > 0}
-                          isCompleted={false}
-                          offset={isDesktop ? Math.sin(index * 0.8) * 120 : Math.sin(index * 1.0) * 40}
-                          onPress={() => router.push(`/chapter/${item.id}`)}
-                        />
-                      </AnimatedCard>
-                    </View>
-                  ))
+                        )}
+                        <AnimatedCard delay={index * 100}>
+                          <PathNode
+                            index={index}
+                            title={item.title || item.data?.title}
+                            type="chapter"
+                            isLocked={index > 0}
+                            isCompleted={false}
+                            isLastNode={index === flatPath.length - 1}
+                            onPress={() => router.push(`/chapter/${item.id}`)}
+                          />
+                        </AnimatedCard>
+                      </View>
+                    ))}
+                  </View>
                 )}
 
                 <View style={styles.pathFooter}>
@@ -275,35 +275,32 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     zIndex: 1,
   },
+  timelineWrapper: {
+    width: '100%',
+    maxWidth: 800,
+    alignItems: 'flex-start',
+    alignSelf: 'center',
+    paddingVertical: 20,
+  },
   milestoneMarker: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    paddingHorizontal: Platform.OS === 'web' ? 80 : 20,
-    marginVertical: 60,
-  },
-  milestoneLine: {
-    flex: 1,
-    height: 4,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 2,
+    paddingLeft: Platform.OS === 'web' ? 88 : 64, // Align with cards
+    marginVertical: 40,
+    marginBottom: 40,
   },
   milestoneBadge: {
-    ...STYLES.card,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 3,
-    borderColor: '#F1F5F9',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginHorizontal: 24,
-    shadowOpacity: 0.05,
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 12,
   },
   milestoneText: {
     fontWeight: '900',
-    fontSize: 15,
+    fontSize: 13,
     color: COLORS.blue,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
   emptyCard: {
     backgroundColor: '#F9FAFB',

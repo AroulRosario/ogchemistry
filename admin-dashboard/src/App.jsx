@@ -4,6 +4,7 @@ import {
     BookOpen,
     BookText,
     CheckCircle,
+    Compass,
     GraduationCap,
     Map,
     MessageSquare,

@@ -1,7 +1,7 @@
 import { COLORS } from '@/constants/theme';
-import { Check, Lock } from 'lucide-react-native';
+import { Check, ChevronRight, Lock, Play } from 'lucide-react-native';
 import React from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface PathNodeProps {
     index: number;
@@ -10,7 +10,7 @@ interface PathNodeProps {
     isCompleted?: boolean;
     isLocked?: boolean;
     onPress: () => void;
-    offset?: number; // For the wavy path effect
+    isLastNode?: boolean;
 }
 
 export function PathNode({
@@ -20,17 +20,15 @@ export function PathNode({
     isCompleted,
     isLocked,
     onPress,
-    offset = 0,
+    isLastNode = false
 }: PathNodeProps) {
     const scale = React.useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () => {
         if (!isLocked) {
             Animated.spring(scale, {
-                toValue: 0.90,
+                toValue: 0.98,
                 useNativeDriver: true,
-                tension: 100,
-                friction: 5,
             }).start();
         }
     };
@@ -39,159 +37,179 @@ export function PathNode({
         Animated.spring(scale, {
             toValue: 1,
             useNativeDriver: true,
-            tension: 100,
-            friction: 5,
         }).start();
     };
 
-    const getColors = () => {
-        if (isLocked) return { bg: '#E2E8F0', border: '#94A3B8', icon: '#64748B', ring: '#CBD5E1' };
-        if (isCompleted) return { bg: COLORS.green, border: COLORS.greenDark, icon: COLORS.white, ring: '#D9F99D' };
-        return { bg: COLORS.blue, border: COLORS.blueDark, icon: COLORS.white, ring: '#DBEAFE' };
-    };
+    const isCurrent = !isLocked && !isCompleted;
 
-    const colors = getColors();
+    // Status colors
+    const colors = isLocked
+        ? { dot: '#E2E8F0', line: '#F1F5F9', border: '#F8FAFC', text: '#94A3B8' }
+        : isCompleted
+            ? { dot: COLORS.green, line: COLORS.green, border: COLORS.green, text: COLORS.greenDark }
+            : { dot: COLORS.blue, line: '#E2E8F0', border: COLORS.blue, text: COLORS.blueDark };
 
     return (
-        <View style={[styles.wrapper, { transform: [{ translateX: offset }] }]}>
-            <Pressable
-                onPress={isLocked ? undefined : onPress}
-                onPressIn={handlePressIn}
-                onPressOut={handlePressOut}
-                style={styles.pressable}
-            >
-                <Animated.View style={[
-                    styles.node,
-                    {
-                        backgroundColor: colors.bg,
-                        borderColor: COLORS.black,
-                        transform: [{ scale }]
-                    }
-                ]}>
-                    {/* Ring for 3D effect */}
-                    <View style={[styles.innerRing, { borderColor: colors.ring }]} />
-
-                    {/* Glossy Overlay */}
-                    <View style={styles.glossOverlay} />
-
+        <View style={styles.container}>
+            {/* Left Track & Node */}
+            <View style={styles.trackColumn}>
+                <View style={[styles.nodeDot, { backgroundColor: colors.dot, borderColor: colors.border, borderWidth: isCurrent ? 4 : 0 }]}>
                     {isLocked ? (
-                        <Lock size={32} color={colors.icon} strokeWidth={3} />
+                        <Lock size={12} strokeWidth={3} color="#FFF" />
                     ) : isCompleted ? (
-                        <Check size={40} color={colors.icon} strokeWidth={5} />
+                        <Check size={14} strokeWidth={4} color="#FFF" />
                     ) : (
-                        <Text style={styles.indexText}>{index + 1}</Text>
+                        <View style={styles.innerPulse} />
                     )}
-                </Animated.View>
-            </Pressable>
-
-            <View style={[styles.labelWrapper, isLocked && styles.lockedLabelWrapper]}>
-                <View style={styles.labelPointer} />
-                <View style={[styles.labelContainer, isLocked && styles.lockedLabelContainer]}>
-                    <Text style={[styles.label, isLocked && styles.lockedLabel]}>
-                        {title.toUpperCase()}
-                    </Text>
                 </View>
+                {!isLastNode && <View style={[styles.trackLine, { backgroundColor: colors.line }]} />}
             </View>
+
+            {/* Right Content Card */}
+            <Animated.View style={[styles.cardContainer, { transform: [{ scale }] }]}>
+                <Pressable
+                    onPress={isLocked ? undefined : onPress}
+                    onPressIn={handlePressIn}
+                    onPressOut={handlePressOut}
+                    style={[styles.card, isLocked && styles.cardLocked, isCurrent && styles.cardCurrent]}
+                >
+                    <View style={styles.cardHeader}>
+                        <Text style={[styles.chapterLabel, { color: colors.text }]}>
+                            {isLocked ? 'MISSION LOCKED' : isCompleted ? 'MISSION CLEARED' : 'CURRENT MISSION'}
+                        </Text>
+                        {!isLocked && (
+                            <View style={[styles.actionBadge, isCompleted && { backgroundColor: COLORS.green + '20' }]}>
+                                {isCompleted ? <Check size={12} color={COLORS.green} strokeWidth={3} /> : <Play size={10} color={COLORS.blue} fill={COLORS.blue} />}
+                            </View>
+                        )}
+                    </View>
+
+                    <Text style={[styles.title, isLocked && styles.titleLocked]}>
+                        {title}
+                    </Text>
+
+                    {isCurrent && (
+                        <View style={styles.currentFooter}>
+                            <Text style={styles.currentDesc}>Tap to resume training and unlock the next module.</Text>
+                            <ChevronRight size={16} color={COLORS.blue} strokeWidth={3} />
+                        </View>
+                    )}
+                </Pressable>
+            </Animated.View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    wrapper: {
-        alignItems: 'center',
-        marginVertical: 25,
+    container: {
+        flexDirection: 'row',
         width: '100%',
+        paddingHorizontal: Platform.OS === 'web' ? 40 : 16,
     },
-    pressable: {
-        zIndex: 2,
-    },
-    node: {
-        width: 80, // Slightly smaller, more refined
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 0, // Remove aggressive black border
-        // Soft, glowing elevation instead of flat comic shadow
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        elevation: 6,
-    },
-    innerRing: {
-        position: 'absolute',
-        top: 3,
-        left: 3,
-        right: 3,
-        bottom: 3,
-        borderRadius: 38,
-        borderWidth: 2,
-        opacity: 0.5,
-    },
-    glossOverlay: { // Keeping subtle gloss for a slightly tactile feel
-        position: 'absolute',
-        top: 4,
-        left: 10,
+    trackColumn: {
         width: 40,
-        height: 15,
-        backgroundColor: 'rgba(255,255,255,0.3)',
-        borderRadius: 20,
-        transform: [{ rotate: '-15deg' }],
-    },
-    indexText: {
-        color: '#FFFFFF',
-        fontFamily: 'System', // Use system default, bold
-        fontWeight: '800',
-        fontSize: 28,
-        // Remove comic text shadow
-    },
-    labelWrapper: {
-        marginTop: 12,
         alignItems: 'center',
+        marginRight: 16,
     },
-    labelPointer: {
-        width: 0,
-        height: 0,
-        backgroundColor: 'transparent',
-        borderStyle: 'solid',
-        borderLeftWidth: 6,
-        borderRightWidth: 6,
-        borderBottomWidth: 6,
-        borderLeftColor: 'transparent',
-        borderRightColor: 'transparent',
-        borderBottomColor: '#FFFFFF', // Modern white bubble
-        marginBottom: -1,
+    nodeDot: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+    innerPulse: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: '#FFF',
+    },
+    trackLine: {
+        width: 4,
+        flex: 1,
+        marginTop: -16,
+        marginBottom: -16, // Connect exactly to the next dot
         zIndex: 1,
+        borderRadius: 2,
     },
-    labelContainer: {
+    cardContainer: {
+        flex: 1,
+        paddingBottom: 32, // Space between cards
+    },
+    card: {
         backgroundColor: '#FFFFFF',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 12,
+        borderRadius: 20,
+        padding: 24,
         borderWidth: 1,
-        borderColor: '#E5E7EB', // Soft gray border instead of black 3px
-        shadowColor: '#000000',
+        borderColor: '#E2E8F0',
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
+        shadowOpacity: 0.03,
+        shadowRadius: 8,
         elevation: 2,
     },
-    lockedLabelContainer: {
-        backgroundColor: '#F9FAFB',
-        borderColor: '#E5E7EB',
+    cardLocked: {
+        backgroundColor: '#F8FAFC',
+        borderColor: '#F1F5F9',
+        shadowOpacity: 0,
     },
-    label: {
-        fontFamily: 'System',
-        fontWeight: '700',
+    cardCurrent: {
+        borderColor: COLORS.blue,
+        borderWidth: 2,
+        shadowColor: COLORS.blue,
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    chapterLabel: {
+        fontSize: 11,
+        fontWeight: '900',
+        letterSpacing: 1.5,
+    },
+    actionBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#EFF6FF',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#1E293B',
+        letterSpacing: -0.5,
+        lineHeight: 28,
+    },
+    titleLocked: {
+        color: '#94A3B8',
+    },
+    currentFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 16,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#F1F5F9',
+    },
+    currentDesc: {
         fontSize: 14,
-        color: '#4B5563', // Soft Dark Gray
-        letterSpacing: 0.5,
-    },
-    lockedLabel: {
-        color: '#9CA3AF',
-    },
-    lockedLabelWrapper: {
-        opacity: 0.8,
+        fontWeight: '600',
+        color: '#64748B',
+        flex: 1,
+        marginRight: 16,
     }
 });

@@ -8,7 +8,7 @@ import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { CheckCircle2, PlayCircle } from 'lucide-react-native';
+import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -110,12 +110,13 @@ export default function ChapterScreen() {
                 headerShown: true,
                 title: isMobile ? `MOD ${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} / ${items.length}`,
                 headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTitleStyle: { fontFamily: 'System', fontWeight: '800', fontSize: 18, color: '#111827' },
+                headerTitleStyle: { fontFamily: 'System', fontWeight: '900', fontSize: 18, color: '#0F172A' },
                 headerTintColor: '#111827',
-                headerShadowVisible: false,
+                headerShadowVisible: true,
                 headerLeft: () => (
-                    <Pressable onPress={() => router.back()} style={{ marginLeft: 0, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontFamily: 'System', fontWeight: '600', fontSize: 16, color: COLORS.blue }}>← Back</Text>
+                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 16 : 0, gap: 4 }}>
+                        <ChevronLeft size={18} color={COLORS.blue} strokeWidth={3} />
+                        <Text style={{ fontFamily: 'System', fontWeight: '700', fontSize: 14, color: COLORS.blue }}>Return</Text>
                     </Pressable>
                 ),
             }} />
@@ -204,7 +205,7 @@ export default function ChapterScreen() {
                                                 {isPast ? (
                                                     <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
                                                 ) : (
-                                                    <PlayCircle size={24} color={isActive ? COLORS.red : COLORS.grayDark} strokeWidth={isActive ? 3 : 2} />
+                                                    <PlayCircle size={24} color={isActive ? COLORS.white : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
                                                 )}
                                                 {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
                                             </View>
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
     loadingText: { fontFamily: 'System', fontWeight: '700', fontSize: 20, color: COLORS.blue, letterSpacing: 1 },
     mainLayout: { flexDirection: 'column', width: '100%', flex: 1 },
-    desktopLayout: { flexDirection: 'row', alignItems: 'stretch' },
+    desktopLayout: { flexDirection: 'row-reverse', alignItems: 'stretch' },
 
     // MAIN VIDEO AREA
     mainVideoArea: { flex: 1, paddingHorizontal: Platform.OS === 'web' ? 20 : 0, paddingVertical: 24, backgroundColor: '#FFFFFF' },
@@ -289,9 +290,7 @@ const styles = StyleSheet.create({
 
     // SIDEBAR
     sidebar: {
-        backgroundColor: '#FFFFFF',
-        borderLeftWidth: 1,
-        borderLeftColor: '#E5E7EB',
+        backgroundColor: COLORS.blue,
         padding: 24,
         minHeight: 400,
     },
@@ -302,25 +301,30 @@ const styles = StyleSheet.create({
     },
     sidebarTitle: {
         fontFamily: 'System',
-        fontWeight: '700',
-        fontSize: 20,
-        color: '#111827',
+        fontWeight: '800',
+        fontSize: 16,
+        color: 'rgba(255,255,255,0.7)',
+        letterSpacing: 1.5,
+        textTransform: 'uppercase'
     },
     sidebarList: { gap: 12 },
     sidebarItem: {
         flexDirection: 'row',
         alignItems: 'stretch',
         padding: 12,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(255,255,255,0.05)',
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)'
     },
     sidebarItemActive: {
-        backgroundColor: '#F3F4F6',
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        borderColor: 'rgba(255,255,255,0.3)'
     },
     iconRail: { alignItems: 'center', marginRight: 16, width: 24 },
-    railLine: { flex: 1, width: 2, backgroundColor: '#E5E7EB', marginVertical: 4, borderRadius: 1 },
+    railLine: { flex: 1, width: 2, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 4, borderRadius: 1 },
     sidebarItemContent: { flex: 1, justifyContent: 'center' },
-    sidebarItemType: { fontFamily: 'System', fontWeight: '600', fontSize: 12, color: '#6B7280', marginBottom: 2 },
-    sidebarItemTitle: { fontFamily: 'System', fontSize: 15, fontWeight: '500', color: '#4B5563' },
-    sidebarItemTitleActive: { color: '#111827', fontWeight: '700' },
+    sidebarItemType: { fontFamily: 'System', fontWeight: '700', fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
+    sidebarItemTitle: { fontFamily: 'System', fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
+    sidebarItemTitleActive: { color: COLORS.white, fontWeight: '800' },
 });

@@ -17,7 +17,14 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
         <SafeAreaView style={styles.safeArea}>
             <View style={[
                 styles.headerContainer,
-                isMobile ? { paddingHorizontal: 12, paddingVertical: 10, marginHorizontal: 0, minWidth: '100%' } : { paddingHorizontal: 24, paddingVertical: 16, marginHorizontal: 16 }
+                isMobile ? {
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    marginLeft: 60, // Clear the hamburger menu area
+                    marginRight: 16, // Don't stick to the right edge 
+                    maxWidth: 'auto', // Override the 95% 
+                    alignSelf: 'stretch' // Span the available horizontal space 
+                } : { paddingHorizontal: 24, paddingVertical: 16, marginHorizontal: 16 }
             ]}>
                 <View style={[styles.content, isMobile ? { gap: 8 } : { gap: 16 }]}>
                     {/* Streak */}

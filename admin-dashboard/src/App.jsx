@@ -16,6 +16,7 @@ import AdvancedControls from './components/admin/AdvancedControls';
 import AnalyticsOverview from './components/admin/AnalyticsOverview';
 import CourseBuilder from './components/admin/CourseBuilder';
 import Documentation from './components/admin/Documentation';
+import ExploreManager from './components/admin/ExploreManager';
 import GradingHub from './components/admin/GradingHub';
 import QAModeratorHub from './components/admin/QAModeratorHub';
 import SettingsTab from './components/admin/SettingsTab';
@@ -271,6 +272,9 @@ function App() {
                                 <button className={`tab ${tab === 'builder' ? 'active' : ''}`} onClick={() => setTab('builder')}>
                                     <BookOpen size={18} /> Course Builder
                                 </button>
+                                <button className={`tab ${tab === 'explore' ? 'active' : ''}`} onClick={() => setTab('explore')}>
+                                    <Compass size={18} /> Explore Hub
+                                </button>
                                 <button className={`tab ${tab === 'visual-path' ? 'active' : ''}`} onClick={() => setTab('visual-path')}>
                                     <Map size={18} /> Visual Path
                                 </button>
@@ -313,6 +317,7 @@ function App() {
                         {tab === 'analytics' && <AnalyticsOverview />}
                         {tab === 'users' && <StudentManagement profiles={profiles} fetchAll={fetchAll} showNotification={showNotification} />}
                         {tab === 'builder' && <CourseBuilder lessons={lessons} chapters={chapters} contentItems={contentItems} fetchAll={fetchAll} showNotification={showNotification} />}
+                        {tab === 'explore' && <ExploreManager lessons={lessons} fetchAll={fetchAll} showNotification={showNotification} />}
                         {tab === 'visual-path' && <VisualPathBuilder lessons={lessons} chapters={chapters} showNotification={showNotification} />}
                         {tab === 'grading' && <GradingHub showNotification={showNotification} />}
                         {tab === 'qa' && <QAModeratorHub showNotification={showNotification} />}

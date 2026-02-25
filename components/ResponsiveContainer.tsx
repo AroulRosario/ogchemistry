@@ -1,6 +1,6 @@
 import { LAYOUT } from '@/constants/theme';
 import React from 'react';
-import { Platform, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { Platform, ScrollView, StyleSheet, useWindowDimensions, View, ViewStyle } from 'react-native';
 
 interface ResponsiveContainerProps {
     children: React.ReactNode;
@@ -17,7 +17,13 @@ export function ResponsiveContainer({
     scrollable = true,
     fullWidth = false
 }: ResponsiveContainerProps) {
+    const { width } = useWindowDimensions();
+    const isDesktop = width >= 800; // Typical tablet/desktop breakpoint
+
     const Container = scrollable ? ScrollView : View;
+
+    // Determine padding based on context and screen size
+    const horizontalPad = Platform.OS === 'web' ? (isDesktop ? 40 : 16) : 16;
 
     return (
         <View style={styles.outer}>
@@ -27,7 +33,7 @@ export function ResponsiveContainer({
                     fullWidth ? { maxWidth: '100%' } : styles.maxWidth,
                     style
                 ]}
-                contentContainerStyle={scrollable ? [styles.content, contentContainerStyle] : undefined}
+                contentContainerStyle={scrollable ? [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle] : undefined}
                 showsVerticalScrollIndicator={false}
             >
                 {children}
@@ -51,6 +57,5 @@ const styles = StyleSheet.create({
     content: {
         flexGrow: 1,
         paddingBottom: 40,
-        paddingHorizontal: Platform.OS === 'web' ? 40 : 0,
     },
 });

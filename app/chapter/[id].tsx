@@ -183,43 +183,45 @@ export default function ChapterScreen() {
                     </View>
 
                     {/* CHAPTER CONTENTS (SIDEBAR ON DESK, BELOW VIDEO ON MOBILE) */}
-                    <View style={[styles.sidebar, isDesktop && { flex: 1, minWidth: 350, maxWidth: 450 }]}>
-                        <View style={styles.sidebarHeaderOuter}>
-                            <View style={styles.sidebarHeaderInner}>
-                                <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                    <View style={[styles.sidebarWrapper, isDesktop && { flex: 1, minWidth: 320, maxWidth: 380 }]}>
+                        <View style={styles.sidebar}>
+                            <View style={styles.sidebarHeaderOuter}>
+                                <View style={styles.sidebarHeaderInner}>
+                                    <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                </View>
                             </View>
-                        </View>
 
-                        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} nestedScrollEnabled>
-                            <View style={styles.sidebarList}>
-                                {items.map((it, idx) => {
-                                    const isActive = idx === currentIndex;
-                                    const isPast = idx < currentIndex;
-                                    return (
-                                        <Pressable
-                                            key={it.id}
-                                            style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
-                                            onPress={() => setCurrentIndex(idx)}
-                                        >
-                                            <View style={styles.iconRail}>
-                                                {isPast ? (
-                                                    <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
-                                                ) : (
-                                                    <PlayCircle size={24} color={isActive ? COLORS.white : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
-                                                )}
-                                                {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
-                                            </View>
-                                            <View style={styles.sidebarItemContent}>
-                                                <Text style={[styles.sidebarItemType, isActive && { color: COLORS.red }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
-                                                <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
-                                                    {it.data?.title || `Content Part ${idx + 1}`}
-                                                </Text>
-                                            </View>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
-                        </ScrollView>
+                            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} nestedScrollEnabled>
+                                <View style={styles.sidebarList}>
+                                    {items.map((it, idx) => {
+                                        const isActive = idx === currentIndex;
+                                        const isPast = idx < currentIndex;
+                                        return (
+                                            <Pressable
+                                                key={it.id}
+                                                style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+                                                onPress={() => setCurrentIndex(idx)}
+                                            >
+                                                <View style={styles.iconRail}>
+                                                    {isPast ? (
+                                                        <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
+                                                    ) : (
+                                                        <PlayCircle size={24} color={isActive ? COLORS.blue : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
+                                                    )}
+                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
+                                                </View>
+                                                <View style={styles.sidebarItemContent}>
+                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
+                                                    <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
+                                                        {it.data?.title || `Content Part ${idx + 1}`}
+                                                    </Text>
+                                                </View>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                            </ScrollView>
+                        </View>
                     </View>
 
                 </View>
@@ -289,10 +291,21 @@ const styles = StyleSheet.create({
     qaBtnText: { fontFamily: 'System', fontWeight: '600', fontSize: 13, color: '#4B5563' },
 
     // SIDEBAR
+    sidebarWrapper: {
+        backgroundColor: '#FFFFFF', // Outer wrapper matches app background
+        padding: Platform.OS === 'web' ? 24 : 16,
+    },
     sidebar: {
         backgroundColor: COLORS.blue,
         padding: 24,
         minHeight: 400,
+        borderRadius: 24, // Inner card is rounded
+        flex: 1, // Fill available height
+        shadowColor: COLORS.blue,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.15,
+        shadowRadius: 30,
+        elevation: 10,
     },
     sidebarHeaderOuter: {
         marginBottom: 24,
@@ -303,7 +316,7 @@ const styles = StyleSheet.create({
         fontFamily: 'System',
         fontWeight: '800',
         fontSize: 16,
-        color: 'rgba(255,255,255,0.7)',
+        color: 'rgba(255,255,255,0.9)', // Brighter, cleaner white
         letterSpacing: 1.5,
         textTransform: 'uppercase'
     },
@@ -311,20 +324,25 @@ const styles = StyleSheet.create({
     sidebarItem: {
         flexDirection: 'row',
         alignItems: 'stretch',
-        padding: 12,
+        padding: 16, // More breathing room inside item
         backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 12,
+        borderRadius: 16, // More rounded modern pill
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.1)'
     },
     sidebarItemActive: {
-        backgroundColor: 'rgba(255,255,255,0.15)',
-        borderColor: 'rgba(255,255,255,0.3)'
+        backgroundColor: COLORS.white, // Invert active state for supreme pop
+        borderColor: COLORS.white,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
     },
     iconRail: { alignItems: 'center', marginRight: 16, width: 24 },
     railLine: { flex: 1, width: 2, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 4, borderRadius: 1 },
     sidebarItemContent: { flex: 1, justifyContent: 'center' },
-    sidebarItemType: { fontFamily: 'System', fontWeight: '700', fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
-    sidebarItemTitle: { fontFamily: 'System', fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.8)' },
-    sidebarItemTitleActive: { color: COLORS.white, fontWeight: '800' },
+    sidebarItemType: { fontFamily: 'System', fontWeight: '800', fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
+    sidebarItemTitle: { fontFamily: 'System', fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.9)' },
+    sidebarItemTitleActive: { color: COLORS.blue, fontWeight: '800' }, // Active text is blue
 });

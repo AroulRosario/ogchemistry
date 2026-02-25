@@ -154,8 +154,8 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 </div>
             )}
 
-            {/* Tree View */}
-            <div style={{ flex: '0 0 350px', display: 'flex', flexDirection: 'column' }}>
+            {/* Tree View (Syllabus) */}
+            <div style={{ flex: '0 0 450px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Syllabus Explorer</h2>
                     <button className="btn btn-primary" style={{ height: '32px', padding: '0 0.75rem', fontSize: '0.8rem' }} onClick={() => setAddingTo({ type: 'lesson' })}>
@@ -237,7 +237,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
             </div>
 
             {/* Editor Panel */}
-            <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editor Profile</h2>
                     {selectedItem && (
@@ -347,22 +347,6 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 </div>
             </div>
 
-            {/* Preview Panel */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Preview</h2>
-                </div>
-                <div className="card" style={{ flex: 1, padding: 0, overflow: 'hidden', background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {selectedItem?.type === 'content' && formState.content_type === 'html_sim' ? (
-                        <iframe title="sim-preview" srcDoc={formState.content} style={{ width: '100%', height: '100%', border: 'none' }} />
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.4 }}>
-                            <Globe size={48} color="white" style={{ marginBottom: '1rem' }} />
-                            <p style={{ color: 'white', fontWeight: 600 }}>Visual preview unavailable</p>
-                        </div>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }

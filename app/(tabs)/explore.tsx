@@ -6,6 +6,7 @@ import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'expo-router';
 import { Clock, GraduationCap, Lock, Search, TrendingUp } from 'lucide-react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
@@ -16,6 +17,7 @@ export default function ExploreScreen() {
   const isDesktop = width > 800;
   const isWide = width > 1200;
   const { user } = useAuth();
+  const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeChip, setActiveChip] = useState('All');
@@ -98,7 +100,13 @@ export default function ExploreScreen() {
                   styles.cardWrapper,
                   isWide ? { width: '23.5%' } : isDesktop ? { width: '31%' } : { width: '100%' }
                 ]}>
-                  <View style={styles.card}>
+                  <Pressable style={styles.card} onPress={() => {
+                    if (lesson.chapters && lesson.chapters.length > 0) {
+                      router.push(`/chapter/${lesson.chapters[0].id}`);
+                    } else {
+                      router.push('/');
+                    }
+                  }}>
                     <View style={styles.cardTop}>
                       <View style={styles.emojiContainer}>
                         <Text style={styles.emoji}>{'🧪'}</Text>
@@ -126,7 +134,7 @@ export default function ExploreScreen() {
                         <Text style={styles.metricText}>{'~2h'}</Text>
                       </View>
                     </View>
-                  </View>
+                  </Pressable>
                 </AnimatedCard>
               ))}
             </View>

@@ -261,7 +261,7 @@ function App() {
             <main className="container">
                 <div className="grid">
                     <aside className="tabs-sidebar" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
-                        <div className="card" style={{ padding: '1.5rem' }}>
+                        <div className="card sidebar-dark" style={{ padding: '1.5rem' }}>
                             <h3 style={{ marginBottom: '1.25rem', fontSize: '0.8rem', color: 'var(--gray-500)', letterSpacing: '0.1em', fontWeight: '800', textTransform: 'uppercase' }}>Command Center</h3>
                             <div className="tabs">
                                 <button className={`tab ${tab === 'analytics' ? 'active' : ''}`} onClick={() => setTab('analytics')}>
@@ -297,7 +297,7 @@ function App() {
                             </div>
                         </div>
 
-                        <div className="card" style={{ padding: '1.25rem', marginTop: '1.5rem', background: 'var(--gray-50)', border: 'none', boxShadow: 'none' }}>
+                        <div className="card sidebar-dark" style={{ padding: '1.25rem', marginTop: '1.5rem' }}>
                             <h4 style={{ color: 'var(--gray-500)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '1rem', textTransform: 'uppercase' }}>Fleet Status</h4>
                             <div className="stats-list" style={{ fontSize: '0.9rem', color: 'var(--black)' }}>
                                 <div className="stat-item" style={{ marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
@@ -306,7 +306,7 @@ function App() {
                                 </div>
                                 <div className="stat-item" style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span style={{ color: 'var(--gray-500)', fontWeight: '500' }}>Pending Approval</span>
-                                    <span style={{ fontWeight: '700', color: profiles.some(p => !p.approved) ? 'var(--error)' : 'inherit' }}>
+                                    <span style={{ fontWeight: '700', color: profiles.some(p => !p.approved) ? '#FCA5A5' : 'inherit' }}>
                                         {profiles.filter(p => !p.approved).length}
                                     </span>
                                 </div>
@@ -318,7 +318,7 @@ function App() {
                         {tab === 'analytics' && <AnalyticsOverview />}
                         {tab === 'users' && <StudentManagement profiles={profiles} fetchAll={fetchAll} showNotification={showNotification} />}
                         {tab === 'builder' && <CourseBuilder lessons={lessons} chapters={chapters} contentItems={contentItems} fetchAll={fetchAll} showNotification={showNotification} />}
-                        {tab === 'explore' && <ExploreManager lessons={lessons} fetchAll={fetchAll} showNotification={showNotification} />}
+                        {tab === 'explore' && <ExploreManager lessons={lessons} fetchAll={fetchAll} showNotification={showNotification} setTab={setTab} />}
                         {tab === 'visual-path' && <VisualPathBuilder lessons={lessons} chapters={chapters} showNotification={showNotification} />}
                         {tab === 'grading' && <GradingHub showNotification={showNotification} />}
                         {tab === 'qa' && <QAModeratorHub showNotification={showNotification} />}

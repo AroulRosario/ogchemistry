@@ -2,7 +2,7 @@ import { Compass, Image, LayoutGrid, Save } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../supabase';
 
-export default function ExploreManager({ lessons, fetchAll, showNotification }) {
+export default function ExploreManager({ lessons, fetchAll, showNotification, setTab }) {
     const [selectedLesson, setSelectedLesson] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -158,9 +158,38 @@ export default function ExploreManager({ lessons, fetchAll, showNotification }) 
                                 />
                             </div>
 
-                            <div style={{ backgroundColor: '#F8FAFC', padding: '1.5rem', borderRadius: '0.75rem', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
+                            <div style={{ backgroundColor: '#F8FAFC', padding: '1.5rem', borderRadius: '0.75rem', border: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
                                 <Image size={24} color="#94A3B8" />
                                 <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: '500' }}>Custom thumbnail image uploads coming soon.</p>
+                            </div>
+
+                            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '1.5rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <label style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: '#64748B', letterSpacing: 1, margin: 0 }}>
+                                        Linked Chapters
+                                    </label>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{ padding: '0.3rem 0.75rem', fontSize: '0.75rem' }}
+                                        onClick={() => setTab && setTab('visual-path')}
+                                    >
+                                        Edit Path Mapping
+                                    </button>
+                                </div>
+                                {selectedLesson.chapters && selectedLesson.chapters.length > 0 ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        {selectedLesson.chapters.sort((a, b) => a.order - b.order).map((ch, idx) => (
+                                            <div key={ch.id} style={{ padding: '0.6rem 1rem', backgroundColor: '#F8FAFC', borderRadius: '0.5rem', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94A3B8' }}>{idx + 1}</span>
+                                                <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#334155' }}>{ch.title}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div style={{ padding: '1.5rem', backgroundColor: '#F8FAFC', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                        <p style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: '500', margin: 0 }}>No chapters mapped to this Universe yet.</p>
+                                    </div>
+                                )}
                             </div>
 
                         </div>

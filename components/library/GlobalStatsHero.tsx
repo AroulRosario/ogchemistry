@@ -47,17 +47,17 @@ export function GlobalStatsHero({
                     </View>
                 </View>
 
-                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }, !isDesktop && { padding: 12 }]}>
-                    <View style={styles.resumeInfo}>
+                <View style={[styles.resumeCard, { width: isWide ? '35%' : '100%' }, !isDesktop && { padding: 16, flexDirection: 'row', alignItems: 'center' }]}>
+                    <View style={[styles.resumeInfo, !isDesktop && { flex: 1, marginRight: 16 }]}>
                         <View style={styles.resumeHeader}>
-                            <Play size={12} color={COLORS.blue} fill={COLORS.blue} />
-                            <Text style={styles.resumeLabel}>PICK UP WHERE YOU LEFT OFF</Text>
+                            <Play size={10} color={COLORS.blue} fill={COLORS.blue} />
+                            <Text style={styles.resumeLabel}>NEXT UP</Text>
                         </View>
-                        <Text style={[styles.resumeTitle, !isDesktop && { fontSize: 16 }]} numberOfLines={2} adjustsFontSizeToFit>{lastChapterTitle}</Text>
+                        <Text style={[styles.resumeTitle, !isDesktop && { fontSize: 15 }]} numberOfLines={2} adjustsFontSizeToFit>{lastChapterTitle}</Text>
                     </View>
-                    <Pressable style={styles.resumeBtn} onPress={onResume}>
+                    <Pressable style={[styles.resumeBtn, !isDesktop && { marginTop: 0, paddingVertical: 12, paddingHorizontal: 16 }]} onPress={onResume}>
                         <Text style={styles.resumeBtnText}>Resume</Text>
-                        <ChevronRight size={16} color="#FFFFFF" strokeWidth={3} />
+                        <ChevronRight size={14} color="#FFFFFF" strokeWidth={3} />
                     </Pressable>
                 </View>
             </View>

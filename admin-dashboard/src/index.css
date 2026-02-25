@@ -280,3 +280,44 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
+
+/* Sidebar Dark Theme */
+.sidebar-dark {
+  background: var(--blue) !important;
+  color: var(--white) !important;
+  border: none !important;
+}
+
+.sidebar-dark h3,
+.sidebar-dark h4 {
+  color: #BFDBFE !important;
+  /* blue-200 */
+}
+
+.sidebar-dark .tab {
+  color: #DBEAFE !important;
+  /* blue-100 */
+}
+
+.sidebar-dark .tab:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--white) !important;
+}
+
+.sidebar-dark .tab.active {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: var(--white) !important;
+  font-weight: 700 !important;
+}
+
+.sidebar-dark .stat-item {
+  color: #DBEAFE !important;
+}
+
+.sidebar-dark .stat-item span {
+  color: var(--white) !important;
+}
+
+.sidebar-dark .stat-item span:first-child {
+  color: #BFDBFE !important;
+}

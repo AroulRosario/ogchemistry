@@ -104,10 +104,11 @@ const styles = StyleSheet.create({
         flexShrink: 1,
     },
     greeting: {
-        fontSize: 24,
-        fontWeight: '900',
+        fontSize: 32,
+        fontFamily: 'LuckiestGuy',
         color: '#1E293B',
-        letterSpacing: -0.5,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
     },
     subGreeting: {
         fontSize: 14,
@@ -204,9 +205,10 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
     },
     resumeTitle: {
-        fontSize: 18,
-        fontWeight: '800',
+        fontSize: 22,
+        fontFamily: 'LuckiestGuy',
         color: '#1E293B',
+        letterSpacing: 1,
     },
     resumeBtn: {
         flexDirection: 'row',

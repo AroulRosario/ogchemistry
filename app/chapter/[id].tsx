@@ -121,16 +121,16 @@ export default function ChapterScreen() {
                 ),
             }} />
 
-            <ScrollView style={styles.fullscreenScroll} contentContainerStyle={styles.fullscreenContent}>
-                <View style={[styles.mainLayout, isDesktop && styles.desktopLayout]}>
+            {isDesktop ? (
+                <View style={[styles.fullscreenContainer, styles.mainLayout, styles.desktopLayout]}>
 
                     {/* MAIN CONTENT AREA */}
-                    <View style={[styles.mainVideoArea, isDesktop && { flex: 3 }, !isDesktop && { paddingHorizontal: 16, paddingVertical: 16 }]}>
+                    <ScrollView style={{ flex: 3 }} contentContainerStyle={styles.mainVideoArea} showsVerticalScrollIndicator={false}>
                         <View style={styles.videoHeader}>
-                            <View style={styles.typeBadge}>
-                                <Text style={styles.typeBadgeText}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
+                            <View style={[styles.typeBadge, item.type === 'video' ? { backgroundColor: '#EFF6FF' } : { backgroundColor: '#FEE2E2' }]}>
+                                <Text style={[styles.typeBadgeText, item.type === 'video' ? { color: COLORS.blue } : { color: COLORS.red }]}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
                             </View>
-                            <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 22 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
+                            <Text style={styles.chapterTitle}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
                         </View>
 
                         <View style={styles.contentArea}>
@@ -156,7 +156,7 @@ export default function ChapterScreen() {
                                 <Text style={styles.progressText}>{currentIndex + 1}/{items.length}</Text>
                             </View>
 
-                            <View style={[styles.actionBox, !isDesktop && { alignItems: 'stretch' }]}>
+                            <View style={styles.actionBox}>
                                 {currentIndex < items.length - 1 ? (
                                     <ModernComicButton
                                         title="NEXT MODULE ⚡"
@@ -180,15 +180,13 @@ export default function ChapterScreen() {
                                 flashcards={item.data?.flashcards}
                             />
                         )}
-                    </View>
+                    </ScrollView>
 
-                    {/* CHAPTER CONTENTS (SIDEBAR ON DESK, BELOW VIDEO ON MOBILE) */}
-                    <View style={[styles.sidebarWrapper, isDesktop && { flex: 1, minWidth: 320, maxWidth: 380 }]}>
+                    {/* CHAPTER CONTENTS (SIDEBAR ON DESK, FIXED HEIGHT) */}
+                    <View style={[styles.sidebarWrapper, { flex: 1, minWidth: 320, maxWidth: 380, height: '100%' }]}>
                         <View style={styles.sidebar}>
                             <View style={styles.sidebarHeaderOuter}>
-                                <View style={styles.sidebarHeaderInner}>
-                                    <Text style={styles.sidebarTitle}>UP NEXT</Text>
-                                </View>
+                                <Text style={styles.sidebarTitle}>UP NEXT</Text>
                             </View>
 
                             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} nestedScrollEnabled>
@@ -225,13 +223,113 @@ export default function ChapterScreen() {
                     </View>
 
                 </View>
-            </ScrollView>
+            ) : (
+                <ScrollView style={styles.fullscreenContainer} contentContainerStyle={styles.fullscreenContent}>
+                    <View style={styles.mainLayout}>
+                        {/* MAIN CONTENT AREA */}
+                        <View style={[styles.mainVideoArea, { paddingHorizontal: 16, paddingVertical: 16 }]}>
+                            <View style={styles.videoHeader}>
+                                <View style={[styles.typeBadge, item.type === 'video' ? { backgroundColor: '#EFF6FF' } : { backgroundColor: '#FEE2E2' }]}>
+                                    <Text style={[styles.typeBadgeText, item.type === 'video' ? { color: COLORS.blue } : { color: COLORS.red }]}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
+                                </View>
+                                <Text style={[styles.chapterTitle, { fontSize: 32 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
+                            </View>
+
+                            <View style={styles.contentArea}>
+                                <ContentPlayer
+                                    item={item}
+                                    onQuizComplete={(score, passed) => {
+                                        if (passed) {
+                                            Alert.alert("Quiz Passed!", `Great job! You scored ${score}.`);
+                                            if (currentIndex < items.length - 1) setCurrentIndex(c => c + 1);
+                                            else handleComplete();
+                                        } else {
+                                            Alert.alert("Quiz Failed", "Review the material and try again to proceed!");
+                                        }
+                                    }}
+                                />
+                            </View>
+
+                            <View style={styles.controlsArea}>
+                                <View style={styles.progressRow}>
+                                    <View style={styles.progressTrack}>
+                                        <View style={[styles.progressFill, { width: `${((currentIndex + 1) / items.length) * 100}%` }]} />
+                                    </View>
+                                    <Text style={styles.progressText}>{currentIndex + 1}/{items.length}</Text>
+                                </View>
+
+                                <View style={[styles.actionBox, { alignItems: 'stretch' }]}>
+                                    {currentIndex < items.length - 1 ? (
+                                        <ModernComicButton
+                                            title="NEXT MODULE ⚡"
+                                            onPress={() => setCurrentIndex(currentIndex + 1)}
+                                            variant="primary"
+                                        />
+                                    ) : (
+                                        <DuoButton
+                                            title="COMPLETE CHAPTER ✓"
+                                            onPress={handleComplete}
+                                            variant="primary"
+                                        />
+                                    )}
+                                </View>
+                            </View>
+
+                            {/* INTERACTION HUB (Restored Flashcards/Notes) */}
+                            {item.type === 'video' && (
+                                <ChapterInteractionHub
+                                    notes={item.data?.notes}
+                                    flashcards={item.data?.flashcards}
+                                />
+                            )}
+                        </View>
+
+                        {/* CHAPTER CONTENTS (BELOW VIDEO ON MOBILE) */}
+                        <View style={styles.sidebarWrapper}>
+                            <View style={[styles.sidebar, { minHeight: 300 }]}>
+                                <View style={styles.sidebarHeaderOuter}>
+                                    <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                </View>
+
+                                <View style={styles.sidebarList}>
+                                    {items.map((it, idx) => {
+                                        const isActive = idx === currentIndex;
+                                        const isPast = idx < currentIndex;
+                                        return (
+                                            <Pressable
+                                                key={it.id}
+                                                style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+                                                onPress={() => setCurrentIndex(idx)}
+                                            >
+                                                <View style={styles.iconRail}>
+                                                    {isPast ? (
+                                                        <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
+                                                    ) : (
+                                                        <PlayCircle size={24} color={isActive ? COLORS.blue : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
+                                                    )}
+                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
+                                                </View>
+                                                <View style={styles.sidebarItemContent}>
+                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
+                                                    <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
+                                                        {it.data?.title || `Content Part ${idx + 1}`}
+                                                    </Text>
+                                                </View>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </ScrollView>
+            )}
         </DynamicBackground>
     );
 }
 
 const styles = StyleSheet.create({
-    fullscreenScroll: { flex: 1, backgroundColor: '#FFFFFF' },
+    fullscreenContainer: { flex: 1, backgroundColor: '#FFFFFF' },
     fullscreenContent: { flexGrow: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
     loadingText: { fontFamily: 'System', fontWeight: '700', fontSize: 20, color: COLORS.blue, letterSpacing: 1 },
@@ -239,9 +337,9 @@ const styles = StyleSheet.create({
     desktopLayout: { flexDirection: 'row-reverse', alignItems: 'stretch' },
 
     // MAIN VIDEO AREA
-    mainVideoArea: { flex: 1, paddingHorizontal: Platform.OS === 'web' ? 20 : 0, paddingVertical: 24, backgroundColor: '#FFFFFF' },
+    mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? 24 : 0, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
-    chapterTitle: { fontFamily: 'System', fontWeight: '800', fontSize: 28, color: '#111827', letterSpacing: -0.5, marginTop: 8 },
+    chapterTitle: { fontFamily: 'LuckiestGuy', fontSize: 40, color: '#0F172A', letterSpacing: 1, marginTop: 12, lineHeight: 44, textTransform: 'uppercase' },
     typeBadge: {
         alignSelf: 'flex-start',
         backgroundColor: '#FEE2E2', // Soft red background
@@ -313,12 +411,10 @@ const styles = StyleSheet.create({
     sidebarHeaderInner: {
     },
     sidebarTitle: {
-        fontFamily: 'System',
-        fontWeight: '800',
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.9)', // Brighter, cleaner white
-        letterSpacing: 1.5,
-        textTransform: 'uppercase'
+        fontFamily: 'LuckiestGuy',
+        fontSize: 22,
+        color: 'rgba(255,255,255,0.95)',
+        letterSpacing: 2,
     },
     sidebarList: { gap: 12 },
     sidebarItem: {

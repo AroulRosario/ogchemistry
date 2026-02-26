@@ -244,11 +244,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   journeyTitle: {
-    fontWeight: '900',
-    fontSize: Platform.OS === 'web' ? 48 : 36,
+    fontFamily: 'LuckiestGuy',
+    fontSize: Platform.OS === 'web' ? 56 : 42,
     color: '#111827',
     textAlign: 'center',
-    letterSpacing: -1.5,
+    letterSpacing: 2,
+    lineHeight: Platform.OS === 'web' ? 60 : 48,
+    textTransform: 'uppercase',
   },
   journeyProgress: {
     width: 300,

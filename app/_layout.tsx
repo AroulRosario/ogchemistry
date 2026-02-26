@@ -72,8 +72,9 @@ function RootLayoutNav() {
         // 3. Logged in check
         if (session) {
           // A. If NOT approved and NOT on pending screen → Redirect to pending
-          if (profile && profile.status !== 'approved' && !inPendingGroup && !inAuthGroup) {
-            console.log('[RootLayout] → Redirecting to pending-approval (Status:', profile.status, ')');
+          // (Includes when profile is null or status is pending, forces them out of auth/login)
+          if ((!profile || profile.status !== 'approved') && !inPendingGroup) {
+            console.log('[RootLayout] → Redirecting to pending-approval (Status:', profile?.status, ')');
             router.replace('/pending-approval' as any);
             return;
           }

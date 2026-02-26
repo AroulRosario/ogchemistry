@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   journeyTitle: {
-    fontFamily: 'LuckiestGuy',
+    fontFamily: 'Bangers_400Regular',
     fontSize: Platform.OS === 'web' ? 56 : 42,
     color: '#111827',
     textAlign: 'center',

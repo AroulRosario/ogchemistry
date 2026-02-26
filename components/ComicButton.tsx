@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     text: {
-        fontFamily: 'LuckiestGuy_400Regular',
+        fontFamily: 'Bangers_400Regular',
         fontSize: 18,
         textTransform: 'uppercase',
     }

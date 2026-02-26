@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         shadowRadius: 0,
     },
     text: {
-        fontFamily: 'LuckiestGuy_400Regular',
+        fontFamily: 'Bangers_400Regular',
         fontSize: 18,
         letterSpacing: 1,
         color: COLORS.black,

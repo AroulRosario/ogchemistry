@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     gradedTitle: { fontFamily: 'Bangers_400Regular', fontSize: 24, color: COLORS.green, letterSpacing: 1 },
     scoreRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
     scoreLabel: { fontFamily: 'System', fontSize: 16, fontWeight: '800', color: COLORS.grayDark },
-    scoreVal: { fontFamily: 'LuckiestGuy_400Regular', fontSize: 32 },
+    scoreVal: { fontFamily: 'Bangers_400Regular', fontSize: 32 },
     feedbackBox: { backgroundColor: COLORS.paper, padding: 16, borderRadius: 12, marginBottom: 20, borderWidth: 2, borderColor: COLORS.black },
     feedbackLabel: { fontFamily: 'System', fontSize: 13, fontWeight: '800', color: COLORS.black, marginBottom: 6 },
     feedbackText: { fontFamily: 'System', fontSize: 16, color: COLORS.textSecondary, lineHeight: 24, fontWeight: '600' },

@@ -1,6 +1,5 @@
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { Bangers_400Regular } from '@expo-google-fonts/bangers';
-import { LuckiestGuy_400Regular } from '@expo-google-fonts/luckiest-guy';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -25,7 +24,6 @@ function RootLayoutNav() {
 
   const [loaded] = useFonts({
     Bangers_400Regular,
-    LuckiestGuy_400Regular,
   });
 
   useEffect(() => {

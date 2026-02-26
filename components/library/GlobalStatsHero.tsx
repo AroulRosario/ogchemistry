@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 32,
-        fontFamily: 'LuckiestGuy',
+        fontFamily: 'Bangers_400Regular',
         color: '#1E293B',
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     },
     resumeTitle: {
         fontSize: 22,
-        fontFamily: 'LuckiestGuy',
+        fontFamily: 'Bangers_400Regular',
         color: '#1E293B',
         letterSpacing: 1,
     },

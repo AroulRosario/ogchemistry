@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     // MAIN VIDEO AREA
     mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? 24 : 0, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
-    chapterTitle: { fontFamily: 'LuckiestGuy', fontSize: 40, color: '#0F172A', letterSpacing: 1, marginTop: 12, lineHeight: 44, textTransform: 'uppercase' },
+    chapterTitle: { fontFamily: 'Bangers_400Regular', fontSize: 40, color: '#0F172A', letterSpacing: 1, marginTop: 12, lineHeight: 44, textTransform: 'uppercase' },
     typeBadge: {
         alignSelf: 'flex-start',
         backgroundColor: '#FEE2E2', // Soft red background
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     sidebarHeaderInner: {
     },
     sidebarTitle: {
-        fontFamily: 'LuckiestGuy',
+        fontFamily: 'Bangers_400Regular',
         fontSize: 22,
         color: 'rgba(255,255,255,0.95)',
         letterSpacing: 2,

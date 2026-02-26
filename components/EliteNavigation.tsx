@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { BookOpen, Compass, Layout, Menu, Trophy, User, X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function EliteNavigation() {
     const router = useRouter();
@@ -13,6 +14,7 @@ export function EliteNavigation() {
     const [isOpen, setIsOpen] = useState(false);
     const slideAnim = React.useRef(new Animated.Value(isDesktop ? 0 : -350)).current;
     const fadeAnim = React.useRef(new Animated.Value(0)).current;
+    const insets = useSafeAreaInsets();
 
     const toggleMenu = () => {
         const toValue = isOpen ? (isDesktop ? 0 : -350) : 0;
@@ -92,7 +94,10 @@ export function EliteNavigation() {
     return (
         <>
             {!isDesktop && !isOpen && (
-                <Pressable style={styles.menuToggle} onPress={toggleMenu}>
+                <Pressable
+                    style={[styles.menuToggle, { top: Math.max(insets.top, 16) + 12 }]}
+                    onPress={toggleMenu}
+                >
                     <View style={styles.toggleCard}>
                         <View style={styles.menuToggleContent}>
                             <Menu size={28} color={COLORS.black} strokeWidth={2.5} />
@@ -148,7 +153,7 @@ export function EliteNavigation() {
             </Animated.View>
 
             {!isDesktop && isOpen && (
-                <Pressable style={StyleSheet.absoluteFill} onPress={toggleMenu}>
+                <Pressable style={[StyleSheet.absoluteFill, { zIndex: 1050, elevation: 15 }]} onPress={toggleMenu}>
                     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
                 </Pressable>
             )}
@@ -161,7 +166,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        zIndex: 1000,
+        zIndex: 1100,
+        elevation: 20,
     },
     desktopContainer: {
         left: 0,
@@ -292,9 +298,9 @@ const styles = StyleSheet.create({
     },
     menuToggle: {
         position: 'absolute',
-        top: 16,
         left: 16,
         zIndex: 1100,
+        elevation: 10,
     },
     toggleCard: {
         borderRadius: 12,

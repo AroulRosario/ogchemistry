@@ -95,7 +95,7 @@ export function EliteNavigation() {
         <>
             {!isDesktop && !isOpen && (
                 <Pressable
-                    style={[styles.menuToggle, { top: Math.max(insets.top, 16) + 12 }]}
+                    style={[styles.menuToggle, { top: insets.top + 12 }]}
                     onPress={toggleMenu}
                 >
                     <View style={styles.toggleCard}>

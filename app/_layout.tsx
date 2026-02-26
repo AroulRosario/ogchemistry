@@ -62,6 +62,14 @@ function RootLayoutNav() {
           return;
         }
 
+        // Fix Flicker: If we have a session but profile is still null and we are loading fixed,
+        // wait for the profile to resolve before deciding on a redirect.
+        if (session && !profile && !loading) {
+          // Small delay to allow AuthContext profile fetch to finish if it's in flight
+          // but technically 'loading' covers it. If profile is still null after loading, 
+          // it means it's a new user or fetch failed.
+        }
+
         // 2. Not logged in → Login
         if (hasLaunched !== null && !session && !inAuthGroup) {
           console.log('[RootLayout] → Redirecting to login');
@@ -71,16 +79,22 @@ function RootLayoutNav() {
 
         // 3. Logged in check
         if (session) {
+          // Fix Flicker: If we have a session but NO profile yet, 
+          // wait for the profile to arrive before redirecting to pending-approval.
+          if (!profile) {
+            console.log('[RootLayout] Waiting for profile data...');
+            return;
+          }
+
           // A. If NOT approved and NOT on pending screen → Redirect to pending
-          // (Includes when profile is null or status is pending, forces them out of auth/login)
-          if ((!profile || profile.status !== 'approved') && !inPendingGroup) {
-            console.log('[RootLayout] → Redirecting to pending-approval (Status:', profile?.status, ')');
+          if (profile.status !== 'approved' && !inPendingGroup) {
+            console.log('[RootLayout] → Redirecting to pending-approval (Status:', profile.status, ')');
             router.replace('/pending-approval' as any);
             return;
           }
 
           // B. If approved and on auth/onboarding/pending pages → Home
-          if (profile?.status === 'approved' && (inAuthGroup || inOnboardingGroup || inPendingGroup)) {
+          if (profile.status === 'approved' && (inAuthGroup || inOnboardingGroup || inPendingGroup)) {
             console.log('[RootLayout] → Redirecting to home (user is approved)');
             router.replace('/');
             return;

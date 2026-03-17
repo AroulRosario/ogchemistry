@@ -1,0 +1,59 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@11.6.2
+2 info using node@v24.13.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/rosario/Library/Caches/typescript/5.9/.npmrc
+5 silly config load:file:/Users/rosario/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install types-registry@latest
+8 verbose argv "install" "--ignore-scripts" "types-registry@latest"
+9 verbose logfile logs-max:10 dir:/Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-17T09_46_00_621Z-
+10 verbose logfile /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-17T09_46_00_621Z-debug-0.log
+11 silly logfile start cleaning logs, removing 2 files
+12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+13 silly logfile done cleaning log files
+14 silly packumentCache corgi:https://registry.npmjs.org/types-registry cache-miss
+15 http fetch GET 200 https://registry.npmjs.org/npm 826ms
+16 http fetch GET 200 https://registry.npmjs.org/types-registry 419ms (cache updated)
+17 silly packumentCache corgi:https://registry.npmjs.org/types-registry set size:undefined disposed:false
+18 silly idealTree buildDeps
+19 silly fetch manifest types-registry@0.1.761
+20 silly packumentCache full:https://registry.npmjs.org/types-registry cache-miss
+21 http fetch GET 200 https://registry.npmjs.org/types-registry 139ms (cache updated)
+22 silly packumentCache full:https://registry.npmjs.org/types-registry set size:undefined disposed:false
+23 silly placeDep ROOT types-registry@0.1.761 REPLACE for:  want: 0.1.761
+24 silly reify mark retired [
+24 silly reify   '/Users/rosario/Library/Caches/typescript/5.9/node_modules/types-registry'
+24 silly reify ]
+25 silly reify moves {
+25 silly reify   '/Users/rosario/Library/Caches/typescript/5.9/node_modules/types-registry': '/Users/rosario/Library/Caches/typescript/5.9/node_modules/.types-registry-JCrZ2TWd'
+25 silly reify }
+26 verbose stack Error: ENOTEMPTY: directory not empty, rename '/Users/rosario/Library/Caches/typescript/5.9/node_modules/types-registry' -> '/Users/rosario/Library/Caches/typescript/5.9/node_modules/.types-registry-JCrZ2TWd'
+26 verbose stack     at async Object.rename (node:internal/fs/promises:782:10)
+26 verbose stack     at async moveFile (/usr/local/lib/node_modules/npm/node_modules/@npmcli/fs/lib/move-file.js:30:5)
+26 verbose stack     at async Promise.allSettled (index 0)
+26 verbose stack     at async [reifyPackages] (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:313:11)
+26 verbose stack     at async Arborist.reify (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:125:5)
+26 verbose stack     at async Install.exec (/usr/local/lib/node_modules/npm/lib/commands/install.js:150:5)
+26 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:208:9)
+26 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:67:5)
+27 error code ENOTEMPTY
+28 error syscall rename
+29 error path /Users/rosario/Library/Caches/typescript/5.9/node_modules/types-registry
+30 error dest /Users/rosario/Library/Caches/typescript/5.9/node_modules/.types-registry-JCrZ2TWd
+31 error errno -66
+32 error ENOTEMPTY: directory not empty, rename '/Users/rosario/Library/Caches/typescript/5.9/node_modules/types-registry' -> '/Users/rosario/Library/Caches/typescript/5.9/node_modules/.types-registry-JCrZ2TWd'
+33 silly unfinished npm timer reify 1773740763797
+34 silly unfinished npm timer reify:retireShallow 1773740764736
+35 verbose cwd /Users/rosario/Library/Caches/typescript/5.9
+36 verbose os Darwin 25.0.0
+37 verbose node v24.13.0
+38 verbose npm  v11.6.2
+39 notice
+39 notice New minor version of npm available! 11.6.2 -> 11.11.1
+39 notice Changelog: https://github.com/npm/cli/releases/tag/v11.11.1
+39 notice To update run: npm install -g npm@11.11.1
+39 notice  { force: true, Symbol(proc-log.meta): true }
+40 verbose exit -66
+41 verbose code -66
+42 error A complete log of this run can be found in: /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-17T09_46_00_621Z-debug-0.log

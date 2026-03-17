@@ -23,15 +23,14 @@ export function EliteNavigation() {
         if (!isOpen) setIsOpen(true);
 
         Animated.parallel([
-            Animated.spring(slideAnim, {
+            Animated.timing(slideAnim, {
                 toValue,
+                duration: isOpen ? 220 : 280,
                 useNativeDriver: true,
-                tension: 65,
-                friction: 11,
             }),
             Animated.timing(fadeAnim, {
                 toValue: toFade,
-                duration: 250,
+                duration: 200,
                 useNativeDriver: true,
             })
         ]).start(() => {
@@ -95,12 +94,12 @@ export function EliteNavigation() {
         <>
             {!isDesktop && !isOpen && (
                 <Pressable
-                    style={[styles.menuToggle, { top: insets.top + 12 }]}
+                    style={[styles.menuToggle, { top: insets.top + 8 }]}
                     onPress={toggleMenu}
                 >
                     <View style={styles.toggleCard}>
                         <View style={styles.menuToggleContent}>
-                            <Menu size={28} color={COLORS.black} strokeWidth={2.5} />
+                            <Menu size={24} color={COLORS.black} strokeWidth={2.5} />
                         </View>
                     </View>
                 </Pressable>
@@ -113,7 +112,7 @@ export function EliteNavigation() {
                     { transform: [{ translateX: isDesktop ? 0 : slideAnim }] }
                 ]}
             >
-                <View style={styles.inner}>
+                <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
                     {!isDesktop && (
                         <View style={styles.mobileProfileHeader}>
                             <View style={styles.mobileAvatar}>
@@ -182,7 +181,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.blue,
         padding: 20,
-        paddingTop: 32,
+        paddingTop: 20,
         borderRightWidth: 0,
         shadowColor: '#000',
         shadowOffset: { width: 5, height: 0 },

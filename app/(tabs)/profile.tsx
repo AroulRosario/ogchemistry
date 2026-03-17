@@ -8,7 +8,7 @@ import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { Award, Calendar, CheckCircle2, ChevronRight, Settings, Zap } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 export default function ProfileScreen() {
@@ -49,27 +49,27 @@ export default function ProfileScreen() {
     };
 
     const HeroSection = () => (
-        <View style={[styles.heroCard, !isDesktop && { padding: 16, borderRadius: 20 }]}>
+        <View style={[styles.heroCard, !isDesktop && styles.heroCardMobile]}>
             <View style={[styles.heroContent, !isDesktop && { gap: 12 }]}>
-                <View style={[styles.avatarWrapper, !isDesktop && { width: 60, height: 60, borderRadius: 30 }]}>
-                    <Text style={[styles.avatarEmoji, !isDesktop && { fontSize: 28 }]}>🎓</Text>
+                <View style={[styles.avatarWrapper, !isDesktop && styles.avatarMobile]}>
+                    <Text style={[styles.avatarEmoji, !isDesktop && { fontSize: 26 }]}>🎓</Text>
                 </View>
                 <View style={[styles.heroInfo, { flex: 1 }]}>
                     <Text
-                        style={[styles.heroName, !isDesktop && { fontSize: 22, letterSpacing: -0.5 }]}
+                        style={[styles.heroName, !isDesktop && { fontSize: 20, letterSpacing: -0.5 }]}
                         numberOfLines={1}
                         adjustsFontSizeToFit
                     >
                         {profile?.full_name || 'Student Model'}
                     </Text>
-                    <Text style={[styles.heroEmail, !isDesktop && { fontSize: 13 }]} numberOfLines={1}>{profile?.email || user?.email}</Text>
-                    <View style={[styles.statusBadge, !isDesktop && { paddingHorizontal: 10, paddingVertical: 4, marginTop: 6 }]}>
+                    <Text style={[styles.heroEmail, !isDesktop && { fontSize: 12 }]} numberOfLines={1}>{profile?.email || user?.email}</Text>
+                    <View style={[styles.statusBadge, !isDesktop && { paddingHorizontal: 8, paddingVertical: 4, marginTop: 6 }]}>
                         <CheckCircle2 size={isDesktop ? 14 : 11} color="#059669" />
-                        <Text style={[styles.statusText, !isDesktop && { fontSize: 10 }]}>ELITE LEARNER</Text>
+                        <Text style={[styles.statusText, !isDesktop && { fontSize: 9 }]}>ELITE LEARNER</Text>
                     </View>
                 </View>
             </View>
-            <Pressable style={[styles.settingsBtn, !isDesktop && { padding: 4 }]}>
+            <Pressable style={[styles.settingsBtn, !isDesktop && { padding: 8 }]}>
                 <Settings size={isDesktop ? 22 : 16} color="#64748B" />
             </Pressable>
         </View>
@@ -266,14 +266,18 @@ const styles = StyleSheet.create({
 
     heroCard: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 40,
+        padding: 24,
         backgroundColor: COLORS.white,
-        borderRadius: 32,
+        borderRadius: 24,
         borderWidth: 1,
         borderColor: '#E2E8F0',
         elevation: 2,
+    },
+    heroCardMobile: {
+        padding: 14,
+        borderRadius: 18,
     },
     heroContent: {
         flexDirection: 'row',
@@ -281,14 +285,19 @@ const styles = StyleSheet.create({
         gap: 32,
     },
     avatarWrapper: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         backgroundColor: '#F1F5F9',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    avatarEmoji: { fontSize: 56 },
+    avatarMobile: {
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+    },
+    avatarEmoji: { fontSize: 30 },
     heroInfo: { gap: 6 },
     heroName: {
         fontFamily: 'System',

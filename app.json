@@ -2,7 +2,7 @@
   "expo": {
     "name": "OG Chemistry",
     "slug": "og-chemistry-lms",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ogchem",
@@ -10,12 +10,12 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "3",
+      "buildNumber": "4",
       "bundleIdentifier": "com.comic.lms"
     },
     "android": {
       "package": "com.comic.lms",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FFD700"
@@ -47,6 +47,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f366f188-5665-4a12-84eb-2b3b0c3f1a7a"
+      }
     }
   }
 }

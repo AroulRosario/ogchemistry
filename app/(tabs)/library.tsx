@@ -67,14 +67,14 @@ export default function LibraryScreen() {
             <EliteNavigation />
             <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
                 <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
-                <ResponsiveContainer fullWidth>
-                    <ScrollView
+                <ScrollView
                         contentContainerStyle={[
                             styles.scrollContent,
                             { paddingHorizontal: isMobile ? 0 : 0 }
                         ]}
                         showsVerticalScrollIndicator={false}
                     >
+                  <ResponsiveContainer fullWidth scrollable={false}>
                         <GlobalStatsHero
                             totalProgress={globalStats.progress}
                             completedChapters={globalStats.completed}
@@ -88,8 +88,8 @@ export default function LibraryScreen() {
                             lessons={lessons}
                             onSelect={(id) => router.push(`/chapter/${id}`)}
                         />
-                    </ScrollView>
-                </ResponsiveContainer>
+                    </ResponsiveContainer>
+                </ScrollView>
             </View>
         </View>
     );

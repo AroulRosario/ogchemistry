@@ -16,6 +16,7 @@ export default function HomeScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const isMobile = width < 600;
   const isDesktop = width > 800;
   const isWide = width > 1200;
   const [rawLessons, setRawLessons] = useState<any[]>([]);
@@ -68,86 +69,94 @@ export default function HomeScreen() {
         <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
 
         <View style={styles.layoutContainer}>
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <ResponsiveContainer fullWidth>
-              {/* Welcome Hero - Fluid */}
-              <View style={styles.heroSection}>
-                <View style={[styles.heroContent, !isDesktop && { flexDirection: 'column', alignItems: 'flex-start', gap: 16 }]}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.heroGreeting, !isDesktop && { fontSize: 24 }]}>Welcome back, {user?.email?.split('@')[0] || 'Chemist'}! 👋</Text>
-                    <Text style={styles.heroSub}>You're on a {stats.streak_count} day streak. Master the next chapter to hit Gold!</Text>
-                  </View>
-                  <View style={styles.heroStats}>
-                    <View style={styles.miniStat}>
-                      <Trophy size={20} color={COLORS.yellow} />
-                      <View>
-                        <Text style={styles.miniStatValue}>TOP 5%</Text>
-                        <Text style={styles.miniStatLabel}>This Week</Text>
-                      </View>
+          <ScrollView
+            contentContainerStyle={[
+              styles.scroll,
+              { paddingHorizontal: isMobile ? 0 : 0 }
+            ]}
+            showsVerticalScrollIndicator={false}
+          >
+          <ResponsiveContainer fullWidth scrollable={false}>
+            <View style={styles.dashboardLayout}>
+                {/* Welcome Hero - Fluid */}
+                <View style={styles.heroSection}>
+                  <View style={[styles.heroContent, !isDesktop && { flexDirection: 'column', alignItems: 'flex-start', gap: 16 }]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.heroGreeting, !isDesktop && { fontSize: 24 }]}>Welcome back, {user?.email?.split('@')[0] || 'Chemist'}! 👋</Text>
+                      <Text style={styles.heroSub}>You're on a {stats.streak_count} day streak. Master the next chapter to hit Gold!</Text>
                     </View>
-                    <View style={styles.miniDivider} />
-                    <View style={styles.miniStat}>
-                      <Sparkles size={20} color={COLORS.blue} />
-                      <View>
-                        <Text style={styles.miniStatValue}>+450 XP</Text>
-                        <Text style={styles.miniStatLabel}>Past 24h</Text>
+                    <View style={styles.heroStats}>
+                      <View style={styles.miniStat}>
+                        <Trophy size={20} color={COLORS.yellow} />
+                        <View>
+                          <Text style={styles.miniStatValue}>TOP 5%</Text>
+                          <Text style={styles.miniStatLabel}>This Week</Text>
+                        </View>
+                      </View>
+                      <View style={styles.miniDivider} />
+                      <View style={styles.miniStat}>
+                        <Sparkles size={20} color={COLORS.blue} />
+                        <View>
+                          <Text style={styles.miniStatValue}>+450 XP</Text>
+                          <Text style={styles.miniStatLabel}>Past 24h</Text>
+                        </View>
                       </View>
                     </View>
                   </View>
                 </View>
-              </View>
 
-              <View style={styles.pathWrapper}>
-                <View style={styles.journeyHeader}>
-                  <View style={styles.missionBadge}>
-                    <Text style={styles.missionBadgeText}>CURRENT MISSION</Text>
+                <View style={styles.pathWrapper}>
+                  <View style={styles.journeyHeader}>
+                    <View style={styles.missionBadge}>
+                      <Text style={styles.missionBadgeText}>CURRENT MISSION</Text>
+                    </View>
+                    <Text style={styles.journeyTitle}>THE ORGANIC ODYSSEY</Text>
+                    <View style={styles.journeyProgress}>
+                      <View style={[styles.journeyBar, { width: '45%' }]} />
+                      <Text style={styles.journeyPercent}>45% Complete</Text>
+                    </View>
                   </View>
-                  <Text style={styles.journeyTitle}>THE ORGANIC ODYSSEY</Text>
-                  <View style={styles.journeyProgress}>
-                    <View style={[styles.journeyBar, { width: '45%' }]} />
-                    <Text style={styles.journeyPercent}>45% Complete</Text>
-                  </View>
-                </View>
 
-                {flatPath.length === 0 ? (
-                  <View style={styles.emptyCard}>
-                    <Text style={styles.emptyText}>No training modules found yet, Recruit!</Text>
-                  </View>
-                ) : (
-                  <View style={styles.timelineWrapper}>
-                    {flatPath.map((item, index) => (
-                      <View key={item.id} style={{ width: '100%' }}>
-                        {index % 4 === 0 && index !== 0 && (
-                          <View style={styles.milestoneMarker}>
-                            <View style={styles.milestoneBadge}>
-                              <Text style={styles.milestoneText}>UNIVERSE {Math.floor(index / 4) + 1}</Text>
+                  {flatPath.length === 0 ? (
+                    <View style={styles.emptyCard}>
+                      <Text style={styles.emptyText}>No training modules found yet, Recruit!</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.timelineWrapper}>
+                      {flatPath.map((item, index) => (
+                        <View key={item.id} style={{ width: '100%' }}>
+                          {index % 4 === 0 && index !== 0 && (
+                            <View style={styles.milestoneMarker}>
+                              <View style={styles.milestoneBadge}>
+                                <Text style={styles.milestoneText}>UNIVERSE {Math.floor(index / 4) + 1}</Text>
+                              </View>
                             </View>
-                          </View>
-                        )}
-                        <AnimatedCard delay={index * 100}>
-                          <PathNode
-                            index={index}
-                            title={item.title || item.data?.title}
-                            type="chapter"
-                            isLocked={index > 0}
-                            isCompleted={false}
-                            isLastNode={index === flatPath.length - 1}
-                            onPress={() => router.push(`/chapter/${item.id}`)}
-                          />
-                        </AnimatedCard>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
+                          )}
+                          <AnimatedCard delay={index * 100}>
+                            <PathNode
+                              index={index}
+                              title={item.title || item.data?.title}
+                              type="chapter"
+                              isLocked={index > 0}
+                              isCompleted={false}
+                              isLastNode={index === flatPath.length - 1}
+                              onPress={() => router.push(`/chapter/${item.id}`)}
+                            />
+                          </AnimatedCard>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                  
                 <View style={styles.pathFooter}>
                   <View style={styles.finishFlag}>
                     <Text style={styles.finishText}>THE MASTER LAB AWAITS...</Text>
                   </View>
                 </View>
               </View>
-            </ResponsiveContainer>
-          </ScrollView>
+            </View>
+          </ResponsiveContainer>
+        </ScrollView>
 
           {isWide && <RightSidebar />}
         </View>
@@ -162,6 +171,8 @@ const styles = StyleSheet.create({
   contentArea: { flex: 1 },
   desktopContentArea: { paddingLeft: 260 },
   layoutContainer: { flex: 1, flexDirection: 'row' },
+  dashboardLayout: { flex: 1, paddingBottom: 60 },
+  scroll: { flexGrow: 1 },
   scrollContent: { flexGrow: 1 },
   heroSection: {
     ...STYLES.card,

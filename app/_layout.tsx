@@ -6,7 +6,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import 'react-native-reanimated';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -32,83 +32,59 @@ function RootLayoutNav() {
     }
   }, [loaded]);
 
+  const navigate = useCallback(async () => {
+    try {
+      const hasLaunched = await AsyncStorage.getItem('hasLaunched');
+      const currentSegments = segments as any;
+      const inAuthGroup = currentSegments[0] === 'auth';
+      const inOnboardingGroup = currentSegments[0] === 'onboarding';
+      const inAdminGroup = currentSegments[0] === 'admin';
+      const inPendingGroup = currentSegments[0] === 'pending-approval';
+
+      // Always allow Admin access (for development/bypass)
+      if (inAdminGroup) return;
+
+      // 1. First launch → Onboarding
+      if (hasLaunched === null && !inOnboardingGroup) {
+        router.replace('/onboarding');
+        return;
+      }
+
+      // 2. Not logged in → Login
+      if (hasLaunched !== null && !session && !inAuthGroup) {
+        router.replace('/auth/login');
+        return;
+      }
+
+      // 3. Logged in check
+      if (session) {
+        // Fix Flicker: If we have a session but NO profile yet, 
+        // wait for the profile to arrive before redirecting to pending-approval.
+        if (!profile) {
+          return;
+        }
+
+        // A. If NOT approved and NOT on pending screen → Redirect to pending
+        if (profile.status !== 'approved' && !inPendingGroup) {
+          router.replace('/pending-approval' as any);
+          return;
+        }
+
+        // B. If approved and on auth/onboarding/pending pages → Home
+        if (profile.status === 'approved' && (inAuthGroup || inOnboardingGroup || inPendingGroup)) {
+          router.replace('/');
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('[RootLayout] Navigation error:', error);
+    }
+  }, [session, profile, segments, router]);
+
   useEffect(() => {
     if (loading || !loaded) return;
-
-    const navigate = async () => {
-      try {
-        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        const currentSegments = segments as any;
-        const inAuthGroup = currentSegments[0] === 'auth';
-        const inOnboardingGroup = currentSegments[0] === 'onboarding';
-        const inAdminGroup = currentSegments[0] === 'admin';
-        const inPendingGroup = currentSegments[0] === 'pending-approval';
-
-        console.log('[RootLayout] Navigation check:', {
-          hasLaunched,
-          hasSession: !!session,
-          status: profile?.status,
-          segments: segments.join('/'),
-          inAuthGroup,
-        });
-
-        // Always allow Admin access (for development/bypass)
-        if (inAdminGroup) return;
-
-        // 1. First launch → Onboarding
-        if (hasLaunched === null && !inOnboardingGroup) {
-          console.log('[RootLayout] → Redirecting to onboarding');
-          router.replace('/onboarding');
-          return;
-        }
-
-        // Fix Flicker: If we have a session but profile is still null and we are loading fixed,
-        // wait for the profile to resolve before deciding on a redirect.
-        if (session && !profile && !loading) {
-          // Small delay to allow AuthContext profile fetch to finish if it's in flight
-          // but technically 'loading' covers it. If profile is still null after loading, 
-          // it means it's a new user or fetch failed.
-        }
-
-        // 2. Not logged in → Login
-        if (hasLaunched !== null && !session && !inAuthGroup) {
-          console.log('[RootLayout] → Redirecting to login');
-          router.replace('/auth/login');
-          return;
-        }
-
-        // 3. Logged in check
-        if (session) {
-          // Fix Flicker: If we have a session but NO profile yet, 
-          // wait for the profile to arrive before redirecting to pending-approval.
-          if (!profile) {
-            console.log('[RootLayout] Waiting for profile data...');
-            return;
-          }
-
-          // A. If NOT approved and NOT on pending screen → Redirect to pending
-          if (profile.status !== 'approved' && !inPendingGroup) {
-            console.log('[RootLayout] → Redirecting to pending-approval (Status:', profile.status, ')');
-            router.replace('/pending-approval' as any);
-            return;
-          }
-
-          // B. If approved and on auth/onboarding/pending pages → Home
-          if (profile.status === 'approved' && (inAuthGroup || inOnboardingGroup || inPendingGroup)) {
-            console.log('[RootLayout] → Redirecting to home (user is approved)');
-            router.replace('/');
-            return;
-          }
-        }
-
-        console.log('[RootLayout] → No redirect needed');
-      } catch (error) {
-        console.error('[RootLayout] Navigation error:', error);
-      }
-    };
-
     navigate();
-  }, [session, profile, loading, segments, loaded]);
+  }, [loading, loaded, navigate]);
 
   if (!loaded || loading) {
     return null;

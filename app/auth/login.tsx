@@ -3,7 +3,7 @@ import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { Link } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Animated, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 
 export default function LoginScreen() {
     const [step, setStep] = useState(1); // 1: Email, 2: Password
@@ -75,7 +75,10 @@ export default function LoginScreen() {
     }
 
     return (
-        <View style={styles.mainLayout}>
+        <KeyboardAvoidingView 
+            style={styles.mainLayout} 
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
             <ResponsiveContainer style={{ flex: 1 }} contentContainerStyle={{ justifyContent: 'center' }}>
                 <View style={[styles.contentLayout, isDesktop && styles.desktopLayout]}>
 
@@ -192,7 +195,7 @@ export default function LoginScreen() {
 
                 </View>
             </ResponsiveContainer>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -235,7 +238,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
     },
     mobilePane: {
-        padding: 16,
+        padding: 0, // Removed double padding from parent container
     },
     mobileHeader: {
         alignItems: 'center',

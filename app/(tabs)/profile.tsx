@@ -193,7 +193,7 @@ export default function ProfileScreen() {
                     ]}
                     showsVerticalScrollIndicator={false}
                 >
-                    <ResponsiveContainer fullWidth>
+                    <ResponsiveContainer fullWidth scrollable={false}>
                         <View style={[styles.dashboardLayout, !isDesktop && { gap: 20 }]}>
                             <HeroSection />
 

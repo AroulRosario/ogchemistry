@@ -7,20 +7,20 @@
 6 silly config load:file:/usr/local/etc/npmrc
 7 verbose title npm install types-registry@latest
 8 verbose argv "install" "--ignore-scripts" "types-registry@latest"
-9 verbose logfile logs-max:10 dir:/Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-10T15_31_11_633Z-
-10 verbose logfile /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-10T15_31_11_633Z-debug-0.log
-11 silly logfile start cleaning logs, removing 1 files
+9 verbose logfile logs-max:10 dir:/Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-18T02_46_04_495Z-
+10 verbose logfile /Users/rosario/Desktop/LMS app/admin-dashboard/.npm_cache/_logs/2026-03-18T02_46_04_495Z-debug-0.log
+11 silly logfile start cleaning logs, removing 2 files
 12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
 13 silly logfile done cleaning log files
 14 silly packumentCache corgi:https://registry.npmjs.org/types-registry cache-miss
-15 http fetch GET 200 https://registry.npmjs.org/types-registry 558ms (cache revalidated)
-16 silly packumentCache corgi:https://registry.npmjs.org/types-registry set size:619462 disposed:false
+15 http fetch GET 200 https://registry.npmjs.org/types-registry 627ms (cache revalidated)
+16 silly packumentCache corgi:https://registry.npmjs.org/types-registry set size:619992 disposed:false
 17 silly idealTree buildDeps
-18 silly fetch manifest types-registry@0.1.760
+18 silly fetch manifest types-registry@0.1.761
 19 silly packumentCache full:https://registry.npmjs.org/types-registry cache-miss
-20 http fetch GET 200 https://registry.npmjs.org/types-registry 47ms (cache revalidated)
-21 silly packumentCache full:https://registry.npmjs.org/types-registry set size:1335380 disposed:false
-22 silly placeDep ROOT types-registry@0.1.760 REPLACE for:  want: 0.1.760
+20 http fetch GET 200 https://registry.npmjs.org/types-registry 65ms (cache revalidated)
+21 silly packumentCache full:https://registry.npmjs.org/types-registry set size:1337103 disposed:false
+22 silly placeDep ROOT types-registry@0.1.761 REPLACE for:  want: 0.1.761
 23 silly reify moves {}
 24 silly audit bulk request {
 24 silly audit   '@babel/code-frame': [ '7.29.0' ],
@@ -127,6 +127,7 @@
 24 silly audit   '@types/vary': [ '1.1.3' ],
 24 silly audit   '@types/webxr': [ '0.5.24' ],
 24 silly audit   '@types/ws': [ '8.18.1' ],
+24 silly audit   '@types/xcode': [ '3.0.0' ],
 24 silly audit   '@types/xml2js': [ '0.4.14' ],
 24 silly audit   '@types/yargs': [ '17.0.35' ],
 24 silly audit   '@types/yargs-parser': [ '21.0.3' ],
@@ -352,9 +353,9 @@
 24 silly audit   yaml: [ '2.8.2' ],
 24 silly audit   yargs: [ '17.7.2' ],
 24 silly audit   'yargs-parser': [ '21.1.1' ],
-24 silly audit   'types-registry': [ '0.1.760' ]
+24 silly audit   'types-registry': [ '0.1.761' ]
 24 silly audit }
-25 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 990ms
+25 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 244ms
 26 silly audit report {
 26 silly audit report   minimatch: [
 26 silly audit report     {
@@ -387,13 +388,13 @@
 26 silly audit report   ]
 26 silly audit report }
 27 silly packumentCache corgi:https://registry.npmjs.org/minimatch cache-miss
-28 http cache https://registry.npmjs.org/minimatch 21ms (cache hit)
+28 http fetch GET 200 https://registry.npmjs.org/minimatch 61ms (cache revalidated)
 29 silly packumentCache corgi:https://registry.npmjs.org/minimatch set size:167610 disposed:false
 30 silly packumentCache corgi:https://registry.npmjs.org/glob cache-miss
 31 silly packumentCache corgi:https://registry.npmjs.org/test-exclude cache-miss
-32 http cache https://registry.npmjs.org/test-exclude 4ms (cache hit)
+32 http fetch GET 200 https://registry.npmjs.org/test-exclude 55ms (cache revalidated)
 33 silly packumentCache corgi:https://registry.npmjs.org/test-exclude set size:42527 disposed:false
-34 http cache https://registry.npmjs.org/glob 6ms (cache hit)
+34 http fetch GET 200 https://registry.npmjs.org/glob 88ms (cache revalidated)
 35 silly packumentCache corgi:https://registry.npmjs.org/glob set size:199194 disposed:false
 36 verbose cwd /Users/rosario/Library/Caches/typescript/5.9
 37 verbose os Darwin 25.0.0

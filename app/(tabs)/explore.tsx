@@ -59,7 +59,7 @@ export default function ExploreScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <ResponsiveContainer fullWidth>
+          <ResponsiveContainer fullWidth scrollable={false}>
             {/* Search & Filter Header */}
             <View style={styles.headerControls}>
               <View style={styles.searchBar}>

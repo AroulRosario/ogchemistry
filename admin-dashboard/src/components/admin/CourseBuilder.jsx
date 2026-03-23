@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../supabase';
-import MobilePreview from './MobilePreview';
 
 export default function CourseBuilder({ lessons, chapters, contentItems, fetchAll, showNotification }) {
     const [expandedLessons, setExpandedLessons] = useState({});
@@ -30,6 +29,38 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
     const [geminiPrompt, setGeminiPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [localApiKey, setLocalApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
+    const [models, setModels] = useState([]);
+    const [selectedModel, setSelectedModel] = useState('');
+    const [isFetchingModels, setIsFetchingModels] = useState(false);
+
+    const fetchModels = async () => {
+        if (!localApiKey.trim()) {
+            showNotification('Enter Gemini API Key first', 'error');
+            return;
+        }
+        setIsFetchingModels(true);
+        try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${localApiKey}`);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error.message);
+            if (data.models) {
+                const available = data.models.filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'));
+                setModels(available);
+                if (available.length > 0) {
+                    const flash = available.find(m => m.name.includes('gemini-1.5-flash'));
+                    setSelectedModel(flash ? flash.name : available[0].name);
+                    localStorage.setItem('gemini_api_key', localApiKey);
+                    showNotification('Models fetched successfully!');
+                } else {
+                    showNotification('No content-generating models found.', 'error');
+                }
+            }
+        } catch (err) {
+            showNotification(`Failed to fetch models: ${err.message}`, 'error');
+        } finally {
+            setIsFetchingModels(false);
+        }
+    };
 
     // Add item state
     const [addingTo, setAddingTo] = useState(null);
@@ -160,11 +191,15 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
             showNotification('Gemini API Key missing! Please enter it in the prompt space.', 'error');
             return;
         }
+        if (!selectedModel) {
+            showNotification('Please fetch and select a model first.', 'error');
+            return;
+        }
         if (!geminiPrompt.trim()) return;
 
         setIsGenerating(true);
         try {
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
 
             let systemPrompt = '';
             if (formState.content_type === 'quiz') {
@@ -218,21 +253,6 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
         }
     };
 
-    // Compute live preview data
-    const getLivePreviewData = () => {
-        try {
-            if (formState.content_type === 'quiz' || formState.content_type === 'pyq') {
-                return JSON.parse(formState.content);
-            }
-        } catch (e) { /* ignore */ }
-        return {
-            html: formState.content,
-            text: formState.content,
-            notes: formState.notes,
-            url: formState.url
-        };
-    };
-
     return (
         <div className="fade-in" style={{ display: 'flex', gap: '1.5rem', height: 'calc(100vh - 160px)', position: 'relative' }}>
 
@@ -263,17 +283,34 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
 
                         <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                             <label>Gemini API Key</label>
-                            <input
-                                type="password"
-                                className="input"
-                                value={localApiKey}
-                                onChange={e => {
-                                    setLocalApiKey(e.target.value);
-                                    localStorage.setItem('gemini_api_key', e.target.value);
-                                }}
-                                placeholder="Enter API Key here..."
-                            />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="password"
+                                    className="input"
+                                    style={{ flex: 1 }}
+                                    value={localApiKey}
+                                    onChange={e => {
+                                        setLocalApiKey(e.target.value);
+                                        localStorage.setItem('gemini_api_key', e.target.value);
+                                    }}
+                                    placeholder="Enter API Key here..."
+                                />
+                                <button className="btn btn-secondary" onClick={fetchModels} disabled={isFetchingModels || !localApiKey}>
+                                    {isFetchingModels ? 'Fetching...' : 'Fetch Models'}
+                                </button>
+                            </div>
                         </div>
+
+                        {models.length > 0 && (
+                            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                                <label>Select Model</label>
+                                <select className="input" value={selectedModel} onChange={e => setSelectedModel(e.target.value)}>
+                                    {models.map(m => (
+                                        <option key={m.name} value={m.name}>{m.displayName || m.name.replace('models/', '')}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label>What do you want to generate?</label>
@@ -541,21 +578,6 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                             )}
                         </div>
                     )}
-                </div>
-            </div>
-
-            {/* ── Column 3: Live Mobile Preview ── */}
-            <div style={{ flex: '0 0 300px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Preview</h2>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: '0.2rem' }}>See how learners see your content</p>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <MobilePreview
-                        type={formState.content_type}
-                        title={formState.title}
-                        data={getLivePreviewData()}
-                    />
                 </div>
             </div>
 

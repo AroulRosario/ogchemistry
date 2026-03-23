@@ -1,3 +1,4 @@
+import { LaTeXText } from '@/components/LaTeXText';
 import { COLORS } from '@/constants/theme';
 import { BookOpen, FileText, HelpCircle, Layers, MessageSquare } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -60,34 +61,14 @@ export function ChapterInteractionHub({ notes, flashcards, resources }: ChapterI
                                 <Text style={{ marginTop: 12, color: '#94A3B8', fontWeight: '700', fontSize: 14 }}>No notes for this item yet.</Text>
                             </View>
                         ) : (
-                            <View style={{ gap: 6 }}>
-                                {notes.split('\n').map((line, i) => {
-                                    if (line.startsWith('## '))
-                                        return <Text key={i} style={styles.noteH2}>{line.slice(3)}</Text>;
-                                    if (line.startsWith('### '))
-                                        return <Text key={i} style={styles.noteH3}>{line.slice(4)}</Text>;
-                                    if (line.trim() === '---')
-                                        return <View key={i} style={styles.noteDivider} />;
-                                    if (line.startsWith('- ') || line.startsWith('* '))
-                                        return (
-                                            <View key={i} style={{ flexDirection: 'row', gap: 8 }}>
-                                                <Text style={{ color: COLORS.blue, fontWeight: '800', fontSize: 16, lineHeight: 24 }}>•</Text>
-                                                <Text style={styles.notesText}>{line.slice(2)}</Text>
-                                            </View>
-                                        );
-                                    if (line.trim().startsWith('$$') && line.trim().endsWith('$$'))
-                                        return (
-                                            <View key={i} style={styles.latexBlock}>
-                                                <Text style={styles.latexText}>{line.trim().slice(2, -2).trim()}</Text>
-                                            </View>
-                                        );
-                                    if (line.trim() === '')
-                                        return <View key={i} style={{ height: 8 }} />;
-                                    return <Text key={i} style={styles.notesText}>{line}</Text>;
-                                })}
-                            </View>
-                        )}
-                        {resources && resources.length > 0 && (
+                        <LaTeXText 
+                            text={notes} 
+                            fontSize={15} 
+                            color="#334155" 
+                            isMarkdown={true}
+                        />
+                    )}
+                    {resources && resources.length > 0 && (
                             <View style={styles.resourceBox}>
                                 <Text style={styles.resourceTitle}>Resources</Text>
                                 {resources.map((r: any, i: number) => (

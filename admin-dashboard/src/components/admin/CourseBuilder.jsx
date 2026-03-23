@@ -295,6 +295,11 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
             setShowGemini(false);
             setGeminiPrompt('');
             showNotification('✨ AI Content Generated!');
+            
+            // Auto-save the generated content to the database
+            setTimeout(() => {
+                handleSaveEditor();
+            }, 500);
         } catch (error) {
             console.error('Gemini error:', error);
             showNotification(`Generation failed: ${error.message}`, 'error');

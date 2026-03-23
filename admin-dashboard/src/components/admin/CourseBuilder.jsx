@@ -29,6 +29,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
     const [showGemini, setShowGemini] = useState(false);
     const [geminiPrompt, setGeminiPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [localApiKey, setLocalApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
 
     // Add item state
     const [addingTo, setAddingTo] = useState(null);
@@ -154,9 +155,9 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
     };
 
     const handleGeminiGen = async () => {
-        const apiKey = localStorage.getItem('gemini_api_key');
+        const apiKey = localApiKey || localStorage.getItem('gemini_api_key');
         if (!apiKey) {
-            showNotification('Gemini API Key missing! Go to Settings > AI Configuration.', 'error');
+            showNotification('Gemini API Key missing! Please enter it in the prompt space.', 'error');
             return;
         }
         if (!geminiPrompt.trim()) return;
@@ -174,18 +175,18 @@ Use proper LaTeX for ALL chemical formulas (e.g. $H_2O$, $K_2Cr_2O_7$, $\\Delta 
 Generate exactly 5 questions.`;
             } else if (formState.content_type === 'pyq') {
                 systemPrompt = `You are an expert at NEET/JEE chemistry previous year questions.
-Generate a REAL Previous Year Question from NEET or JEE (Mains or Advanced) as a valid JSON object ONLY.
+Generate a REAL Previous Year Question SPECIFICALLY from NEET, JEE Mains, or JEE Advanced as a valid JSON object ONLY.
 Format: { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A. ...", "solution": "Step-by-step detailed solution here...", "year": "2023", "exam": "NEET", "difficulty": "Hard" }
-Use perfect LaTeX for ALL formulas. The question MUST be an actual past paper question.`;
+The question MUST be an actual past paper question with exact answers perfect latex for all formulas. Include accurate difficulty level.`;
             } else if (formState.content_type === 'html_sim') {
                 systemPrompt = `You are an expert Chemistry educator creating interactive HTML simulations.
 Create a self-contained HTML page (no external dependencies except CDN links) that visually simulates the requested concept.
 Use inline CSS and vanilla JavaScript. Make it visually beautiful with animations. Return ONLY the complete HTML code, nothing else.`;
             } else {
-                systemPrompt = `You are an expert Chemistry teacher writing structured notes for JEE/NEET students.
-Write detailed, comprehensive notes in Markdown format.
-Use proper LaTeX for ALL formulas: inline math uses $...$, block math uses $$...$$.
-Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Examples.`;
+                systemPrompt = `You are an expert Chemistry teacher creating beautiful "Comic Notes" for JEE/NEET learners.
+Generate the content as per a premium UI and design using Markdown format. 
+You MUST use PERFECT LaTeX for ALL formulas (inline math uses $...$, block math uses $$...$$).
+Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Examples. Ensure it is highly readable and available for learners.`;
             }
 
             const response = await fetch(endpoint, {
@@ -259,6 +260,20 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                 💡 <b>PYQ Mode:</b> Describe the exam, year, chapter or topic. AI will find a real PYQ with a detailed solution and LaTeX formulas.
                             </div>
                         )}
+
+                        <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                            <label>Gemini API Key</label>
+                            <input
+                                type="password"
+                                className="input"
+                                value={localApiKey}
+                                onChange={e => {
+                                    setLocalApiKey(e.target.value);
+                                    localStorage.setItem('gemini_api_key', e.target.value);
+                                }}
+                                placeholder="Enter API Key here..."
+                            />
+                        </div>
 
                         <div className="form-group">
                             <label>What do you want to generate?</label>

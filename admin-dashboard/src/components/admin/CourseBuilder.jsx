@@ -1,11 +1,16 @@
-import { AlignLeft, CheckSquare, ChevronDown, ChevronRight, Edit3, File as FileIcon, Folder, Globe, Layers, PlayCircle, Plus, Save, Trash2, X } from 'lucide-react';
+import {
+    AlignLeft, CheckSquare, ChevronDown, ChevronRight, Edit3,
+    File as FileIcon, Folder, Globe, Layers, PlayCircle,
+    Plus, Save, Sparkles, Trash2, X
+} from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../supabase';
+import MobilePreview from './MobilePreview';
 
 export default function CourseBuilder({ lessons, chapters, contentItems, fetchAll, showNotification }) {
     const [expandedLessons, setExpandedLessons] = useState({});
     const [expandedChapters, setExpandedChapters] = useState({});
-    const [selectedItem, setSelectedItem] = useState(null); // { type, data }
+    const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [formState, setFormState] = useState({
         title: '',
@@ -20,6 +25,12 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
         resources: '',
     });
 
+    // Gemini AI state
+    const [showGemini, setShowGemini] = useState(false);
+    const [geminiPrompt, setGeminiPrompt] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    // Add item state
     const [addingTo, setAddingTo] = useState(null);
     const [newName, setNewName] = useState('');
 
@@ -28,10 +39,13 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
         setFormState({
             title: data.title || (data.data && data.data.title) || '',
             description: data.description || '',
-            category: data.category || 'Core', // Added category
+            category: data.category || 'Core',
             content_type: data.type || 'video',
             url: data.data?.url || '',
-            content: data.data?.html || data.data?.text || (data.data?.questions ? JSON.stringify(data.data.questions, null, 2) : '') || data.data?.description || '',
+            content: data.data?.html || data.data?.text || data.data?.question ||
+                (data.data?.questions ? JSON.stringify(data.data.questions, null, 2) : '') ||
+                (data.data?.question ? JSON.stringify({ question: data.data.question, solution: data.data.solution, year: data.data.year, exam: data.data.exam }, null, 2) : '') ||
+                data.data?.description || '',
             passing_score: data.data?.passing_score || 80,
             notes: data.data?.notes || '',
             flashcards: JSON.stringify(data.data?.flashcards || [], null, 2),
@@ -80,7 +94,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 await supabase.from('lessons').update({
                     title: formState.title,
                     description: formState.description,
-                    category: formState.category // Added category
+                    category: formState.category
                 }).eq('id', selectedItem.data.id);
             } else if (selectedItem.type === 'chapter') {
                 await supabase.from('chapters').update({
@@ -100,13 +114,20 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                         dataToSave.questions = JSON.parse(formState.content);
                         dataToSave.passing_score = formState.passing_score;
                     } catch (e) {
-                        dataToSave.rawTxt = formState.content; // Fallback for invalid JSON
+                        dataToSave.rawTxt = formState.content;
                     }
                 } else if (formState.content_type === 'assignment') {
                     dataToSave.passing_score = formState.passing_score;
                     dataToSave.description = formState.content;
                 } else if (formState.content_type === 'text') {
                     dataToSave.text = formState.content;
+                } else if (formState.content_type === 'pyq') {
+                    try {
+                        const parsed = JSON.parse(formState.content);
+                        Object.assign(dataToSave, parsed);
+                    } catch (e) {
+                        dataToSave.question = formState.content;
+                    }
                 }
 
                 await supabase.from('content_items').update({
@@ -114,7 +135,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                     data: dataToSave
                 }).eq('id', selectedItem.data.id);
             }
-            showNotification('Schedules & content updated');
+            showNotification('Content saved successfully');
             await fetchAll();
         } catch (error) {
             showNotification('Save failed', 'error');
@@ -128,13 +149,156 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
         quiz: <CheckSquare size={14} />,
         html_sim: <Globe size={14} />,
         assignment: <Edit3 size={14} />,
-        text: <AlignLeft size={14} />
+        text: <AlignLeft size={14} />,
+        pyq: <Sparkles size={14} color="#EF4444" />
+    };
+
+    const handleGeminiGen = async () => {
+        const apiKey = localStorage.getItem('gemini_api_key');
+        if (!apiKey) {
+            showNotification('Gemini API Key missing! Go to Settings > AI Configuration.', 'error');
+            return;
+        }
+        if (!geminiPrompt.trim()) return;
+
+        setIsGenerating(true);
+        try {
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+            let systemPrompt = '';
+            if (formState.content_type === 'quiz') {
+                systemPrompt = `You are an expert Chemistry teacher for JEE/NEET preparation.
+Generate a Chemistry quiz as a valid JSON object ONLY (no markdown fences, no explanation text).
+Format: { "questions": [ { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A. ..." } ] }
+Use proper LaTeX for ALL chemical formulas (e.g. $H_2O$, $K_2Cr_2O_7$, $\\Delta G = \\Delta H - T\\Delta S$).
+Generate exactly 5 questions.`;
+            } else if (formState.content_type === 'pyq') {
+                systemPrompt = `You are an expert at NEET/JEE chemistry previous year questions.
+Generate a REAL Previous Year Question from NEET or JEE (Mains or Advanced) as a valid JSON object ONLY.
+Format: { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A. ...", "solution": "Step-by-step detailed solution here...", "year": "2023", "exam": "NEET", "difficulty": "Hard" }
+Use perfect LaTeX for ALL formulas. The question MUST be an actual past paper question.`;
+            } else if (formState.content_type === 'html_sim') {
+                systemPrompt = `You are an expert Chemistry educator creating interactive HTML simulations.
+Create a self-contained HTML page (no external dependencies except CDN links) that visually simulates the requested concept.
+Use inline CSS and vanilla JavaScript. Make it visually beautiful with animations. Return ONLY the complete HTML code, nothing else.`;
+            } else {
+                systemPrompt = `You are an expert Chemistry teacher writing structured notes for JEE/NEET students.
+Write detailed, comprehensive notes in Markdown format.
+Use proper LaTeX for ALL formulas: inline math uses $...$, block math uses $$...$$.
+Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Examples.`;
+            }
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${systemPrompt}\n\nTopic/Request: ${geminiPrompt}` }] }]
+                })
+            });
+
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            const result = await response.json();
+            const text = result.candidates[0].content.parts[0].text;
+
+            // Strip possible markdown code fences
+            const jsonMatch = text.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
+            const htmlMatch = text.match(/<!DOCTYPE html[\s\S]*/i);
+            const finalContent = jsonMatch ? jsonMatch[1].trim() : (htmlMatch ? htmlMatch[0] : text.trim());
+
+            setFormState(prev => ({ ...prev, content: finalContent }));
+            setShowGemini(false);
+            setGeminiPrompt('');
+            showNotification('✨ AI Content Generated!');
+        } catch (error) {
+            console.error('Gemini error:', error);
+            showNotification(`Generation failed: ${error.message}`, 'error');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    // Compute live preview data
+    const getLivePreviewData = () => {
+        try {
+            if (formState.content_type === 'quiz' || formState.content_type === 'pyq') {
+                return JSON.parse(formState.content);
+            }
+        } catch (e) { /* ignore */ }
+        return {
+            html: formState.content,
+            text: formState.content,
+            notes: formState.notes,
+            url: formState.url
+        };
     };
 
     return (
-        <div className="fade-in" style={{ display: 'flex', gap: '2rem', height: 'calc(100vh - 160px)' }}>
+        <div className="fade-in" style={{ display: 'flex', gap: '1.5rem', height: 'calc(100vh - 160px)', position: 'relative' }}>
 
-            {/* Modal */}
+            {/* ── Gemini AI Modal ── */}
+            {showGemini && (
+                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1200 }}>
+                    <div className="card" style={{ width: '520px', padding: '2rem', border: '2px solid var(--blue)', borderRadius: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #2563EB, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Sparkles size={18} color="white" />
+                                </div>
+                                <div>
+                                    <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Gemini AI Generator</h3>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: 0 }}>Generating for: <b>{formState.content_type.toUpperCase()}</b></p>
+                                </div>
+                            </div>
+                            <button onClick={() => { setShowGemini(false); setGeminiPrompt(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }}>
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        {formState.content_type === 'pyq' && (
+                            <div style={{ padding: '0.75rem 1rem', backgroundColor: '#FEF3C7', borderRadius: '8px', marginBottom: '1.25rem', fontSize: '0.8rem', color: '#92400E' }}>
+                                💡 <b>PYQ Mode:</b> Describe the exam, year, chapter or topic. AI will find a real PYQ with a detailed solution and LaTeX formulas.
+                            </div>
+                        )}
+
+                        <div className="form-group">
+                            <label>What do you want to generate?</label>
+                            <textarea
+                                autoFocus
+                                className="input"
+                                style={{ minHeight: '110px', resize: 'vertical' }}
+                                value={geminiPrompt}
+                                onChange={e => setGeminiPrompt(e.target.value)}
+                                onKeyDown={e => e.key === 'Enter' && e.ctrlKey && handleGeminiGen()}
+                                placeholder={
+                                    formState.content_type === 'pyq'
+                                        ? 'e.g. JEE Advanced 2022 Electrochemistry hard question...'
+                                        : formState.content_type === 'quiz'
+                                        ? 'e.g. 5 MCQs on Aldol Condensation with concepts tested...'
+                                        : formState.content_type === 'html_sim'
+                                        ? 'e.g. Interactive SN1 vs SN2 reaction mechanism simulator...'
+                                        : 'e.g. Comprehensive notes on Chemical Equilibrium with Le Chatelier\'s Principle...'
+                                }
+                            />
+                            <p style={{ fontSize: '0.7rem', color: 'var(--gray-400)', marginTop: '0.4rem' }}>Ctrl+Enter to generate</p>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => { setShowGemini(false); setGeminiPrompt(''); }}>Cancel</button>
+                            <button
+                                className="btn btn-primary"
+                                style={{ flex: 2, background: 'linear-gradient(135deg, #2563EB, #7C3AED)', border: 'none' }}
+                                onClick={handleGeminiGen}
+                                disabled={isGenerating || !geminiPrompt.trim()}
+                            >
+                                <Sparkles size={16} />
+                                {isGenerating ? 'Generating…' : '✨ Generate with AI'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Add Item Modal ── */}
             {addingTo && (
                 <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100 }}>
                     <div className="card" style={{ width: '400px', padding: '2rem' }}>
@@ -154,28 +318,21 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 </div>
             )}
 
-            {/* Tree View (Syllabus) */}
-            <div style={{ flex: '0 0 450px', display: 'flex', flexDirection: 'column' }}>
+            {/* ── Column 1: Syllabus Tree ── */}
+            <div style={{ flex: '0 0 300px', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Syllabus Explorer</h2>
+                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Syllabus</h2>
                     <button className="btn btn-primary" style={{ height: '32px', padding: '0 0.75rem', fontSize: '0.8rem' }} onClick={() => setAddingTo({ type: 'lesson' })}>
-                        <Plus size={14} /> Add Module
+                        <Plus size={14} /> Module
                     </button>
                 </div>
 
-                <div className="card" style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: 'var(--white)' }}>
-                    {lessons.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-400)', fontSize: '0.9rem' }}>No syllabus structure found.</p>}
-
+                <div className="card" style={{ flex: 1, padding: '0.75rem', overflowY: 'auto', background: 'var(--white)' }}>
+                    {lessons.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-400)', fontSize: '0.9rem' }}>No syllabus yet.</p>}
                     {lessons.map(lesson => (
                         <div key={lesson.id} style={{ marginBottom: '0.25rem' }}>
                             <div
-                                className={`tree-item ${selectedItem?.data?.id === lesson.id ? 'active' : ''}`}
-                                style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '0.6rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer',
-                                    backgroundColor: selectedItem?.data?.id === lesson.id ? 'var(--blue-light)' : 'transparent',
-                                    color: selectedItem?.data?.id === lesson.id ? 'var(--blue)' : 'inherit'
-                                }}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === lesson.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === lesson.id ? 'var(--blue)' : 'inherit' }}
                                 onClick={() => handleSelect('lesson', lesson)}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={(e) => { e.stopPropagation(); toggleLesson(lesson.id); }}>
@@ -183,7 +340,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                                     <Folder size={16} />
                                     <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>{lesson.title}</span>
                                 </div>
-                                <button className="add-btn-small" onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'chapter', parentId: lesson.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5 }}><Plus size={14} /></button>
+                                <button onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'chapter', parentId: lesson.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5 }}><Plus size={14} /></button>
                             </div>
 
                             {expandedLessons[lesson.id] && (
@@ -191,12 +348,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                                     {chapters.filter(c => c.lesson_id === lesson.id).map(chapter => (
                                         <div key={chapter.id}>
                                             <div
-                                                style={{
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                                    padding: '0.5rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer',
-                                                    backgroundColor: selectedItem?.data?.id === chapter.id ? 'var(--gray-100)' : 'transparent',
-                                                    fontSize: '0.85rem'
-                                                }}
+                                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === chapter.id ? 'var(--gray-100)' : 'transparent', fontSize: '0.85rem' }}
                                                 onClick={() => handleSelect('chapter', chapter)}
                                             >
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={(e) => { e.stopPropagation(); toggleChapter(chapter.id); }}>
@@ -212,13 +364,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                                                     {contentItems.filter(ci => ci.chapter_id === chapter.id).map(item => (
                                                         <div
                                                             key={item.id}
-                                                            style={{
-                                                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                                                padding: '0.4rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer',
-                                                                backgroundColor: selectedItem?.data?.id === item.id ? 'var(--blue-light)' : 'transparent',
-                                                                color: selectedItem?.data?.id === item.id ? 'var(--blue)' : 'var(--gray-600)',
-                                                                fontSize: '0.8rem'
-                                                            }}
+                                                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === item.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === item.id ? 'var(--blue)' : 'var(--gray-600)', fontSize: '0.8rem' }}
                                                             onClick={() => handleSelect('content', item)}
                                                         >
                                                             {TYPE_ICONS[item.type] || <FileIcon size={14} />}
@@ -236,31 +382,36 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                 </div>
             </div>
 
-            {/* Editor Panel */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* ── Column 2: Editor ── */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Editor Profile</h2>
+                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Content Editor</h2>
                     {selectedItem && (
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                            <button className="btn btn-secondary" style={{ padding: '0.4rem 1rem' }} onClick={() => {
-                                const table = selectedItem.type === 'lesson' ? 'lessons' : selectedItem.type === 'chapter' ? 'chapters' : 'content_items';
-                            }}><Trash2 size={16} color="var(--error)" /></button>
-                            <button className="btn btn-primary" style={{ padding: '0.4rem 1.75rem' }} onClick={handleSaveEditor} disabled={loading}>
-                                <Save size={16} /> Update Details
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                                className="btn btn-secondary"
+                                style={{ padding: '0.4rem 0.9rem', background: 'linear-gradient(135deg, #EEF2FF, #F3E8FF)', border: '1px solid #C7D2FE', color: '#4338CA' }}
+                                onClick={() => setShowGemini(true)}
+                            >
+                                <Sparkles size={15} /> AI Generate
+                            </button>
+                            <button className="btn btn-primary" style={{ padding: '0.4rem 1.5rem' }} onClick={handleSaveEditor} disabled={loading}>
+                                <Save size={15} /> Save
                             </button>
                         </div>
                     )}
                 </div>
 
-                <div className="card" style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+                <div className="card" style={{ flex: 1, padding: '1.75rem', overflowY: 'auto' }}>
                     {!selectedItem ? (
-                        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.4 }}>
+                        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.35 }}>
                             <Edit3 size={48} style={{ marginBottom: '1rem' }} />
-                            <p style={{ fontWeight: '600' }}>Select an item to modify</p>
+                            <p style={{ fontWeight: '600' }}>Select an item from the syllabus to edit</p>
                         </div>
                     ) : (
-                        <div className="fade-in">
-                            <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
+                        <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            {/* Title + Type row */}
+                            <div style={{ display: 'flex', gap: '1.5rem' }}>
                                 <div style={{ flex: 2 }}>
                                     <label>Display Title</label>
                                     <input className="input" value={formState.title} onChange={e => setFormState({ ...formState, title: e.target.value })} />
@@ -281,61 +432,92 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                                     <div style={{ flex: 1 }}>
                                         <label>Integration Type</label>
                                         <select className="input" value={formState.content_type} onChange={e => setFormState({ ...formState, content_type: e.target.value })}>
-                                            <option value="video">Resource: Video</option>
-                                            <option value="audio">Resource: Audio</option>
-                                            <option value="text">Interactive: Article</option>
-                                            <option value="html_sim">Interactive: SIM Module</option>
-                                            <option value="quiz">Checkpoint: Quiz</option>
-                                            <option value="assignment">Evaluation: File Drop</option>
+                                            <option value="video">🎥 Resource: Video</option>
+                                            <option value="audio">🎧 Resource: Audio</option>
+                                            <option value="text">📄 Interactive: Article</option>
+                                            <option value="html_sim">🌐 Interactive: SIM Module</option>
+                                            <option value="quiz">✅ Checkpoint: Quiz</option>
+                                            <option value="pyq">🔥 Challenge: PYQ Archive</option>
+                                            <option value="assignment">📝 Evaluation: File Drop</option>
                                         </select>
                                     </div>
                                 )}
                             </div>
 
+                            {/* Lesson description */}
                             {selectedItem.type === 'lesson' && (
                                 <div className="form-group">
                                     <label>Overview Description</label>
-                                    <textarea className="input" style={{ minHeight: '120px' }} value={formState.description} onChange={e => setFormState({ ...formState, description: e.target.value })} />
+                                    <textarea className="input" style={{ minHeight: '100px' }} value={formState.description} onChange={e => setFormState({ ...formState, description: e.target.value })} />
                                 </div>
                             )}
 
+                            {/* Content-specific fields */}
                             {selectedItem.type === 'content' && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                     {(formState.content_type === 'video' || formState.content_type === 'audio') && (
                                         <div className="form-group">
-                                            <label>Stream URL (Supabase/Link)</label>
-                                            <input className="input" value={formState.url} onChange={e => setFormState({ ...formState, url: e.target.value })} />
+                                            <label>Stream URL</label>
+                                            <input className="input" value={formState.url} onChange={e => setFormState({ ...formState, url: e.target.value })} placeholder="https://..." />
                                         </div>
                                     )}
-
                                     {formState.content_type === 'quiz' && (
                                         <div className="form-group">
                                             <label>Passing Threshold (%)</label>
-                                            <input type="number" className="input" value={formState.passing_score} onChange={e => setFormState({ ...formState, passing_score: parseInt(e.target.value) })} />
+                                            <input type="number" className="input" style={{ maxWidth: '180px' }} value={formState.passing_score} onChange={e => setFormState({ ...formState, passing_score: parseInt(e.target.value) })} />
                                         </div>
                                     )}
-
-                                    {(formState.content_type === 'html_sim' || formState.content_type === 'quiz' || formState.content_type === 'assignment' || formState.content_type === 'text') && (
+                                    {/* PYQ info badge */}
+                                    {formState.content_type === 'pyq' && (
+                                        <div style={{ padding: '0.75rem 1rem', backgroundColor: '#FEF3C7', borderRadius: '8px', fontSize: '0.82rem', color: '#92400E', border: '1px solid #FDE68A' }}>
+                                            🔥 <b>PYQ Archive</b> — Use the AI Generate button to auto-create a real JEE/NEET question with solutions and LaTeX. Or write your JSON manually below.
+                                        </div>
+                                    )}
+                                    {/* Payload textarea */}
+                                    {['html_sim', 'quiz', 'assignment', 'text', 'pyq'].includes(formState.content_type) && (
                                         <div className="form-group">
-                                            <label>{formState.content_type === 'quiz' ? 'Quiz Configuration (JSON)' : 'Source Payload / Markdown'}</label>
-                                            <textarea className="input" style={{ minHeight: '300px', fontFamily: 'monospace', fontSize: '13px' }} value={formState.content} onChange={e => setFormState({ ...formState, content: e.target.value })} />
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                                <label style={{ marginBottom: 0 }}>
+                                                    {formState.content_type === 'quiz' ? 'Quiz JSON' :
+                                                     formState.content_type === 'pyq' ? 'PYQ JSON' :
+                                                     formState.content_type === 'html_sim' ? 'HTML Source' :
+                                                     'Markdown / Text Content'}
+                                                </label>
+                                                <button
+                                                    style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }}
+                                                    onClick={() => setShowGemini(true)}
+                                                >
+                                                    <Sparkles size={12} /> Generate with AI
+                                                </button>
+                                            </div>
+                                            <textarea
+                                                className="input"
+                                                style={{ minHeight: '280px', fontFamily: 'monospace', fontSize: '12.5px' }}
+                                                value={formState.content}
+                                                onChange={e => setFormState({ ...formState, content: e.target.value })}
+                                                placeholder={
+                                                    formState.content_type === 'pyq'
+                                                        ? '{\n  "question": "What is the oxidation state of Cr in K₂Cr₂O₇?",\n  "options": ["A. +6", "B. +3", "C. +2", "D. +4"],\n  "answer": "A. +6",\n  "solution": "In K₂Cr₂O₇...",\n  "year": "2023",\n  "exam": "NEET",\n  "difficulty": "Medium"\n}'
+                                                        : ''
+                                                }
+                                            />
                                         </div>
                                     )}
-
+                                    {/* Video / Audio extra fields */}
                                     {(formState.content_type === 'video' || formState.content_type === 'audio') && (
-                                        <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                        <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                             <div className="form-group">
                                                 <label>Curriculum Notes (Markdown)</label>
-                                                <textarea className="input" style={{ minHeight: '150px' }} value={formState.notes} onChange={e => setFormState({ ...formState, notes: e.target.value })} />
+                                                <textarea className="input" style={{ minHeight: '130px' }} value={formState.notes} onChange={e => setFormState({ ...formState, notes: e.target.value })} />
                                             </div>
-                                            <div style={{ display: 'flex', gap: '1.5rem' }}>
+                                            <div style={{ display: 'flex', gap: '1.25rem' }}>
                                                 <div style={{ flex: 1 }}>
-                                                    <label>Flashcards (JSON)</label>
-                                                    <textarea className="input" style={{ minHeight: '150px', fontFamily: 'monospace' }} value={formState.flashcards} onChange={e => setFormState({ ...formState, flashcards: e.target.value })} />
+                                                    <label>Flashcards (JSON array)</label>
+                                                    <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.flashcards} onChange={e => setFormState({ ...formState, flashcards: e.target.value })} />
                                                 </div>
                                                 <div style={{ flex: 1 }}>
-                                                    <label>Supplemental Resources (JSON)</label>
-                                                    <textarea className="input" style={{ minHeight: '150px', fontFamily: 'monospace' }} value={formState.resources} onChange={e => setFormState({ ...formState, resources: e.target.value })} />
+                                                    <label>Resources (JSON array)</label>
+                                                    <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.resources} onChange={e => setFormState({ ...formState, resources: e.target.value })} />
                                                 </div>
                                             </div>
                                         </div>
@@ -344,6 +526,21 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                             )}
                         </div>
                     )}
+                </div>
+            </div>
+
+            {/* ── Column 3: Live Mobile Preview ── */}
+            <div style={{ flex: '0 0 300px', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                    <h2 style={{ fontSize: '0.85rem', fontWeight: '800', color: 'var(--gray-500)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Live Preview</h2>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-400)', marginTop: '0.2rem' }}>See how learners see your content</p>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <MobilePreview
+                        type={formState.content_type}
+                        title={formState.title}
+                        data={getLivePreviewData()}
+                    />
                 </div>
             </div>
 

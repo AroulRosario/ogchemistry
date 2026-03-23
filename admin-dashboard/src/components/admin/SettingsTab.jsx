@@ -10,12 +10,15 @@ export default function SettingsTab({ showNotification }) {
         primaryColor: '#2563EB',
         allowSignups: true,
         requireApproval: true,
-        enableGamification: true
+        enableGamification: true,
+        geminiKey: localStorage.getItem('gemini_api_key') || ''
     });
 
     const handleSave = async () => {
         setSaving(true);
         try {
+            // Save Gemini Key to localStorage
+            localStorage.setItem('gemini_api_key', settings.geminiKey);
             // Mock saving delay
             await new Promise(r => setTimeout(r, 800));
             showNotification('Settings saved successfully');
@@ -69,9 +72,26 @@ export default function SettingsTab({ showNotification }) {
                             <span style={{ fontSize: '1rem', fontWeight: 600, color: '#334155' }}>Require manual admin approval for new accounts</span>
                         </label>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}>
-                            <input type="checkbox" checked={settings.enableGamification} onChange={e => setSettings({ ...settings, enableGamification: e.target.checked })} style={{ width: 20, height: 20 }} />
                             <span style={{ fontSize: '1rem', fontWeight: 600, color: '#334155' }}>Enable XP, Gems, and Leaderboard systems</span>
                         </label>
+                    </div>
+
+                    <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                            <Shield color="var(--blue)" size={18} />
+                            <h3 className="bangers" style={{ fontSize: '1rem', margin: 0, color: '#64748B' }}>AI CONFIGURATION</h3>
+                        </div>
+                        <div className="form-group">
+                            <label>GOOGLE GEMINI API KEY</label>
+                            <input 
+                                type="password" 
+                                className="input" 
+                                placeholder="Enter your Gemini API key..." 
+                                value={settings.geminiKey} 
+                                onChange={e => setSettings({ ...settings, geminiKey: e.target.value })} 
+                            />
+                            <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.5rem' }}>Used for generating course notes, quizzes, and PYQs automatically.</p>
+                        </div>
                     </div>
                 </div>
             </div>

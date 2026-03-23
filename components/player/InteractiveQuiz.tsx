@@ -1,6 +1,7 @@
 import { supabase } from '@/constants/supabase';
 import { COLORS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
+import { LaTeXText } from '@/components/LaTeXText';
 import { CheckCircle, Circle, XCircle } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -99,7 +100,13 @@ export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
                 </View>
             </View>
 
-            <Text style={styles.questionText}>{question.question_text}</Text>
+            <LaTeXText
+                text={question.question_text || ''}
+                fontSize={20}
+                color="#1E293B"
+                fontWeight="900"
+                style={styles.questionTextContainer}
+            />
 
             <View style={styles.optionsList}>
                 {question.question_options?.sort((a: any, b: any) => a.order - b.order).map((opt: any) => {
@@ -125,7 +132,13 @@ export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
                                     isSelected ? <CheckCircle color={COLORS.blue} size={20} /> : <Circle color={COLORS.grayDark} size={20} />
                                 )}
                             </View>
-                            <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>{opt.option_text}</Text>
+                            <LaTeXText
+                                text={opt.option_text || ''}
+                                fontSize={14}
+                                color={isSelected ? COLORS.blue : '#475569'}
+                                fontWeight="700"
+                                style={{ flex: 1 }}
+                            />
                         </Pressable>
                     );
                 })}
@@ -176,14 +189,9 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.blue,
         borderRadius: 5
     },
-    questionText: {
-        fontFamily: 'System',
-        fontSize: 22,
-        fontWeight: '900',
-        color: '#1E293B',
+    questionTextContainer: {
         marginBottom: 24,
-        lineHeight: 30,
-        letterSpacing: -0.5
+        minHeight: 60,
     },
     optionsList: { gap: 12, marginBottom: 24 },
     optionCard: {
@@ -215,7 +223,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         color: '#475569'
     },
-    optionTextSelected: { color: COLORS.blue },
     btn: {
         backgroundColor: COLORS.blue,
         padding: 18,

@@ -53,21 +53,51 @@ export function ChapterInteractionHub({ notes, flashcards, resources }: ChapterI
             <View style={styles.content}>
                 {activeTab === 'notes' && (
                     <View style={styles.notesContainer}>
-                        <Text style={styles.sectionTitle}>Lecture Summary</Text>
-                        <Text style={styles.notesText}>
-                            {notes || "In this chapter, we explore the fundamental principles of organic chemistry. We start by understanding the structure of carbon atoms and how they form diverse chains and rings. Key concepts include hybridization, bond angles, and the importance of functional groups in determining chemical reactivity.\n\nCarbon's ability to form four stable covalent bonds is the foundation of the immense variety of organic molecules. We will examine alkanes, alkenes, and alkynes, focusing on their nomenclature and physical properties."}
-                        </Text>
-                        <View style={styles.resourceBox}>
-                            <Text style={styles.resourceTitle}>Resources</Text>
-                            <Pressable style={styles.resourceItem}>
-                                <BookOpen size={16} color={COLORS.blue} />
-                                <Text style={styles.resourceItemText}>chapter_summary_pdf.pdf</Text>
-                            </Pressable>
-                            <Pressable style={styles.resourceItem}>
-                                <BookOpen size={16} color={COLORS.blue} />
-                                <Text style={styles.resourceItemText}>practice_problems.docx</Text>
-                            </Pressable>
-                        </View>
+                        <Text style={styles.sectionTitle}>Curriculum Notes</Text>
+                        {(!notes || notes.trim() === '') ? (
+                            <View style={{ alignItems: 'center', paddingVertical: 32, opacity: 0.4 }}>
+                                <FileText size={40} color="#94A3B8" />
+                                <Text style={{ marginTop: 12, color: '#94A3B8', fontWeight: '700', fontSize: 14 }}>No notes for this item yet.</Text>
+                            </View>
+                        ) : (
+                            <View style={{ gap: 6 }}>
+                                {notes.split('\n').map((line, i) => {
+                                    if (line.startsWith('## '))
+                                        return <Text key={i} style={styles.noteH2}>{line.slice(3)}</Text>;
+                                    if (line.startsWith('### '))
+                                        return <Text key={i} style={styles.noteH3}>{line.slice(4)}</Text>;
+                                    if (line.trim() === '---')
+                                        return <View key={i} style={styles.noteDivider} />;
+                                    if (line.startsWith('- ') || line.startsWith('* '))
+                                        return (
+                                            <View key={i} style={{ flexDirection: 'row', gap: 8 }}>
+                                                <Text style={{ color: COLORS.blue, fontWeight: '800', fontSize: 16, lineHeight: 24 }}>•</Text>
+                                                <Text style={styles.notesText}>{line.slice(2)}</Text>
+                                            </View>
+                                        );
+                                    if (line.trim().startsWith('$$') && line.trim().endsWith('$$'))
+                                        return (
+                                            <View key={i} style={styles.latexBlock}>
+                                                <Text style={styles.latexText}>{line.trim().slice(2, -2).trim()}</Text>
+                                            </View>
+                                        );
+                                    if (line.trim() === '')
+                                        return <View key={i} style={{ height: 8 }} />;
+                                    return <Text key={i} style={styles.notesText}>{line}</Text>;
+                                })}
+                            </View>
+                        )}
+                        {resources && resources.length > 0 && (
+                            <View style={styles.resourceBox}>
+                                <Text style={styles.resourceTitle}>Resources</Text>
+                                {resources.map((r: any, i: number) => (
+                                    <View key={i} style={styles.resourceItem}>
+                                        <BookOpen size={16} color={COLORS.blue} />
+                                        <Text style={styles.resourceItemText}>{r.title || r.url || 'Resource'}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        )}
                     </View>
                 )}
 
@@ -168,6 +198,42 @@ const styles = StyleSheet.create({
         color: '#475569',
         lineHeight: 24,
         fontWeight: '500',
+        flex: 1,
+    },
+    noteH2: {
+        fontSize: 19,
+        fontWeight: '900',
+        color: '#1E293B',
+        marginTop: 12,
+        marginBottom: 4,
+        letterSpacing: -0.3,
+    },
+    noteH3: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#334155',
+        marginTop: 8,
+        marginBottom: 2,
+    },
+    noteDivider: {
+        height: 1,
+        backgroundColor: '#E2E8F0',
+        marginVertical: 12,
+    },
+    latexBlock: {
+        backgroundColor: '#EFF6FF',
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
+        marginVertical: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: '#2563EB',
+    },
+    latexText: {
+        fontFamily: 'Courier',
+        fontSize: 13,
+        color: '#1E40AF',
+        fontWeight: '600',
     },
     resourceBox: {
         marginTop: 16,

@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 export default function ChapterScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -21,20 +21,19 @@ export default function ChapterScreen() {
     const { width } = useWindowDimensions();
     const isDesktop = width > 800;
     const isMobile = width < 600;
+    const [isSyncing, setIsSyncing] = useState(false);
 
     useEffect(() => { 
         fetchContent(); 
         
-        // Realtime subscription for immediate updates from Admin Dashboard
+        // Broad Realtime subscription for maximum target reliability
         const channel = supabase
-            .channel('chapter_content_sync')
+            .channel('chapter_content_global_sync')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'content_items' }, (payload: any) => {
-                const updatedItem = payload.new;
-                if (updatedItem && updatedItem.chapter_id === id) {
-                    fetchContent();
-                } else if (!updatedItem) {
-                    // This handles deletions or generic refreshes
-                    fetchContent();
+                // If it belongs to this chapter, refresh!
+                if (payload.new && payload.new.chapter_id === id) {
+                    setIsSyncing(true);
+                    fetchContent().finally(() => setTimeout(() => setIsSyncing(false), 2000));
                 }
             })
             .subscribe();
@@ -47,8 +46,20 @@ export default function ChapterScreen() {
     const fetchContent = async () => {
         try {
             const { data, error } = await supabase.from('content_items').select('*').eq('chapter_id', id).order('order');
+            
+            if (!error && (!data || data.length === 0)) {
+                // RLS Check: If no data, see if the user profile is actually approved
+                const { data: profile } = await supabase.from('profiles').select('status').eq('id', user?.id).single();
+                if (profile && profile.status !== 'approved') {
+                    console.warn("🔐 RLS BLOCK: User status is ", profile.status, ". Content will stay hidden until approved in Admin -> Students.");
+                }
+            }
+
             setItems(error || !data || data.length === 0 ? MOCK_CONTENT : data);
-        } catch { setItems(MOCK_CONTENT); }
+        } catch (err) { 
+            console.error("Fetch content failed:", err);
+            setItems(MOCK_CONTENT); 
+        }
     };
 
     const handleComplete = async () => {
@@ -140,6 +151,13 @@ export default function ChapterScreen() {
                     </Pressable>
                 ),
             }} />
+            
+            {isSyncing && (
+                <View style={{ position: 'absolute', top: 10, left: 20, right: 20, backgroundColor: COLORS.blue, padding: 8, borderRadius: 10, alignItems: 'center', zIndex: 9999, flexDirection: 'row', justifyContent: 'center', gap: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 }}>
+                    <ActivityIndicator size="small" color="white" />
+                    <Text style={{ color: 'white', fontWeight: '800', fontSize: 13 }}>SYNCING NEW CONTENT...</Text>
+                </View>
+            )}
 
             {isDesktop ? (
                 <View style={[styles.fullscreenContainer, styles.mainLayout, styles.desktopLayout]}>

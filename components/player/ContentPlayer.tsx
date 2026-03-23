@@ -18,13 +18,16 @@ interface ContentPlayerProps {
 export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: ContentPlayerProps) {
     if (!item) return null;
 
+    // ── VIRTUAL TYPE FIX ──
+    const trueType = item.data?.typeOverride || item.type;
+
     // ── Video ──
-    if (item.type === 'video' && item.data?.url) {
+    if (trueType === 'video' && item.data?.url) {
         return <VideoPlayer url={item.data.url} contentItemId={item.id} />;
     }
 
     // ── Audio ──
-    if (item.type === 'audio' && item.data?.url) {
+    if (trueType === 'audio' && item.data?.url) {
         return (
             <View style={styles.audioCard}>
                 <Text style={styles.audioIcon}>🎧</Text>
@@ -35,12 +38,12 @@ export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: Co
     }
 
     // ── HTML Simulation ──
-    if (item.type === 'html_sim') {
+    if (trueType === 'html_sim') {
         return <SimulationView content={item.data} style={styles.simContainer} />;
     }
 
     // ── Quiz ──
-    if (item.type === 'quiz') {
+    if (trueType === 'quiz') {
         return (
             <InteractiveQuiz
                 data={item.data}
@@ -52,17 +55,17 @@ export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: Co
     }
 
     // ── PYQ (Previous Year Question) ──
-    if (item.type === 'pyq') {
+    if (trueType === 'pyq') {
         return <PYQView data={item.data || {}} />;
     }
 
     // ── Article / Notes ──
-    if (item.type === 'text') {
+    if (trueType === 'text') {
         return <ArticleView content={item.data || {}} />;
     }
 
     // ── Assignment ──
-    if (item.type === 'assignment') {
+    if (trueType === 'assignment') {
         return (
             <AssignmentSubmitter
                 contentItemId={item.id}

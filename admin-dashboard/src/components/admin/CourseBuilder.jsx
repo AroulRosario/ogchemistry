@@ -175,8 +175,18 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                     }
                 }
 
+                // ── VIRTUAL TYPE FIX (Bypass Enum Restrictions) ──
+                // If type is not in the restricted legacy list, we save as 'html_sim' 
+                // but keep the real type in typeOverride.
+                const LEGACY_ENUM = ['video', 'audio', 'html_sim', 'quiz', 'reel'];
+                let dbType = formState.content_type;
+                if (!LEGACY_ENUM.includes(dbType)) {
+                    dataToSave.typeOverride = dbType;
+                    dbType = 'html_sim';
+                }
+
                 const { error: saveError } = await supabase.from('content_items').update({
-                    type: formState.content_type,
+                    type: dbType,
                     data: dataToSave
                 }).eq('id', selectedItem.data.id);
 

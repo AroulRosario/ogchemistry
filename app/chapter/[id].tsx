@@ -230,6 +230,7 @@ export default function ChapterScreen() {
                             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} nestedScrollEnabled>
                                 <View style={styles.sidebarList}>
                                     {items.map((it, idx) => {
+                                        const trueType = it.data?.typeOverride || it.type;
                                         const isActive = idx === currentIndex;
                                         const isPast = idx < currentIndex;
                                         return (
@@ -247,7 +248,7 @@ export default function ChapterScreen() {
                                                     {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
                                                 </View>
                                                 <View style={styles.sidebarItemContent}>
-                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
+                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[trueType] || '📄'} {trueType === 'html_sim' ? 'SIM MODULE' : trueType.toUpperCase()}</Text>
                                                     <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
                                                         {it.data?.title || `Content Part ${idx + 1}`}
                                                     </Text>

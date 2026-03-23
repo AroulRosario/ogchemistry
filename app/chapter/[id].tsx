@@ -22,7 +22,21 @@ export default function ChapterScreen() {
     const isDesktop = width > 800;
     const isMobile = width < 600;
 
-    useEffect(() => { fetchContent(); }, [id]);
+    useEffect(() => { 
+        fetchContent(); 
+        
+        // Realtime subscription for immediate updates from Admin Dashboard
+        const channel = supabase
+            .channel(`public:content_items:chapter_id=eq.${id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'content_items', filter: `chapter_id=eq.${id}` }, () => {
+                fetchContent();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [id]);
 
     const fetchContent = async () => {
         try {

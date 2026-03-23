@@ -66,7 +66,9 @@ export default function HomeScreen() {
       <EliteNavigation />
 
       <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
-        <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
+        <View style={isMobile ? { paddingLeft: 60 } : {}}>
+          <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
+        </View>
 
         <View style={styles.layoutContainer}>
           <ScrollView
@@ -83,7 +85,7 @@ export default function HomeScreen() {
                   <View style={[styles.heroContent, !isDesktop && { flexDirection: 'column', alignItems: 'flex-start', gap: 16 }]}>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.heroGreeting, !isDesktop && { fontSize: 24 }]}>Welcome back, {user?.email?.split('@')[0] || 'Chemist'}! 👋</Text>
-                      <Text style={styles.heroSub}>You're on a {stats.streak_count} day streak. Master the next chapter to hit Gold!</Text>
+                      <Text style={styles.heroSub}>You're on a {stats.streak_count || 0} day streak. Master the next chapter to hit Gold!</Text>
                     </View>
                     <View style={styles.heroStats}>
                       <View style={styles.miniStat}>

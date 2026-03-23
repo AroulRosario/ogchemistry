@@ -26,6 +26,7 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
 
     // Gemini AI state
     const [showGemini, setShowGemini] = useState(false);
+    const [geminiTarget, setGeminiTarget] = useState('content');
     const [geminiPrompt, setGeminiPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [localApiKey, setLocalApiKey] = useState(localStorage.getItem('gemini_api_key') || '');
@@ -202,21 +203,33 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
             const endpoint = `https://generativelanguage.googleapis.com/v1beta/${selectedModel}:generateContent?key=${apiKey}`;
 
             let systemPrompt = '';
-            if (formState.content_type === 'quiz') {
+            if (geminiTarget === 'notes') {
+                systemPrompt = `You are a curriculum expert. Generate detailed Curriculum Notes in Markdown format for the provided topic. Focus on key concepts and summaries. Use PERFECT LaTeX for formulas (inline: $...$, block: $$...$$).`;
+            } else if (geminiTarget === 'flashcards') {
+                systemPrompt = `You are an expert educator. Generate EXACTLY 5 flashcards as a valid JSON array ONLY.
+CRITICAL: For LaTeX formulas inside JSON, you MUST double-escape backslashes otherwise JSON.parse will crash! e.g., \\\\Delta G or \\\\frac{a}{b}.
+Format MUST BE: [ { "front": "...", "back": "..." } ]`;
+            } else if (geminiTarget === 'resources') {
+                systemPrompt = `You are an expert educator. Generate a list of 3 helpful external resources/links as a valid JSON array ONLY.
+Format MUST BE: [ { "title": "Khan Academy: Topic", "url": "https://..." } ]`;
+            } else if (formState.content_type === 'quiz') {
                 systemPrompt = `You are an expert Chemistry teacher for JEE/NEET preparation.
 Generate a Chemistry quiz as a valid JSON object ONLY (no markdown fences, no explanation text).
+CRITICAL: For LaTeX formulas inside JSON, you MUST double-escape backslashes otherwise JSON.parse will crash! e.g., \\\\Delta G or \\\\frac{a}{b}.
 Format: { "questions": [ { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A. ..." } ] }
-Use proper LaTeX for ALL chemical formulas (e.g. $H_2O$, $K_2Cr_2O_7$, $\\Delta G = \\Delta H - T\\Delta S$).
 Generate exactly 5 questions.`;
             } else if (formState.content_type === 'pyq') {
                 systemPrompt = `You are an expert at NEET/JEE chemistry previous year questions.
 Generate a REAL Previous Year Question SPECIFICALLY from NEET, JEE Mains, or JEE Advanced as a valid JSON object ONLY.
+CRITICAL: For LaTeX formulas inside JSON, you MUST double-escape backslashes otherwise JSON.parse will crash! e.g., \\\\Delta G or \\\\frac{a}{b}.
 Format: { "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A. ...", "solution": "Step-by-step detailed solution here...", "year": "2023", "exam": "NEET", "difficulty": "Hard" }
 The question MUST be an actual past paper question with exact answers perfect latex for all formulas. Include accurate difficulty level.`;
             } else if (formState.content_type === 'html_sim') {
                 systemPrompt = `You are an expert Chemistry educator creating interactive HTML simulations.
 Create a self-contained HTML page (no external dependencies except CDN links) that visually simulates the requested concept.
 Use inline CSS and vanilla JavaScript. Make it visually beautiful with animations. Return ONLY the complete HTML code, nothing else.`;
+            } else if (formState.content_type === 'assignment') {
+                systemPrompt = `You are an expert educator. Generate a detailed assignment/project prompt in Markdown format for the learner. Include instructions, evaluation criteria, and tips. Use PERFECT LaTeX for formulas.`;
             } else {
                 systemPrompt = `You are an expert Chemistry teacher creating beautiful "Comic Notes" for JEE/NEET learners.
 Generate the content as per a premium UI and design using Markdown format. 
@@ -238,13 +251,13 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
 
             // Extract based on content type to prevent regex mangling
             let finalContent = text.trim();
-            if (formState.content_type === 'quiz' || formState.content_type === 'pyq') {
+            if (geminiTarget === 'flashcards' || geminiTarget === 'resources' || (geminiTarget === 'content' && (formState.content_type === 'quiz' || formState.content_type === 'pyq'))) {
                 const jsonMatch = text.match(/```(?:json)?\\n?([\\s\\S]*?)\\n?```/);
                 finalContent = jsonMatch ? jsonMatch[1].trim() : finalContent;
-            } else if (formState.content_type === 'html_sim') {
+            } else if (geminiTarget === 'content' && formState.content_type === 'html_sim') {
                 const htmlMatch = text.match(/<!DOCTYPE html[\\s\\S]*/i);
                 finalContent = htmlMatch ? htmlMatch[0] : finalContent;
-            } else if (formState.content_type === 'text') {
+            } else {
                 // If the entire note is wrapped in a markdown codeblock, cleanly unwrap it
                 if (finalContent.startsWith('```markdown')) {
                     finalContent = finalContent.replace(/^```markdown\\n?/, '').replace(/\\n?```$/, '');
@@ -253,7 +266,15 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                 }
             }
 
-            setFormState(prev => ({ ...prev, content: finalContent }));
+            if (geminiTarget === 'notes') {
+                setFormState(prev => ({ ...prev, notes: finalContent }));
+            } else if (geminiTarget === 'flashcards') {
+                setFormState(prev => ({ ...prev, flashcards: finalContent }));
+            } else if (geminiTarget === 'resources') {
+                setFormState(prev => ({ ...prev, resources: finalContent }));
+            } else {
+                setFormState(prev => ({ ...prev, content: finalContent }));
+            }
             setShowGemini(false);
             setGeminiPrompt('');
             showNotification('✨ AI Content Generated!');
@@ -279,7 +300,7 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                 </div>
                                 <div>
                                     <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Gemini AI Generator</h3>
-                                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: 0 }}>Generating for: <b>{formState.content_type.toUpperCase()}</b></p>
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--gray-500)', margin: 0 }}>Generating for: <b>{geminiTarget === 'content' ? formState.content_type.toUpperCase() : geminiTarget.toUpperCase()}</b></p>
                                 </div>
                             </div>
                             <button onClick={() => { setShowGemini(false); setGeminiPrompt(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gray-400)' }}>
@@ -455,7 +476,7 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                             <button
                                 className="btn btn-secondary"
                                 style={{ padding: '0.4rem 0.9rem', background: 'linear-gradient(135deg, #EEF2FF, #F3E8FF)', border: '1px solid #C7D2FE', color: '#4338CA' }}
-                                onClick={() => setShowGemini(true)}
+                                onClick={() => { setGeminiTarget('content'); setShowGemini(true); }}
                             >
                                 <Sparkles size={15} /> AI Generate
                             </button>
@@ -545,11 +566,12 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                                     {formState.content_type === 'quiz' ? 'Quiz JSON' :
                                                      formState.content_type === 'pyq' ? 'PYQ JSON' :
                                                      formState.content_type === 'html_sim' ? 'HTML Source' :
+                                                     formState.content_type === 'assignment' ? 'Assignment Prompt' :
                                                      'Markdown / Text Content'}
                                                 </label>
                                                 <button
                                                     style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }}
-                                                    onClick={() => setShowGemini(true)}
+                                                    onClick={() => { setGeminiTarget('content'); setShowGemini(true); }}
                                                 >
                                                     <Sparkles size={12} /> Generate with AI
                                                 </button>
@@ -571,16 +593,25 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                     {(formState.content_type === 'video' || formState.content_type === 'audio') && (
                                         <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                             <div className="form-group">
-                                                <label>Curriculum Notes (Markdown)</label>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                                    <label style={{ marginBottom: 0 }}>Curriculum Notes (Markdown)</label>
+                                                    <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('notes'); setShowGemini(true); }}><Sparkles size={12} /> Generate with AI</button>
+                                                </div>
                                                 <textarea className="input" style={{ minHeight: '130px' }} value={formState.notes} onChange={e => setFormState({ ...formState, notes: e.target.value })} />
                                             </div>
                                             <div style={{ display: 'flex', gap: '1.25rem' }}>
                                                 <div style={{ flex: 1 }}>
-                                                    <label>Flashcards (JSON array)</label>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                                        <label style={{ marginBottom: 0 }}>Flashcards (JSON)</label>
+                                                        <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('flashcards'); setShowGemini(true); }}><Sparkles size={12} /> AI</button>
+                                                    </div>
                                                     <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.flashcards} onChange={e => setFormState({ ...formState, flashcards: e.target.value })} />
                                                 </div>
                                                 <div style={{ flex: 1 }}>
-                                                    <label>Resources (JSON array)</label>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                                                        <label style={{ marginBottom: 0 }}>Resources (JSON)</label>
+                                                        <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('resources'); setShowGemini(true); }}><Sparkles size={12} /> AI</button>
+                                                    </div>
                                                     <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.resources} onChange={e => setFormState({ ...formState, resources: e.target.value })} />
                                                 </div>
                                             </div>

@@ -66,7 +66,9 @@ export default function LibraryScreen() {
         <View style={styles.main}>
             <EliteNavigation />
             <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
-                <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
+        <View style={isMobile ? { paddingLeft: 60 } : {}}>
+          <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
+        </View>
                 <ScrollView
                         contentContainerStyle={[
                             styles.scrollContent,

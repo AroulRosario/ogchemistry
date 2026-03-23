@@ -19,11 +19,10 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
         <View style={[
             styles.headerContainer,
             isMobile ? {
-                paddingHorizontal: 10,
+                paddingHorizontal: 16,
                 paddingVertical: 10,
-                marginLeft: 76, // Clear the hamburger (52px wide + 16px left + 8px gap)
-                marginRight: 12,
-                marginTop: insets.top + 8, // Respect safe area without double-counting
+                marginHorizontal: 12,
+                marginTop: insets.top > 0 ? insets.top : 12,
             } : {
                 paddingHorizontal: 24,
                 paddingVertical: 14,
@@ -31,34 +30,26 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
                 marginTop: 12,
             }
         ]}>
-            <View style={[styles.content, isMobile ? { flex: 1, justifyContent: 'space-around' } : { gap: 20 }]}>
+            <View style={[styles.content, isMobile ? { justifyContent: 'space-between' } : { gap: 24, justifyContent: 'center' }]}>
                 {/* Streak */}
                 <View style={styles.stat}>
-                    <View style={styles.iconCircle}>
-                        <Flame size={isMobile ? 16 : 18} color={COLORS.orange} fill={COLORS.orange} />
-                    </View>
-                    <Text style={[styles.statText, { color: COLORS.orange }, isMobile && { fontSize: 14 }]}>{streak}</Text>
+                    <Flame size={isMobile ? 18 : 20} color={COLORS.orange} fill={COLORS.orange} />
+                    <Text style={[styles.statText, { color: COLORS.orange }, isMobile && { fontSize: 15 }]}>{streak || 0}</Text>
                 </View>
-
-                <View style={styles.vDivider} />
 
                 {/* Gems */}
                 <View style={styles.stat}>
-                    <View style={styles.iconCircle}>
-                        <Hexagon size={isMobile ? 16 : 18} color={COLORS.blue} fill={COLORS.blue} />
-                    </View>
-                    <Text style={[styles.statText, { color: COLORS.blue }, isMobile && { fontSize: 14 }]}>{gems}</Text>
+                    <Hexagon size={isMobile ? 18 : 20} color={COLORS.blue} fill={COLORS.blue} />
+                    <Text style={[styles.statText, { color: COLORS.blue }, isMobile && { fontSize: 15 }]}>{gems || 0}</Text>
                 </View>
-
-                <View style={styles.vDivider} />
 
                 {/* XP */}
                 <View style={styles.stat}>
-                    <View style={[styles.iconCircle, { backgroundColor: COLORS.green }]}>
-                        <Star size={isMobile ? 14 : 16} color={COLORS.white} fill={COLORS.white} />
+                    <View style={[styles.iconCircle, { backgroundColor: COLORS.green, width: 28, height: 28 }]}>
+                        <Star size={isMobile ? 16 : 18} color={COLORS.white} fill={COLORS.white} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
-                        <Text style={[styles.statText, { color: COLORS.green }, isMobile && { fontSize: 14 }]}>{xp}</Text>
+                        <Text style={[styles.statText, { color: COLORS.green }, isMobile && { fontSize: 15 }]}>{xp || 0}</Text>
                         <Text style={styles.xpMiniLabel}>XP</Text>
                     </View>
                 </View>

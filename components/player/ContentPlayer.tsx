@@ -71,27 +71,6 @@ export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: Co
         );
     }
 
-    if (item.type === 'pyq') {
-        let pyqData = item.data || {};
-        // data might be the entire item.data object with question/options etc.
-        return <PYQView data={pyqData} />;
-    }
-
-    if (item.type === 'text') {
-        return (
-            <View style={styles.defaultContainer}>
-                <Text style={styles.title}>{item.data?.title || 'Article'}</Text>
-                <LaTeXText
-                    text={item.data?.text || item.data?.description || ''}
-                    fontSize={15}
-                    color="#334155"
-                    fontWeight="500"
-                    style={{ minHeight: 40 }}
-                />
-            </View>
-        );
-    }
-
     // ── Default fallback ──
     return (
         <View style={styles.defaultContainer}>

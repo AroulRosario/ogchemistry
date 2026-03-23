@@ -236,10 +236,22 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
             const result = await response.json();
             const text = result.candidates[0].content.parts[0].text;
 
-            // Strip possible markdown code fences
-            const jsonMatch = text.match(/```(?:json)?\n?([\s\S]*?)\n?```/);
-            const htmlMatch = text.match(/<!DOCTYPE html[\s\S]*/i);
-            const finalContent = jsonMatch ? jsonMatch[1].trim() : (htmlMatch ? htmlMatch[0] : text.trim());
+            // Extract based on content type to prevent regex mangling
+            let finalContent = text.trim();
+            if (formState.content_type === 'quiz' || formState.content_type === 'pyq') {
+                const jsonMatch = text.match(/```(?:json)?\\n?([\\s\\S]*?)\\n?```/);
+                finalContent = jsonMatch ? jsonMatch[1].trim() : finalContent;
+            } else if (formState.content_type === 'html_sim') {
+                const htmlMatch = text.match(/<!DOCTYPE html[\\s\\S]*/i);
+                finalContent = htmlMatch ? htmlMatch[0] : finalContent;
+            } else if (formState.content_type === 'text') {
+                // If the entire note is wrapped in a markdown codeblock, cleanly unwrap it
+                if (finalContent.startsWith('```markdown')) {
+                    finalContent = finalContent.replace(/^```markdown\\n?/, '').replace(/\\n?```$/, '');
+                } else if (finalContent.startsWith('```')) {
+                    finalContent = finalContent.replace(/^```\\n?/, '').replace(/\\n?```$/, '');
+                }
+            }
 
             setFormState(prev => ({ ...prev, content: finalContent }));
             setShowGemini(false);

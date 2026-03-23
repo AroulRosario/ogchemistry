@@ -1,8 +1,38 @@
 import { Smartphone } from 'lucide-react';
 import React from 'react';
 
+/** Renders a string with KaTeX LaTeX support in a sandboxed iframe */
+function KaTeXRenderer({ text, style = {} }) {
+    if (!text) return null;
+    const hasLatex = /\$[\s\S]+?\$/m.test(text);
+    if (!hasLatex) return <span style={{ fontSize: style.fontSize || 13, color: style.color || '#1E293B', fontWeight: style.fontWeight || '600', lineHeight: `${style.lineHeight || 20}px` }}>{text}</span>;
+
+    const safeText = String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    const html = `<!DOCTYPE html><html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;font-size:${style.fontSize || 13}px;color:${style.color || '#1E293B'};font-weight:${style.fontWeight || '600'};line-height:${(style.lineHeight || 20)}px;background:transparent;word-break:break-word}.katex{font-size:1em}.katex-display{margin:0.3em 0}</style>
+</head><body>${safeText}</body></html>`;
+    const lines = (text.match(/\n/g) || []).length + 1;
+    const h = Math.max(24, lines * ((style.lineHeight || 20)) + 12);
+    return (
+        <iframe
+            srcDoc={html}
+            style={{ border: 'none', width: '100%', height: h, overflow: 'hidden', background: 'transparent', display: 'block' }}
+            scrolling="no"
+            sandbox="allow-scripts"
+        />
+    );
+}
+
 export default function MobilePreview({ type, data, title }) {
-    // Helper to render content based on type
     const renderContent = () => {
         if (!data && !title) {
             return (
@@ -14,17 +44,15 @@ export default function MobilePreview({ type, data, title }) {
         }
 
         switch (type) {
-            case 'text': // Article
-            case 'html_sim': // SIM Module
+            case 'text':
+            case 'html_sim':
                 return (
                     <div style={{ padding: '1.25rem' }}>
                         <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1rem', color: '#1E293B' }}>{title || data?.title}</h2>
-                        <div style={{ fontSize: '0.9rem', lineHeight: '1.6', color: '#475569' }}>
-                            {data?.html || data?.text || 'No content provided...'}
-                        </div>
+                        <KaTeXRenderer text={data?.html || data?.text || 'No content provided...'} style={{ fontSize: 13, color: '#475569', lineHeight: 20 }} />
                     </div>
                 );
-            case 'quiz':
+            case 'quiz': {
                 const questions = data?.questions || [];
                 return (
                     <div style={{ padding: '1.25rem' }}>
@@ -35,11 +63,13 @@ export default function MobilePreview({ type, data, title }) {
                         <h2 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1.5rem' }}>{title || 'Chemistry Checkpoint'}</h2>
                         {questions.slice(0, 1).map((q, i) => (
                             <div key={i} className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
-                                <p style={{ fontWeight: '700', fontSize: '0.9rem', marginBottom: '1rem' }}>{q.question}</p>
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <KaTeXRenderer text={q.question} style={{ fontSize: 13, fontWeight: '700', color: '#1E293B', lineHeight: 20 }} />
+                                </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {q.options?.map((opt, oi) => (
-                                        <div key={oi} style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--gray-200)', fontSize: '0.8rem', fontWeight: '600' }}>
-                                            {opt}
+                                        <div key={oi} style={{ padding: '0.6rem', borderRadius: '8px', border: '1px solid var(--gray-200)' }}>
+                                            <KaTeXRenderer text={opt} style={{ fontSize: 12, fontWeight: '600', color: '#475569', lineHeight: 18 }} />
                                         </div>
                                     ))}
                                 </div>
@@ -48,23 +78,33 @@ export default function MobilePreview({ type, data, title }) {
                         {questions.length > 1 && <p style={{ textAlign: 'center', fontSize: '0.7rem', color: 'var(--gray-400)' }}>+ {questions.length - 1} more questions</p>}
                     </div>
                 );
+            }
             case 'pyq':
                 return (
                     <div style={{ padding: '1.25rem' }}>
-                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                             <div style={{ backgroundColor: '#FEE2E2', color: '#B91C1C', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: '900' }}>PYQ ARCHIVE</div>
-                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--gray-400)' }}>JEE MAIN 2023</span>
+                            <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--gray-400)' }}>{data?.exam || 'JEE/NEET'}{data?.year ? ` · ${data.year}` : ''}</span>
                         </div>
                         <h2 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '1rem' }}>{title || 'Previous Year Question'}</h2>
-                        <div className="card" style={{ padding: '1.25rem', borderLeft: '4px solid var(--blue)' }}>
-                            <p style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '1rem', lineHeight: '1.5' }}>
-                                {data?.question || 'What is the oxidation state of Cr in K2Cr2O7?'}
-                            </p>
-                            <div style={{ backgroundColor: '#F8FAFC', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem' }}>
-                                <div style={{ fontWeight: '800', color: 'var(--blue)', marginBottom: '0.5rem', fontSize: '0.7rem' }}>DETAILED SOLUTION</div>
-                                <p style={{ color: '#64748B', lineHeight: '1.4' }}>{data?.solution || 'According to the rules of oxidation state calculation...'}</p>
-                            </div>
+                        <div className="card" style={{ padding: '1.25rem', borderLeft: '4px solid var(--blue)', marginBottom: '1rem' }}>
+                            <KaTeXRenderer text={data?.question || 'What is the oxidation state of Cr in K₂Cr₂O₇?'} style={{ fontSize: 13, fontWeight: '600', color: '#1E293B', lineHeight: 20 }} />
                         </div>
+                        {(data?.options || []).length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                                {(data.options || []).map((opt, i) => (
+                                    <div key={i} style={{ padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                                        <KaTeXRenderer text={opt} style={{ fontSize: 12, color: '#475569', fontWeight: '600', lineHeight: 18 }} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        {data?.solution && (
+                            <div style={{ backgroundColor: '#F8FAFC', padding: '1rem', borderRadius: '8px' }}>
+                                <div style={{ fontWeight: '800', color: 'var(--blue)', marginBottom: '0.5rem', fontSize: '0.7rem' }}>DETAILED SOLUTION</div>
+                                <KaTeXRenderer text={data.solution} style={{ fontSize: 12, color: '#64748B', lineHeight: 18 }} />
+                            </div>
+                        )}
                     </div>
                 );
             case 'video':
@@ -88,30 +128,30 @@ export default function MobilePreview({ type, data, title }) {
     };
 
     return (
-        <div style={{ 
-            width: '320px', 
-            height: '650px', 
-            backgroundColor: '#000', 
-            borderRadius: '40px', 
-            padding: '12px', 
+        <div style={{
+            width: '320px',
+            height: '650px',
+            backgroundColor: '#000',
+            borderRadius: '40px',
+            padding: '12px',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
             position: 'sticky',
             top: '20px',
             border: '4px solid #334155'
         }}>
-            <div style={{ 
-                width: '60px', 
-                height: '4px', 
-                backgroundColor: '#334155', 
-                borderRadius: '2px', 
-                margin: '0 auto 12px' 
+            <div style={{
+                width: '60px',
+                height: '4px',
+                backgroundColor: '#334155',
+                borderRadius: '2px',
+                margin: '0 auto 12px'
             }} />
-            
-            <div style={{ 
-                width: '100%', 
-                height: 'calc(100% - 16px)', 
-                backgroundColor: '#fff', 
-                borderRadius: '28px', 
+
+            <div style={{
+                width: '100%',
+                height: 'calc(100% - 16px)',
+                backgroundColor: '#fff',
+                borderRadius: '28px',
                 overflow: 'hidden',
                 position: 'relative'
             }}>

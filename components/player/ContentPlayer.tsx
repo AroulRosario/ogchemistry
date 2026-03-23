@@ -43,7 +43,7 @@ export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: Co
     if (item.type === 'quiz') {
         return (
             <InteractiveQuiz
-                contentItemId={item.id}
+                data={item.data}
                 onComplete={(score, passed) => {
                     if (onQuizComplete) onQuizComplete(score, passed);
                 }}

@@ -7,13 +7,17 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface QuizProps {
-    contentItemId: string;
+    data: any;
     onComplete: (score: number, passed: boolean) => void;
 }
 
-export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
+interface QuizProps {
+    data: any;
+    onComplete: (score: number, passed: boolean) => void;
+}
+
+export function InteractiveQuiz({ data, onComplete }: QuizProps) {
     const { user } = useAuth();
-    const [quiz, setQuiz] = useState<any>(null);
     const [questions, setQuestions] = useState<any[]>([]);
     const [currentStep, setCurrentStep] = useState(0);
     const [selectedOption, setSelectedOption] = useState<any>(null);
@@ -22,32 +26,27 @@ export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
     const [isFinished, setIsFinished] = useState(false);
 
     useEffect(() => {
-        const loadQuiz = async () => {
-            const { data: quizData } = await supabase
-                .from('quizzes')
-                .select('*')
-                .eq('content_item_id', contentItemId)
-                .single();
+        if (data?.questions) {
+            // Standardize questions
+            const qs = data.questions.map((q: any, i: number) => ({
+                id: i,
+                question_text: q.question,
+                question_options: q.options.map((opt: string, oi: number) => ({
+                    id: `${i}-${oi}`,
+                    option_text: opt,
+                    is_correct: opt === q.answer || opt.startsWith(q.answer)
+                }))
+            }));
+            setQuestions(qs);
+        }
+    }, [data]);
 
-            if (quizData) {
-                setQuiz(quizData);
-                const { data: qData } = await supabase
-                    .from('quiz_questions')
-                    .select('*, question_options(*)')
-                    .eq('quiz_id', quizData.id)
-                    .order('order');
-                if (qData) setQuestions(qData);
-            }
-        };
-        loadQuiz();
-    }, [contentItemId]);
-
-    if (!quiz || questions.length === 0) {
-        return <View style={styles.center}><ActivityIndicator color={COLORS.blue} /></View>;
+    if (!data || questions.length === 0) {
+        return <View style={styles.center}><Text style={{ color: '#64748B' }}>No questions found in this quiz.</Text></View>;
     }
 
     if (isFinished) {
-        const passed = (score / questions.length) * 100 >= (quiz.passing_score || 0);
+        const passed = (score / questions.length) * 100 >= (data.passing_score || 0);
         return (
             <View style={styles.resultContainer}>
                 <Text style={styles.resultTitle}>{passed ? "Quiz Passed! 🎉" : "Keep Tryin! 💪"}</Text>
@@ -58,18 +57,14 @@ export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
             </View>
         );
     }
-
-    const question = questions[currentStep];
-
+    
+    // ... handleSubmit logic ...
     const handleSubmit = async () => {
         if (!selectedOption) return;
         setIsChecking(true);
-        // Add minimal delay for emphasis/haptics effect
         await new Promise(r => setTimeout(r, 600));
 
-        if (selectedOption.is_correct) {
-            setScore(s => s + 1);
-        }
+        if (selectedOption.is_correct) setScore(s => s + 1);
 
         setIsChecking(false);
         if (currentStep < questions.length - 1) {
@@ -78,18 +73,19 @@ export function InteractiveQuiz({ contentItemId, onComplete }: QuizProps) {
         } else {
             setIsFinished(true);
             const finalScore = score + (selectedOption.is_correct ? 1 : 0);
-            const passed = (finalScore / questions.length) * 100 >= (quiz.passing_score || 0);
-            // Save attempt
+            const passed = (finalScore / questions.length) * 100 >= (data.passing_score || 0);
             if (user) {
                 await supabase.from('quiz_attempts').insert({
                     user_id: user.id,
-                    quiz_id: quiz.id,
+                    quiz_id: data.id || 'anonymous_quiz', // Fallback
                     score: finalScore,
                     passed: passed
                 });
             }
         }
     };
+
+    const question = questions[currentStep];
 
     return (
         <View style={styles.container}>

@@ -69,16 +69,28 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
 
     const handleSelect = (type, data) => {
         setSelectedItem({ type, data });
+        
+        let initialContent = '';
+        if (type === 'content') {
+            const contentType = data.type;
+            if (contentType === 'quiz' && data.data?.questions) {
+                initialContent = JSON.stringify(data.data.questions, null, 2);
+            } else if (contentType === 'pyq' && data.data?.question) {
+                // If it's a PYQ, we want to edit the whole metadata object as JSON
+                const { title, ...rest } = data.data; // title is already in formState
+                initialContent = JSON.stringify(rest, null, 2);
+            } else {
+                initialContent = data.data?.html || data.data?.text || data.data?.description || '';
+            }
+        }
+
         setFormState({
             title: data.title || (data.data && data.data.title) || '',
             description: data.description || '',
             category: data.category || 'Core',
             content_type: data.type || 'video',
             url: data.data?.url || '',
-            content: data.data?.html || data.data?.text || data.data?.question ||
-                (data.data?.questions ? JSON.stringify(data.data.questions, null, 2) : '') ||
-                (data.data?.question ? JSON.stringify({ question: data.data.question, solution: data.data.solution, year: data.data.year, exam: data.data.exam }, null, 2) : '') ||
-                data.data?.description || '',
+            content: initialContent,
             passing_score: data.data?.passing_score || 80,
             notes: data.data?.notes || '',
             flashcards: JSON.stringify(data.data?.flashcards || [], null, 2),
@@ -251,18 +263,23 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
 
             // Extract based on content type to prevent regex mangling
             let finalContent = text.trim();
+            const jsonFenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+            const htmlFenceMatch = text.match(/```(?:html)?\s*([\s\S]*?)```/);
+
             if (geminiTarget === 'flashcards' || geminiTarget === 'resources' || (geminiTarget === 'content' && (formState.content_type === 'quiz' || formState.content_type === 'pyq'))) {
-                const jsonMatch = text.match(/```(?:json)?\\n?([\\s\\S]*?)\\n?```/);
-                finalContent = jsonMatch ? jsonMatch[1].trim() : finalContent;
+                finalContent = jsonFenceMatch ? jsonFenceMatch[1].trim() : finalContent;
+                if (!finalContent.startsWith('{') && !finalContent.startsWith('[')) {
+                    const pureJson = text.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+                    if (pureJson) finalContent = pureJson[0].trim();
+                }
             } else if (geminiTarget === 'content' && formState.content_type === 'html_sim') {
-                const htmlMatch = text.match(/<!DOCTYPE html[\\s\\S]*/i);
-                finalContent = htmlMatch ? htmlMatch[0] : finalContent;
+                const docMatch = text.match(/<(!DOCTYPE )?html[\s\S]*<\/html>/i);
+                finalContent = docMatch ? docMatch[0] : (htmlFenceMatch ? htmlFenceMatch[1].trim() : finalContent);
             } else {
-                // If the entire note is wrapped in a markdown codeblock, cleanly unwrap it
                 if (finalContent.startsWith('```markdown')) {
-                    finalContent = finalContent.replace(/^```markdown\\n?/, '').replace(/\\n?```$/, '');
+                    finalContent = finalContent.replace(/^```markdown\s*/, '').replace(/\s*```$/, '');
                 } else if (finalContent.startsWith('```')) {
-                    finalContent = finalContent.replace(/^```\\n?/, '').replace(/\\n?```$/, '');
+                    finalContent = finalContent.replace(/^```\w*\s*/, '').replace(/\s*```$/, '');
                 }
             }
 
@@ -589,32 +606,43 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                             />
                                         </div>
                                     )}
-                                    {/* Video / Audio extra fields */}
-                                    {(formState.content_type === 'video' || formState.content_type === 'audio') && (
-                                        <div style={{ borderTop: '1px solid var(--gray-100)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                            <div className="form-group">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                                                    <label style={{ marginBottom: 0 }}>Curriculum Notes (Markdown)</label>
-                                                    <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('notes'); setShowGemini(true); }}><Sparkles size={12} /> Generate with AI</button>
+                                    {/* Preview Section */}
+                                    {formState.content.length > 0 && selectedItem.type === 'content' && (
+                                        <div style={{ border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.25rem', backgroundColor: '#F8FAFC' }}>
+                                            <h4 style={{ fontSize: '0.8rem', fontWeight: '800', marginBottom: '1rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                🔍 LOCAL PREVIEW (UNSAVED)
+                                                <span style={{ fontSize: '0.7rem', fontWeight: '500', backgroundColor: '#E2E8F0', padding: '2px 8px', borderRadius: '10px' }}>{formState.content.length} chars</span>
+                                            </h4>
+                                            
+                                            {formState.content_type === 'text' && (
+                                                <div style={{ padding: '1rem', backgroundColor: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.9rem', lineHeight: '1.6', overflowY: 'auto', maxHeight: '300px' }}>
+                                                    {formState.content.split('\n').slice(0, 10).map((l, i) => <div key={i}>{l}</div>)}
+                                                    {formState.content.split('\n').length > 10 && <div style={{ color: '#94A3B8', marginTop: '4px' }}>... see full content in learner app after saving</div>}
                                                 </div>
-                                                <textarea className="input" style={{ minHeight: '130px' }} value={formState.notes} onChange={e => setFormState({ ...formState, notes: e.target.value })} />
-                                            </div>
-                                            <div style={{ display: 'flex', gap: '1.25rem' }}>
-                                                <div style={{ flex: 1 }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                                                        <label style={{ marginBottom: 0 }}>Flashcards (JSON)</label>
-                                                        <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('flashcards'); setShowGemini(true); }}><Sparkles size={12} /> AI</button>
-                                                    </div>
-                                                    <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.flashcards} onChange={e => setFormState({ ...formState, flashcards: e.target.value })} />
+                                            )}
+                                            
+                                            {formState.content_type === 'html_sim' && (
+                                                <div style={{ height: '300px', backgroundColor: 'white', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                                                    <iframe 
+                                                        srcDoc={formState.content} 
+                                                        style={{ width: '100%', height: '100%', border: 'none' }} 
+                                                        title="SIM Preview"
+                                                    />
                                                 </div>
-                                                <div style={{ flex: 1 }}>
-                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                                                        <label style={{ marginBottom: 0 }}>Resources (JSON)</label>
-                                                        <button style={{ fontSize: '0.72rem', color: 'var(--blue)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '700' }} onClick={() => { setGeminiTarget('resources'); setShowGemini(true); }}><Sparkles size={12} /> AI</button>
-                                                    </div>
-                                                    <textarea className="input" style={{ minHeight: '120px', fontFamily: 'monospace', fontSize: '12px' }} value={formState.resources} onChange={e => setFormState({ ...formState, resources: e.target.value })} />
+                                            )}
+
+                                            {(formState.content_type === 'quiz' || formState.content_type === 'pyq') && (
+                                                <div style={{ backgroundColor: '#1E293B', color: '#818CF8', padding: '1rem', borderRadius: '8px', fontFamily: 'monospace', fontSize: '11px', overflowY: 'auto', maxHeight: '200px' }}>
+                                                   {(() => {
+                                                       try {
+                                                           const p = JSON.parse(formState.content);
+                                                           return <span>✅ VALID JSON Found: {Object.keys(p).length} keys</span>
+                                                       } catch (e) {
+                                                           return <span style={{ color: '#F87171' }}>❌ INVALID JSON: {e.message}</span>
+                                                       }
+                                                   })()}
                                                 </div>
-                                            </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

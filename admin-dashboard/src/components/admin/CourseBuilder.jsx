@@ -175,15 +175,18 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
                     }
                 }
 
-                await supabase.from('content_items').update({
+                const { error: saveError } = await supabase.from('content_items').update({
                     type: formState.content_type,
                     data: dataToSave
                 }).eq('id', selectedItem.data.id);
+
+                if (saveError) throw saveError;
             }
             showNotification('Content saved successfully');
             await fetchAll();
         } catch (error) {
-            showNotification('Save failed', 'error');
+            console.error('Save failed:', error);
+            showNotification(`Save failed: ${error.message}`, 'error');
         } finally {
             setLoading(false);
         }

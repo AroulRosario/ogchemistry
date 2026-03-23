@@ -27,9 +27,15 @@ export default function ChapterScreen() {
         
         // Realtime subscription for immediate updates from Admin Dashboard
         const channel = supabase
-            .channel(`public:content_items:chapter_id=eq.${id}`)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'content_items', filter: `chapter_id=eq.${id}` }, () => {
-                fetchContent();
+            .channel('chapter_content_sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'content_items' }, (payload: any) => {
+                const updatedItem = payload.new;
+                if (updatedItem && updatedItem.chapter_id === id) {
+                    fetchContent();
+                } else if (!updatedItem) {
+                    // This handles deletions or generic refreshes
+                    fetchContent();
+                }
             })
             .subscribe();
 

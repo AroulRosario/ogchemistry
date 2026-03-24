@@ -22,13 +22,42 @@ export default function HomeScreen() {
   const [rawLessons, setRawLessons] = useState<any[]>([]);
   const [stats, setStats] = useState({ streak_count: 0, xp: 0, gems: 0 });
   const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    if (user) fetchData();
+    if (user) {
+      fetchData();
+
+      const profileChannel = supabase
+        .channel('dashboard_profile_sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${user?.id}` }, (payload) => {
+          if (payload.new) {
+            setStats(payload.new as any);
+          }
+        })
+        .subscribe();
+
+      const contentChannel = supabase
+        .channel('dashboard_content_sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'lessons' }, () => {
+           setIsSyncing(true);
+           fetchData(false).finally(() => setTimeout(() => setIsSyncing(false), 2000));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'chapters' }, () => {
+           setIsSyncing(true);
+           fetchData(false).finally(() => setTimeout(() => setIsSyncing(false), 2000));
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(profileChannel);
+        supabase.removeChannel(contentChannel);
+      };
+    }
   }, [user]);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const [{ data: profile }, { data: lessonsData }] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user?.id).single(),
@@ -40,7 +69,7 @@ export default function HomeScreen() {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
@@ -66,6 +95,13 @@ export default function HomeScreen() {
       <EliteNavigation />
 
       <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
+
+        {isSyncing && (
+          <View style={{ position: 'absolute', top: 20, alignSelf: 'center', backgroundColor: COLORS.blue, padding: 8, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', zIndex: 9999, flexDirection: 'row', justifyContent: 'center', gap: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 }}>
+             <ActivityIndicator size="small" color="white" />
+             <Text style={{ color: 'white', fontWeight: '800', fontSize: 12 }}>SYNCING MISSIONS...</Text>
+          </View>
+        )}
 
         <View style={styles.layoutContainer}>
           <ScrollView

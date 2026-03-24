@@ -1,5 +1,5 @@
 import { AuthHeroGraphic } from '@/components/auth/AuthHeroGraphic';
-import { ModernComicButton } from '@/components/ModernComicButton';
+import { DuoButton } from '@/components/DuoButton';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
 import { COLORS, LAYOUT } from '@/constants/theme';
@@ -125,7 +125,7 @@ export default function SignUpScreen() {
                             />
 
                             <View style={styles.btnWrap}>
-                                <ModernComicButton
+                                <DuoButton
                                     title={loading ? "PREPARING PROFILE..." : "CREATE RECRUIT PROFILE"}
                                     onPress={signUp}
                                     variant="secondary"

@@ -1,6 +1,5 @@
 import { DuoButton } from '@/components/DuoButton';
 import { DynamicBackground } from '@/components/DynamicBackground';
-import { ModernComicButton } from '@/components/ModernComicButton';
 import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub';
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
@@ -165,9 +164,6 @@ export default function ChapterScreen() {
                     {/* MAIN CONTENT AREA */}
                     <ScrollView style={{ flex: 3 }} contentContainerStyle={styles.mainVideoArea} showsVerticalScrollIndicator={false}>
                         <View style={styles.videoHeader}>
-                            <View style={[styles.typeBadge, item.type === 'video' ? { backgroundColor: '#EFF6FF' } : { backgroundColor: '#FEE2E2' }]}>
-                                <Text style={[styles.typeBadgeText, item.type === 'video' ? { color: COLORS.blue } : { color: COLORS.red }]}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
-                            </View>
                             <Text style={styles.chapterTitle}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
                         </View>
 
@@ -196,7 +192,7 @@ export default function ChapterScreen() {
 
                             <View style={styles.actionBox}>
                                 {currentIndex < items.length - 1 ? (
-                                    <ModernComicButton
+                                    <DuoButton
                                         title="NEXT MODULE ⚡"
                                         onPress={() => setCurrentIndex(currentIndex + 1)}
                                         variant="primary"
@@ -248,7 +244,6 @@ export default function ChapterScreen() {
                                                     {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
                                                 </View>
                                                 <View style={styles.sidebarItemContent}>
-                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[trueType] || '📄'} {trueType === 'html_sim' ? 'SIM MODULE' : trueType.toUpperCase()}</Text>
                                                     <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
                                                         {it.data?.title || `Content Part ${idx + 1}`}
                                                     </Text>
@@ -268,9 +263,6 @@ export default function ChapterScreen() {
                         {/* MAIN CONTENT AREA */}
                         <View style={[styles.mainVideoArea, { paddingHorizontal: 16, paddingVertical: 16 }]}>
                             <View style={styles.videoHeader}>
-                                <View style={[styles.typeBadge, item.type === 'video' ? { backgroundColor: '#EFF6FF' } : { backgroundColor: '#FEE2E2' }]}>
-                                    <Text style={[styles.typeBadgeText, item.type === 'video' ? { color: COLORS.blue } : { color: COLORS.red }]}>{TYPE_EMOJI[item.type] || '📄'} {item.type === 'html_sim' ? 'SIM MODULE' : item.type.toUpperCase()}</Text>
-                                </View>
                                 <Text style={[styles.chapterTitle, { fontSize: 32 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
                             </View>
 
@@ -299,7 +291,7 @@ export default function ChapterScreen() {
 
                                 <View style={[styles.actionBox, { alignItems: 'stretch' }]}>
                                     {currentIndex < items.length - 1 ? (
-                                        <ModernComicButton
+                                        <DuoButton
                                             title="NEXT MODULE ⚡"
                                             onPress={() => setCurrentIndex(currentIndex + 1)}
                                             variant="primary"
@@ -349,7 +341,6 @@ export default function ChapterScreen() {
                                                     {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
                                                 </View>
                                                 <View style={styles.sidebarItemContent}>
-                                                    <Text style={[styles.sidebarItemType, isActive && { color: COLORS.blue }]}>{TYPE_EMOJI[it.type] || '📄'} {it.type === 'html_sim' ? 'SIM MODULE' : it.type.toUpperCase()}</Text>
                                                     <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
                                                         {it.data?.title || `Content Part ${idx + 1}`}
                                                     </Text>

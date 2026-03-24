@@ -64,7 +64,7 @@ export default function FounderScreen() {
                                     <View style={styles.photoShadowBox} />
                                     <View style={styles.photoFrame}>
                                         <Image 
-                                            source={{ uri: 'https://lasndpkizduwifvrpovl.supabase.co/storage/v1/object/public/assets/founder.png' }} 
+                                            source={require('@/assets/images/founder.jpg')} 
                                             style={styles.photo}
                                             resizeMode="cover"
                                         />
@@ -81,7 +81,7 @@ export default function FounderScreen() {
                         <View style={[styles.statsStrip, !isDesktop && { marginHorizontal: 20, padding: 24, flexWrap: 'wrap', gap: 24 }]}>
                             <StatItem value="15+" label="Years Expertise" />
                             <StatItem value="10k+" label="Simulations" />
-                            <StatItem value="PhD" label="Italy/USA" />
+                            <StatItem value="IUPAC" label="Affiliate Member" />
                             <StatItem value="ACS" label="Member" />
                         </View>
 

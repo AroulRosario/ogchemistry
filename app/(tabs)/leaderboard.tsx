@@ -19,12 +19,26 @@ export default function LeaderboardScreen() {
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    const [isSyncing, setIsSyncing] = useState(false);
+
     useEffect(() => {
         fetchLeaderboard();
-    }, []);
 
-    const fetchLeaderboard = async () => {
-        setLoading(true);
+        const channel = supabase
+            .channel('leaderboard_sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+                setIsSyncing(true);
+                fetchLeaderboard(false).finally(() => setTimeout(() => setIsSyncing(false), 2000));
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user]);
+
+    const fetchLeaderboard = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
         try {
             const { data: leadersData } = await supabase
                 .from('profiles')
@@ -32,18 +46,20 @@ export default function LeaderboardScreen() {
                 .order('xp', { ascending: false })
                 .limit(20);
 
-            const { data: myProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user?.id)
-                .single();
+            if (user?.id) {
+                const { data: myProfile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                if (myProfile) setProfile(myProfile);
+            }
 
             if (leadersData) setLeaders(leadersData);
-            if (myProfile) setProfile(myProfile);
         } catch (err) {
             console.error('Error fetching leaderboard:', err);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     };
 
@@ -176,6 +192,13 @@ export default function LeaderboardScreen() {
             <EliteNavigation />
 
             <View style={[styles.mainContent, isDesktop && styles.desktopMainContent]}>
+
+                {isSyncing && (
+                  <View style={{ position: 'absolute', top: 20, alignSelf: 'center', backgroundColor: COLORS.blue, padding: 8, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', zIndex: 9999, flexDirection: 'row', justifyContent: 'center', gap: 8, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 }}>
+                     <ActivityIndicator size="small" color="white" />
+                     <Text style={{ color: 'white', fontWeight: '800', fontSize: 12 }}>LIVE UPDATE...</Text>
+                  </View>
+                )}
 
                 <ResponsiveContainer fullWidth scrollable={false}>
                     <FlatList

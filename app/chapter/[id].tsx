@@ -1,6 +1,5 @@
 import { DuoButton } from '@/components/DuoButton';
 import { DynamicBackground } from '@/components/DynamicBackground';
-import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub';
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
@@ -217,13 +216,7 @@ export default function ChapterScreen() {
                             </View>
                         </View>
 
-                        {/* INTERACTION HUB (Restored Flashcards/Notes) */}
-                        {item.type === 'video' && (
-                            <ChapterInteractionHub
-                                notes={item.data?.notes}
-                                flashcards={item.data?.flashcards}
-                            />
-                        )}
+
                     </ScrollView>
 
                     {/* CHAPTER CONTENTS (SIDEBAR ON DESK, FIXED HEIGHT) */}
@@ -335,13 +328,7 @@ export default function ChapterScreen() {
                                 </View>
                             </View>
 
-                            {/* INTERACTION HUB (Restored Flashcards/Notes) */}
-                            {item.type === 'video' && (
-                                <ChapterInteractionHub
-                                    notes={item.data?.notes}
-                                    flashcards={item.data?.flashcards}
-                                />
-                            )}
+
                         </View>
 
                         {/* CHAPTER CONTENTS (BELOW VIDEO ON MOBILE) */}

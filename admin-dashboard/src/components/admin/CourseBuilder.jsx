@@ -1,6 +1,6 @@
 import {
-    AlignLeft, CheckSquare, ChevronDown, ChevronRight, Edit3,
-    File as FileIcon, Folder, Globe, Layers, PlayCircle,
+    AlignLeft, CheckSquare, ChevronDown, ChevronRight, ChevronUp, Edit3,
+    File as FileIcon, Folder, Globe, GripVertical, Layers, PlayCircle,
     Plus, Save, Sparkles, Trash2, X
 } from 'lucide-react';
 import { useState } from 'react';
@@ -100,6 +100,39 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
 
     const toggleLesson = (id) => setExpandedLessons(prev => ({ ...prev, [id]: !prev[id] }));
     const toggleChapter = (id) => setExpandedChapters(prev => ({ ...prev, [id]: !prev[id] }));
+
+    const handleDelete = async (type, id) => {
+        if (!window.confirm(`Delete this ${type}? This cannot be undone.`)) return;
+        setLoading(true);
+        try {
+            const table = type === 'lesson' ? 'lessons' : type === 'chapter' ? 'chapters' : 'content_items';
+            await supabase.from(table).delete().eq('id', id);
+            if (selectedItem?.data?.id === id) setSelectedItem(null);
+            showNotification(`${type} deleted`);
+            await fetchAll();
+        } catch (e) {
+            showNotification('Delete failed', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const reorderItems = async (type, items, fromIdx, direction) => {
+        const toIdx = fromIdx + direction;
+        if (toIdx < 0 || toIdx >= items.length) return;
+        setLoading(true);
+        const table = type === 'lesson' ? 'lessons' : type === 'chapter' ? 'chapters' : 'content_items';
+        try {
+            const a = items[fromIdx], b = items[toIdx];
+            await supabase.from(table).update({ order: b.order }).eq('id', a.id);
+            await supabase.from(table).update({ order: a.order }).eq('id', b.id);
+            await fetchAll();
+        } catch (e) {
+            showNotification('Reorder failed', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const confirmCreate = async () => {
         if (!newName.trim() || !addingTo) return;
@@ -449,7 +482,9 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
 
                 <div className="card" style={{ flex: 1, padding: '0.75rem', overflowY: 'auto', background: 'var(--white)' }}>
                     {lessons.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-400)', fontSize: '0.9rem' }}>No syllabus yet.</p>}
-                    {lessons.map(lesson => (
+                    {lessons.map((lesson, li) => {
+                        const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
+                        return (
                         <div key={lesson.id} style={{ marginBottom: '0.25rem' }}>
                             <div
                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === lesson.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === lesson.id ? 'var(--blue)' : 'inherit' }}
@@ -460,12 +495,19 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                     <Folder size={16} />
                                     <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>{lesson.title}</span>
                                 </div>
-                                <button onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'chapter', parentId: lesson.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5 }}><Plus size={14} /></button>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <button onClick={(e) => { e.stopPropagation(); reorderItems('lesson', sortedLessons, sortedLessons.findIndex(x => x.id === lesson.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }} title="Move Up"><ChevronUp size={12} /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); reorderItems('lesson', sortedLessons, sortedLessons.findIndex(x => x.id === lesson.id), 1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }} title="Move Down"><ChevronDown size={12} /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'chapter', parentId: lesson.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, padding: '2px' }}><Plus size={14} /></button>
+                                    <button onClick={(e) => { e.stopPropagation(); handleDelete('lesson', lesson.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', opacity: 0.6, padding: '2px' }} title="Delete"><Trash2 size={12} /></button>
+                                </div>
                             </div>
 
                             {expandedLessons[lesson.id] && (
                                 <div style={{ marginLeft: '1.25rem', borderLeft: '1px solid var(--gray-200)', paddingLeft: '0.5rem' }}>
-                                    {chapters.filter(c => c.lesson_id === lesson.id).map(chapter => (
+                                    {chapters.filter(c => c.lesson_id === lesson.id).sort((a,b) => a.order - b.order).map((chapter, ci) => {
+                                        const siblingChapters = chapters.filter(c => c.lesson_id === lesson.id).sort((a,b) => a.order - b.order);
+                                        return (
                                         <div key={chapter.id}>
                                             <div
                                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === chapter.id ? 'var(--gray-100)' : 'transparent', fontSize: '0.85rem' }}
@@ -476,29 +518,43 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                                     <Layers size={14} />
                                                     <span style={{ fontWeight: '500' }}>{chapter.title}</span>
                                                 </div>
-                                                <button onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'content', parentId: chapter.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5 }}><Plus size={12} /></button>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                                    <button onClick={(e) => { e.stopPropagation(); reorderItems('chapter', siblingChapters, siblingChapters.findIndex(x => x.id === chapter.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }}><ChevronUp size={11} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); reorderItems('chapter', siblingChapters, siblingChapters.findIndex(x => x.id === chapter.id), 1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }}><ChevronDown size={11} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); setAddingTo({ type: 'content', parentId: chapter.id }); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, padding: '2px' }}><Plus size={12} /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleDelete('chapter', chapter.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', opacity: 0.6, padding: '2px' }}><Trash2 size={11} /></button>
+                                                </div>
                                             </div>
 
                                             {expandedChapters[chapter.id] && (
                                                 <div style={{ marginLeft: '1.5rem', borderLeft: '1px solid var(--gray-200)', paddingLeft: '0.5rem' }}>
-                                                    {contentItems.filter(ci => ci.chapter_id === chapter.id).map(item => (
+                                                    {contentItems.filter(ci => ci.chapter_id === chapter.id).sort((a,b) => a.order - b.order).map((item, ii) => {
+                                                        const siblingItems = contentItems.filter(ci => ci.chapter_id === chapter.id).sort((a,b) => a.order - b.order);
+                                                        return (
                                                         <div
                                                             key={item.id}
-                                                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === item.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === item.id ? 'var(--blue)' : 'var(--gray-600)', fontSize: '0.8rem' }}
-                                                            onClick={() => handleSelect('content', item)}
+                                                            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.3rem 0.5rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === item.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === item.id ? 'var(--blue)' : 'var(--gray-600)', fontSize: '0.8rem' }}
                                                         >
-                                                            {TYPE_ICONS[item.type] || <FileIcon size={14} />}
-                                                            <span style={{ fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.data?.title || 'Untitled'}</span>
+                                                            <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden' }} onClick={() => handleSelect('content', item)}>
+                                                                {TYPE_ICONS[item.type] || <FileIcon size={14} />}
+                                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: '500' }}>{item.data?.title || 'Untitled'}</span>
+                                                            </span>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1px', flexShrink: 0 }}>
+                                                                <button onClick={(e) => { e.stopPropagation(); reorderItems('content', siblingItems, siblingItems.findIndex(x => x.id === item.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '1px' }}><ChevronUp size={11} /></button>
+                                                                <button onClick={(e) => { e.stopPropagation(); reorderItems('content', siblingItems, siblingItems.findIndex(x => x.id === item.id), 1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '1px' }}><ChevronDown size={11} /></button>
+                                                                <button onClick={(e) => { e.stopPropagation(); handleDelete('content', item.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', opacity: 0.6, padding: '1px' }}><Trash2 size={11} /></button>
+                                                            </div>
                                                         </div>
-                                                    ))}
+                                                    )})}
                                                 </div>
                                             )}
                                         </div>
-                                    ))}
+                                    )})}
                                 </div>
                             )}
                         </div>
-                    ))}
+                    );
+                    })}
                 </div>
             </div>
 

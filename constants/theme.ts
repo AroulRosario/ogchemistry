@@ -45,7 +45,7 @@ export const LAYOUT = {
   fullWidth: '100%',
   padding: 24,
   mobilePadding: 24,
-  desktopPadding: 64,
+  desktopPadding: 80, // Increased for a more premium, spacious feel
   borderRadius: 16,
   borderWidth: 1,
 };

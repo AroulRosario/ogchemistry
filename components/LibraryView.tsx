@@ -99,53 +99,65 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                         </View>
 
                         <View style={styles.grid}>
-                            {lesson.chapters?.map((chapter: any, chapterIdx: number) => (
-                                <AnimatedCard
-                                    key={chapter.id}
-                                    delay={chapterIdx * 100}
-                                    style={[
-                                        styles.cardWrapper,
-                                        isWide ? { width: '23.5%' } : isDesktop ? { width: '31%' } : { width: '100%' }
-                                    ]}
-                                >
-                                    <Pressable
-                                        onPress={() => onSelect(chapter.id, 'chapter')}
-                                        style={({ pressed }) => [
-                                            styles.card,
-                                            !isDesktop && { padding: 16 },
-                                            pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
+                            {lesson.chapters?.map((chapter: any, chapterIdx: number) => {
+                                // Match adaptive column logic from Explore screen
+                                let cardWidth = '100%';
+                                if (isWide) {
+                                    cardWidth = '23.5%';
+                                } else if (width > 1100) {
+                                    cardWidth = '31%';
+                                } else if (isDesktop) {
+                                    cardWidth = '48%';
+                                }
+
+                                return (
+                                    <AnimatedCard
+                                        key={chapter.id}
+                                        delay={chapterIdx * 100}
+                                        style={[
+                                            styles.cardWrapper,
+                                            { width: cardWidth }
                                         ]}
                                     >
-                                        <View style={styles.cardHeader}>
-                                            <View style={{ flex: 1, justifyContent: 'center' }}>
-                                                <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                        <Pressable
+                                            onPress={() => onSelect(chapter.id, 'chapter')}
+                                            style={({ pressed }) => [
+                                                styles.card,
+                                                !isDesktop && { padding: 16 },
+                                                pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
+                                            ]}
+                                        >
+                                            <View style={styles.cardHeader}>
+                                                <View style={{ flex: 1, justifyContent: 'center' }}>
+                                                    <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                                </View>
+                                                <View style={styles.iconCircle}>
+                                                    <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
+                                                </View>
                                             </View>
-                                            <View style={styles.iconCircle}>
-                                                <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
-                                            </View>
-                                        </View>
 
-                                        <View style={styles.progressSection}>
-                                            <View style={styles.progressBar}>
-                                                <View style={[styles.progressFill, { width: `${Math.floor(Math.random() * 80) + 10}%` }]} />
+                                            <View style={styles.progressSection}>
+                                                <View style={styles.progressBar}>
+                                                    <View style={[styles.progressFill, { width: `${Math.floor(Math.random() * 80) + 10}%` }]} />
+                                                </View>
+                                                <View style={styles.progressInfo}>
+                                                    <Text style={styles.progressText}>{Math.floor(Math.random() * 8) + 1}/10 COMPLETED</Text>
+                                                    <Text style={styles.xpTip}>+50 XP</Text>
+                                                </View>
                                             </View>
-                                            <View style={styles.progressInfo}>
-                                                <Text style={styles.progressText}>{Math.floor(Math.random() * 8) + 1}/10 COMPLETED</Text>
-                                                <Text style={styles.xpTip}>+50 XP</Text>
-                                            </View>
-                                        </View>
 
-                                        <View style={styles.tagRow}>
-                                            <View style={styles.tag}>
-                                                <Text style={styles.tagText}>CORE SCIENCE</Text>
+                                            <View style={styles.tagRow}>
+                                                <View style={styles.tag}>
+                                                    <Text style={styles.tagText}>CORE SCIENCE</Text>
+                                                </View>
+                                                <View style={styles.playBadge}>
+                                                    <Play size={12} color="#FFF" fill="#FFF" />
+                                                </View>
                                             </View>
-                                            <View style={styles.playBadge}>
-                                                <Play size={12} color="#FFF" fill="#FFF" />
-                                            </View>
-                                        </View>
-                                    </Pressable>
-                                </AnimatedCard>
-                            ))}
+                                        </Pressable>
+                                    </AnimatedCard>
+                                );
+                            })}
                         </View>
                     </View>
                 ))
@@ -265,7 +277,7 @@ const styles = StyleSheet.create({
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 20,
+        gap: 32,
         width: '100%',
     },
     cardWrapper: {
@@ -292,8 +304,9 @@ const styles = StyleSheet.create({
         fontFamily: 'System',
         fontSize: 18,
         fontWeight: '900',
-        color: '#1E293B',
+        color: '#0F172A',
         lineHeight: 22,
+        letterSpacing: -0.2,
         flexWrap: 'wrap',
     },
     iconCircle: {

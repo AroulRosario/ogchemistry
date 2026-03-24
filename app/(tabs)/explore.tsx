@@ -92,48 +92,60 @@ export default function ExploreScreen() {
             </View>
 
             <View style={styles.grid}>
-              {filteredTopics.map((lesson, i) => (
-                <AnimatedCard key={lesson.id} delay={i * 100} style={[
-                  styles.cardWrapper,
-                  isWide ? { width: '23.5%' } : isDesktop ? { width: '31%' } : { width: '100%' }
-                ]}>
-                  <Pressable style={styles.card} onPress={() => {
-                    if (lesson.chapters && lesson.chapters.length > 0) {
-                      router.push(`/chapter/${lesson.chapters[0].id}`);
-                    } else {
-                      router.push('/');
-                    }
-                  }}>
-                    <View style={styles.cardTop}>
-                      <View style={styles.emojiContainer}>
-                        <Text style={styles.emoji}>{'🧪'}</Text>
-                      </View>
-                      <View style={{ flex: 1, justifyContent: 'center' }}>
-                        <Text style={styles.cardTitle} numberOfLines={2}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
-                        <View style={styles.difficultyBadge}>
-                          <Text style={styles.difficultyText}>{lesson.category || 'Core'}</Text>
+              {filteredTopics.map((lesson, i) => {
+                // Adaptive column width logic for a more spacious feel
+                let cardWidth = '100%';
+                if (isWide) {
+                  cardWidth = '23.5%'; // 4 columns on very wide screens
+                } else if (width > 1100) {
+                  cardWidth = '31%';   // 3 columns on standard desktop
+                } else if (isDesktop) {
+                  cardWidth = '48%';   // 2 columns on medium desktop/tablets to prevent cramping
+                }
+
+                return (
+                  <AnimatedCard key={lesson.id} delay={i * 100} style={[
+                    styles.cardWrapper,
+                    { width: cardWidth }
+                  ]}>
+                    <Pressable style={styles.card} onPress={() => {
+                      if (lesson.chapters && lesson.chapters.length > 0) {
+                        router.push(`/chapter/${lesson.chapters[0].id}`);
+                      } else {
+                        router.push('/');
+                      }
+                    }}>
+                      <View style={styles.cardTop}>
+                        <View style={styles.emojiContainer}>
+                          <Text style={styles.emoji}>{'🧪'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.cardTitle} numberOfLines={2}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
+                          <View style={styles.difficultyBadge}>
+                            <Text style={styles.difficultyText}>{lesson.category || 'Core'}</Text>
+                          </View>
+                        </View>
+                        <View style={styles.lockBadge}>
+                          <Lock size={14} strokeWidth={3} color="#CBD5E1" />
                         </View>
                       </View>
-                      <View style={styles.lockBadge}>
-                        <Lock size={14} strokeWidth={3} color="#94A3B8" />
-                      </View>
-                    </View>
 
-                    <Text style={styles.cardDesc} numberOfLines={2}>{lesson.description || 'Master the fundamentals of this topic.'}</Text>
+                      <Text style={styles.cardDesc} numberOfLines={2}>{lesson.description || 'Master the fundamentals of this topic.'}</Text>
 
-                    <View style={styles.cardMetrics}>
-                      <View style={styles.metric}>
-                        <GraduationCap size={14} color="#64748B" />
-                        <Text style={styles.metricText}>{lesson.chapters?.length || 0} Lessons</Text>
+                      <View style={styles.cardMetrics}>
+                        <View style={styles.metric}>
+                          <GraduationCap size={14} color="#64748B" />
+                          <Text style={styles.metricText}>{lesson.chapters?.length || 0} Lessons</Text>
+                        </View>
+                        <View style={styles.metric}>
+                          <Clock size={14} color="#64748B" />
+                          <Text style={styles.metricText}>{'~2h'}</Text>
+                        </View>
                       </View>
-                      <View style={styles.metric}>
-                        <Clock size={14} color="#64748B" />
-                        <Text style={styles.metricText}>{'~2h'}</Text>
-                      </View>
-                    </View>
-                  </Pressable>
-                </AnimatedCard>
-              ))}
+                    </Pressable>
+                  </AnimatedCard>
+                );
+              })}
             </View>
 
           </ResponsiveContainer>
@@ -146,10 +158,11 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   mainContent: { flex: 1, backgroundColor: '#F8FAFC' },
   desktopContent: { paddingLeft: 260 },
-  scroll: { paddingBottom: 60 },
+  scroll: { paddingBottom: 100 },
   headerControls: {
-    marginTop: 32,
-    gap: 20,
+    marginTop: 48,
+    marginBottom: 48,
+    gap: 24,
     width: '100%',
   },
   searchBar: {
@@ -285,7 +298,7 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 20,
+    gap: 32,
     width: '100%',
   },
   cardWrapper: {
@@ -318,10 +331,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: 'System',
     fontWeight: '900',
-    fontSize: 16,
-    color: '#1E293B',
-    letterSpacing: -0.5,
-    lineHeight: 20,
+    fontSize: 18,
+    color: '#0F172A',
+    letterSpacing: -0.2,
+    lineHeight: 22,
     flexWrap: 'wrap',
   },
   difficultyBadge: {

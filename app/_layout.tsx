@@ -114,6 +114,10 @@ function RootLayoutNav() {
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }} />
+        <Stack.Screen name="founder" options={{
+          presentation: 'card',
+          animation: 'fade',
+        }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="dark" />

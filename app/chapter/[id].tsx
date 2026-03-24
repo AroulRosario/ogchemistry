@@ -145,7 +145,7 @@ export default function ChapterScreen() {
                 headerTintColor: '#111827',
                 headerShadowVisible: true,
                 headerLeft: () => (
-                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 16 : 0, gap: 4 }}>
+                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 64 : 0, gap: 4 }}>
                         <ChevronLeft size={18} color={COLORS.blue} strokeWidth={3} />
                         <Text style={{ fontFamily: 'System', fontWeight: '700', fontSize: 14, color: COLORS.blue }}>Return</Text>
                     </Pressable>

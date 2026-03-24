@@ -1,7 +1,7 @@
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { COLORS, STYLES } from '@/constants/theme';
 import { usePathname, useRouter } from 'expo-router';
-import { BookOpen, Compass, Layout, Menu, Trophy, User, X } from 'lucide-react-native';
+import { Award, BookOpen, Compass, Layout, Menu, Trophy, User, X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Animated, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +44,7 @@ export function EliteNavigation() {
         { name: 'Library', icon: BookOpen, path: '/library' }, // Assuming switching logic or new route
         { name: 'Explore', icon: Compass, path: '/explore' },
         { name: 'Profile', icon: User, path: '/profile' },
+        { name: 'Founder', icon: Award, path: '/founder' },
     ];
 
     // ... Inside EliteNavigation component ...

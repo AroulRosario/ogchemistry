@@ -16,7 +16,7 @@ interface PYQData {
 }
 
 interface PYQViewProps {
-    data: PYQData;
+    data: PYQData & { questions?: PYQData[] };
 }
 
 function getDifficultyColor(difficulty?: string) {
@@ -28,12 +28,32 @@ function getDifficultyColor(difficulty?: string) {
 }
 
 export function PYQView({ data }: PYQViewProps) {
+    const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [revealed, setRevealed] = useState(false);
 
-    const diffColor = getDifficultyColor(data.difficulty);
-    const isCorrect = (option: string) => revealed && option === data.answer;
-    const isWrong = (option: string) => revealed && option === selectedOption && option !== data.answer;
+    const questions = data.questions || [data];
+    const currentData = questions[currentIndex];
+
+    const diffColor = getDifficultyColor(currentData.difficulty);
+    const isCorrect = (option: string) => revealed && option === currentData.answer;
+    const isWrong = (option: string) => revealed && option === selectedOption && option !== currentData.answer;
+
+    const handleNext = () => {
+        if (currentIndex < questions.length - 1) {
+            setCurrentIndex(currentIndex + 1);
+            setSelectedOption(null);
+            setRevealed(false);
+        }
+    };
+
+    const handlePrev = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1);
+            setSelectedOption(null);
+            setRevealed(false);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -41,20 +61,20 @@ export function PYQView({ data }: PYQViewProps) {
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
                     <View style={[styles.badge, { backgroundColor: '#FEE2E2' }]}>
-                        <Text style={[styles.badgeText, { color: '#B91C1C' }]}>PYQ</Text>
+                        <Text style={[styles.badgeText, { color: '#B91C1C' }]}>PYQ {questions.length > 1 ? `${currentIndex + 1}/${questions.length}` : ''}</Text>
                     </View>
-                    {data.exam && (
+                    {currentData.exam && (
                         <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{data.exam}</Text>
+                            <Text style={styles.badgeText}>{currentData.exam}</Text>
                         </View>
                     )}
-                    {data.year && (
-                        <Text style={styles.yearText}>{data.year}</Text>
+                    {currentData.year && (
+                        <Text style={styles.yearText}>{currentData.year}</Text>
                     )}
                 </View>
-                {data.difficulty && (
+                {currentData.difficulty && (
                     <View style={[styles.diffBadge, { backgroundColor: diffColor.bg }]}>
-                        <Text style={[styles.diffText, { color: diffColor.text }]}>{data.difficulty}</Text>
+                        <Text style={[styles.diffText, { color: diffColor.text }]}>{currentData.difficulty}</Text>
                     </View>
                 )}
             </View>
@@ -62,7 +82,7 @@ export function PYQView({ data }: PYQViewProps) {
             {/* Question */}
             <View style={styles.questionBox}>
                 <LaTeXText
-                    text={data.question || 'No question data available.'}
+                    text={currentData.question || 'No question data available.'}
                     fontSize={16}
                     color="#1E293B"
                     fontWeight="700"
@@ -71,9 +91,9 @@ export function PYQView({ data }: PYQViewProps) {
             </View>
 
             {/* Options */}
-            {data.options && data.options.length > 0 && (
+            {currentData.options && currentData.options.length > 0 && (
                 <View style={styles.optionsContainer}>
-                    {data.options.map((option, i) => {
+                    {currentData.options.map((option, i) => {
                         const correct = isCorrect(option);
                         const wrong = isWrong(option);
                         return (
@@ -108,10 +128,30 @@ export function PYQView({ data }: PYQViewProps) {
             )}
 
             {/* Solution */}
-            {revealed && data.solution && (
+            {revealed && currentData.solution && (
                 <View style={styles.solutionBox}>
                     <Text style={styles.solutionHeader}>📖 Detailed Solution</Text>
-                    <LaTeXText text={data.solution} fontSize={14} color="#166534" fontWeight="500" style={{ minHeight: 40 }} />
+                    <LaTeXText text={currentData.solution} fontSize={14} color="#166534" fontWeight="500" style={{ minHeight: 40 }} />
+                </View>
+            )}
+
+            {/* Navigation for Multi-Question */}
+            {questions.length > 1 && (
+                <View style={styles.navRow}>
+                    <Pressable 
+                        style={[styles.navBtn, currentIndex === 0 && { opacity: 0.3 }]} 
+                        onPress={handlePrev}
+                        disabled={currentIndex === 0}
+                    >
+                        <Text style={styles.navBtnText}>Previous</Text>
+                    </Pressable>
+                    <Pressable 
+                        style={[styles.navBtn, currentIndex === questions.length - 1 && { opacity: 0.3 }]} 
+                        onPress={handleNext}
+                        disabled={currentIndex === questions.length - 1}
+                    >
+                        <Text style={styles.navBtnText}>Next Question</Text>
+                    </Pressable>
                 </View>
             )}
 
@@ -291,5 +331,28 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '700',
         color: '#64748B',
+    },
+    navRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 24,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#E2E8F0',
+        gap: 12,
+    },
+    navBtn: {
+        flex: 1,
+        backgroundColor: '#F1F5F9',
+        paddingVertical: 12,
+        borderRadius: 12,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    navBtnText: {
+        fontSize: 13,
+        fontWeight: '800',
+        color: '#475569',
     },
 });

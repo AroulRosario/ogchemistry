@@ -162,6 +162,8 @@ export default function HomeScreen() {
   );
 }
 
+// Force redeployment trigger for elite-student1
+
 const styles = StyleSheet.create({
   main: { flex: 1, backgroundColor: '#F8FAFC' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },

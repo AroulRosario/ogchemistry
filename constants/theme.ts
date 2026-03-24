@@ -54,8 +54,8 @@ export const TYPOGRAPHY = {
   h1: { fontFamily: 'System', fontWeight: '900', fontSize: 32, letterSpacing: -1 },
   h2: { fontFamily: 'System', fontWeight: '800', fontSize: 24, letterSpacing: -0.5 },
   h3: { fontFamily: 'System', fontWeight: '700', fontSize: 18, letterSpacing: -0.2 },
-  body: { fontFamily: 'System', fontWeight: '400', fontSize: 16 },
-  label: { fontFamily: 'System', fontWeight: '600', fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 },
+  body: { fontFamily: 'System', fontWeight: '400', fontSize: 16, lineHeight: 24 },
+  label: { fontFamily: 'System', fontWeight: '600', fontSize: 12, textTransform: 'uppercase', letterSpacing: 1.2 },
 };
 
 // Subtle, modern shadow configurations inspired by polished apps
@@ -108,5 +108,11 @@ export const STYLES = {
   },
   eliteShadow: {
     ...SHADOWS.lg,
+  },
+  glass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backdropFilter: 'blur(10px)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   }
 };

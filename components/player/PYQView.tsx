@@ -2,7 +2,7 @@ import { LaTeXText } from '@/components/LaTeXText';
 import { COLORS, STYLES, SHADOWS } from '@/constants/theme';
 import { CheckCircle, ChevronDown, BookOpen, Layers } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface PYQData {
     title?: string;
@@ -35,11 +35,11 @@ export function PYQView({ data }: PYQViewProps) {
             {/* List Header */}
             <View style={styles.listHeader}>
                 <View style={styles.headerIcon}>
-                    <Layers size={20} color="#FFF" />
+                    <Layers size={22} color="#FFF" />
                 </View>
                 <View>
-                    <Text style={styles.listTitle}>Practice Set: {data.title || 'PYQs'}</Text>
-                    <Text style={styles.listSubTitle}>{questions.length} Questions in this module</Text>
+                    <Text style={styles.listTitle}>{data.title || 'Practice Module'}</Text>
+                    <Text style={styles.listSubTitle}>{questions.length} QUESTIONS AVAILABLE</Text>
                 </View>
             </View>
 
@@ -112,6 +112,7 @@ function PYQItem({ data, index, total }: { data: PYQData, index: number, total: 
                                     selectedOption === option && !revealed && styles.optionSelected,
                                     correct && styles.optionCorrect,
                                     wrong && styles.optionWrong,
+                                    Platform.OS === 'web' && { transition: 'all 0.2s ease' } as any
                                 ]}
                                 onPress={() => !revealed && setSelectedOption(option)}
                             >
@@ -198,11 +199,15 @@ const styles = StyleSheet.create({
     },
     itemCard: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 28,
-        padding: 28,
-        ...SHADOWS.md,
+        borderRadius: 32,
+        padding: 32,
+        shadowColor: 'rgba(0,0,0,0.05)',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 1,
+        shadowRadius: 20,
+        elevation: 4,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: '#F1F5F9',
     },
     header: {
         flexDirection: 'row',
@@ -256,12 +261,12 @@ const styles = StyleSheet.create({
     option: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
-        borderRadius: 18,
-        padding: 16,
-        borderWidth: 2,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        borderWidth: 1.5,
         borderColor: '#F1F5F9',
-        gap: 14,
+        gap: 16,
     },
     optionSelected: {
         borderColor: COLORS.blue,

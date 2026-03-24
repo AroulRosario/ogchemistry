@@ -1,5 +1,5 @@
 import { supabase } from '@/constants/supabase';
-import { COLORS } from '@/constants/theme';
+import { COLORS, SHADOWS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { ResizeMode, Video } from 'expo-av';
 import { FastForward, Loader2, Pause, Play } from 'lucide-react-native';
@@ -135,7 +135,7 @@ export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
             <Pressable style={styles.videoWrapper} onPress={showControlsTemporarily}>
                 <Video
                     ref={videoRef}
-                    source={{ uri: url, headers: { 'User-Agent': 'ComicApp/1.0' } }}
+                    source={{ uri: url, headers: { 'User-Agent': 'EliteApp/1.0' } }}
                     style={styles.video}
                     resizeMode={ResizeMode.CONTAIN}
                     isLooping={false}
@@ -193,17 +193,13 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         aspectRatio: 16 / 9,
-        backgroundColor: '#000',
-        borderRadius: 20,
+        backgroundColor: '#0F172A',
+        borderRadius: 24,
         overflow: 'hidden',
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: '#1E293B',
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 10,
+        marginBottom: 24,
+        ...SHADOWS.lg,
     },
     videoWrapper: {
         flex: 1,
@@ -304,6 +300,6 @@ const styles = StyleSheet.create({
     },
     progressFill: {
         height: '100%',
-        backgroundColor: COLORS.orange, // Elite orange
+        backgroundColor: COLORS.blue, // Standard professional blue
     }
 });

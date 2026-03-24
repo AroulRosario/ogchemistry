@@ -232,10 +232,15 @@ export default function ChapterScreen() {
                                         return (
                                             <Pressable
                                                 key={it.id}
-                                                style={[
+                                                style={({ pressed, hovered }) => [
                                                     styles.sidebarItem, 
                                                     isActive && styles.sidebarItemActive,
-                                                    Platform.OS === 'web' && { transition: 'all 0.2s ease-in-out' } as any
+                                                    Platform.OS === 'web' && { 
+                                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                        cursor: 'pointer'
+                                                    } as any,
+                                                    hovered && { backgroundColor: '#F8FAFC', transform: [{ scale: 1.01 }] } as any,
+                                                    pressed && { transform: [{ scale: 0.98 }] } as any
                                                 ]}
                                                 onPress={() => setCurrentIndex(idx)}
                                             >
@@ -333,10 +338,15 @@ export default function ChapterScreen() {
                                         return (
                                             <Pressable
                                                 key={it.id}
-                                                style={[
+                                                style={({ pressed, hovered }) => [
                                                     styles.sidebarItem, 
                                                     isActive && styles.sidebarItemActive,
-                                                    Platform.OS === 'web' && { transition: 'all 0.2s ease-in-out' } as any
+                                                    Platform.OS === 'web' && { 
+                                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                        cursor: 'pointer'
+                                                    } as any,
+                                                    hovered && { backgroundColor: '#F8FAFC', transform: [{ scale: 1.01 }] } as any,
+                                                    pressed && { transform: [{ scale: 0.98 }] } as any
                                                 ]}
                                                 onPress={() => setCurrentIndex(idx)}
                                             >
@@ -377,7 +387,15 @@ const styles = StyleSheet.create({
     // MAIN VIDEO AREA
     mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
-    chapterTitle: { fontFamily: 'System', fontWeight: '900', fontSize: 44, color: '#0F172A', letterSpacing: -1.5, marginTop: 12, lineHeight: 48 },
+    chapterTitle: { 
+        fontFamily: 'System', 
+        fontWeight: '900', 
+        fontSize: 36, 
+        color: '#0F172A', 
+        letterSpacing: -1, 
+        marginTop: 8, 
+        lineHeight: 40,
+    },
     typeBadge: {
         alignSelf: 'flex-start',
         backgroundColor: '#FEE2E2', // Soft red background
@@ -459,16 +477,21 @@ const styles = StyleSheet.create({
     sidebarItem: {
         flexDirection: 'row',
         alignItems: 'stretch',
-        padding: 14,
-        backgroundColor: '#F8FAFC',
+        padding: 16,
+        backgroundColor: '#FFFFFF',
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
+        borderColor: '#F1F5F9',
+        marginHorizontal: 4,
     },
     sidebarItemActive: {
         backgroundColor: '#EFF6FF',
-        borderColor: COLORS.blue,
-        ...SHADOWS.sm,
+        borderColor: '#BFDBFE',
+        shadowColor: COLORS.blue,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 2,
     },
     iconRail: { alignItems: 'center', marginRight: 12, width: 24 },
     railLine: { flex: 1, width: 2, backgroundColor: '#E2E8F0', marginVertical: 4, borderRadius: 1 },

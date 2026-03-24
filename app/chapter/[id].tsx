@@ -232,7 +232,11 @@ export default function ChapterScreen() {
                                         return (
                                             <Pressable
                                                 key={it.id}
-                                                style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+                                                style={[
+                                                    styles.sidebarItem, 
+                                                    isActive && styles.sidebarItemActive,
+                                                    Platform.OS === 'web' && { transition: 'all 0.2s ease-in-out' } as any
+                                                ]}
                                                 onPress={() => setCurrentIndex(idx)}
                                             >
                                                 <View style={styles.iconRail}>
@@ -329,7 +333,11 @@ export default function ChapterScreen() {
                                         return (
                                             <Pressable
                                                 key={it.id}
-                                                style={[styles.sidebarItem, isActive && styles.sidebarItemActive]}
+                                                style={[
+                                                    styles.sidebarItem, 
+                                                    isActive && styles.sidebarItemActive,
+                                                    Platform.OS === 'web' && { transition: 'all 0.2s ease-in-out' } as any
+                                                ]}
                                                 onPress={() => setCurrentIndex(idx)}
                                             >
                                                 <View style={styles.iconRail}>
@@ -420,7 +428,7 @@ const styles = StyleSheet.create({
 
     // SIDEBAR
     sidebarWrapper: {
-        backgroundColor: '#F8FAFC', // Professional background
+        backgroundColor: '#FFFFFF', // Professional background
         padding: Platform.OS === 'web' ? 32 : 16,
         borderLeftWidth: 1,
         borderLeftColor: '#E2E8F0',

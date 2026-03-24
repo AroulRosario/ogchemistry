@@ -60,20 +60,7 @@ export default function FounderScreen() {
                                     </View>
                                 </View>
 
-                                <View style={[styles.photoContainer, !isDesktop && { width: '100%', height: 400 }]}>
-                                    <View style={styles.photoShadowBox} />
-                                    <View style={styles.photoFrame}>
-                                        <Image 
-                                            source={require('@/assets/images/founder.jpg')} 
-                                            style={styles.photo}
-                                            resizeMode="cover"
-                                        />
-                                    </View>
-                                    <View style={styles.statusPill}>
-                                        <View style={styles.statusDot} />
-                                        <Text style={styles.statusText}>ACTIVE INNOVATOR</Text>
-                                    </View>
-                                </View>
+
                             </View>
                         </View>
 

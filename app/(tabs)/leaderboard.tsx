@@ -177,7 +177,7 @@ export default function LeaderboardScreen() {
 
             <View style={[styles.mainContent, isDesktop && styles.desktopMainContent]}>
 
-                <ResponsiveContainer fullWidth>
+                <ResponsiveContainer fullWidth scrollable={false}>
                     <FlatList
                         data={leaders}
                         ListHeaderComponent={() => (

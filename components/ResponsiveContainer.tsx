@@ -31,9 +31,10 @@ export function ResponsiveContainer({
                 style={[
                     styles.container,
                     fullWidth ? { maxWidth: '100%' } : styles.maxWidth,
+                    !scrollable && { paddingHorizontal: horizontalPad },
                     style
                 ]}
-                contentContainerStyle={scrollable ? [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle] : [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle]}
+                contentContainerStyle={scrollable ? [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle] : undefined}
                 showsVerticalScrollIndicator={false}
             >
                 {children}

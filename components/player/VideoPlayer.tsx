@@ -223,10 +223,11 @@ const styles = StyleSheet.create({
     },
     loaderText: {
         color: COLORS.orange,
-        fontFamily: 'Bangers_400Regular',
+        fontFamily: 'System',
+        fontWeight: '900',
         fontSize: 20,
         marginTop: 10,
-        letterSpacing: 2,
+        letterSpacing: 1,
     },
     controlsOverlay: {
         ...StyleSheet.absoluteFillObject,

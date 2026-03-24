@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import { Bangers_400Regular } from '@expo-google-fonts/bangers';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -23,7 +23,6 @@ function RootLayoutNav() {
   const hasNavigated = useRef(false);
 
   const [loaded] = useFonts({
-    Bangers_400Regular,
   });
 
   useEffect(() => {

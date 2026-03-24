@@ -50,6 +50,14 @@ export const LAYOUT = {
   borderWidth: 1,
 };
 
+export const TYPOGRAPHY = {
+  h1: { fontFamily: 'System', fontWeight: '900', fontSize: 32, letterSpacing: -1 },
+  h2: { fontFamily: 'System', fontWeight: '800', fontSize: 24, letterSpacing: -0.5 },
+  h3: { fontFamily: 'System', fontWeight: '700', fontSize: 18, letterSpacing: -0.2 },
+  body: { fontFamily: 'System', fontWeight: '400', fontSize: 16 },
+  label: { fontFamily: 'System', fontWeight: '600', fontSize: 13, textTransform: 'uppercase', letterSpacing: 1 },
+};
+
 // Subtle, modern shadow configurations inspired by polished apps
 export const SHADOWS = {
   sm: {

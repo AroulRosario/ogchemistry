@@ -105,9 +105,10 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 32,
-        fontFamily: 'Bangers_400Regular',
+        fontFamily: 'System',
+        fontWeight: '900',
         color: '#1E293B',
-        letterSpacing: 1,
+        letterSpacing: -1,
         textTransform: 'uppercase',
     },
     subGreeting: {
@@ -206,9 +207,9 @@ const styles = StyleSheet.create({
     },
     resumeTitle: {
         fontSize: 22,
-        fontFamily: 'Bangers_400Regular',
+        fontWeight: '900',
         color: '#1E293B',
-        letterSpacing: 1,
+        letterSpacing: -0.5,
     },
     resumeBtn: {
         flexDirection: 'row',

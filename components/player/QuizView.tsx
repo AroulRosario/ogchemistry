@@ -43,11 +43,13 @@ const styles = StyleSheet.create({
         ...STYLES.card,
     },
     question: {
-        fontFamily: 'Bangers_400Regular',
+        fontFamily: 'System',
+        fontWeight: '900',
         fontSize: 24,
         marginBottom: 20,
         textAlign: 'center',
         color: COLORS.black,
+        letterSpacing: -0.5,
     },
     option: {
         marginBottom: 10,

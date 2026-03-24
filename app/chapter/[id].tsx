@@ -5,7 +5,7 @@ import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
-import { COLORS, LAYOUT } from '@/constants/theme';
+import { COLORS, LAYOUT, SHADOWS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
@@ -141,9 +141,9 @@ export default function ChapterScreen() {
                 headerShown: true,
                 title: isMobile ? `MOD ${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} / ${items.length}`,
                 headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTitleStyle: { fontFamily: 'System', fontWeight: '900', fontSize: 18, color: '#0F172A' },
+                headerTitleStyle: { fontWeight: '900', fontSize: 20, color: '#0F172A' },
                 headerTintColor: '#111827',
-                headerShadowVisible: true,
+                headerShadowVisible: false,
                 headerLeft: () => (
                     <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 64 : 0, gap: 4 }}>
                         <ChevronLeft size={18} color={COLORS.blue} strokeWidth={3} />
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     // MAIN VIDEO AREA
     mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
-    chapterTitle: { fontFamily: 'Bangers_400Regular', fontSize: 40, color: '#0F172A', letterSpacing: 1, marginTop: 12, lineHeight: 44, textTransform: 'uppercase' },
+    chapterTitle: { fontFamily: 'System', fontWeight: '900', fontSize: 44, color: '#0F172A', letterSpacing: -1.5, marginTop: 12, lineHeight: 48 },
     typeBadge: {
         alignSelf: 'flex-start',
         backgroundColor: '#FEE2E2', // Soft red background
@@ -429,55 +429,52 @@ const styles = StyleSheet.create({
 
     // SIDEBAR
     sidebarWrapper: {
-        backgroundColor: '#FFFFFF', // Outer wrapper matches app background
-        padding: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding,
+        backgroundColor: '#F8FAFC', // Professional background
+        padding: Platform.OS === 'web' ? 32 : 16,
+        borderLeftWidth: 1,
+        borderLeftColor: '#E2E8F0',
     },
     sidebar: {
-        backgroundColor: COLORS.blue,
-        padding: 24,
-        minHeight: 400,
-        borderRadius: 24, // Inner card is rounded
-        flex: 1, // Fill available height
-        shadowColor: COLORS.blue,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.15,
-        shadowRadius: 30,
-        elevation: 10,
+        backgroundColor: COLORS.white,
+        padding: 20,
+        borderRadius: 24,
+        flex: 1,
+        ...SHADOWS.md,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
     },
     sidebarHeaderOuter: {
-        marginBottom: 24,
-    },
-    sidebarHeaderInner: {
+        marginBottom: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     sidebarTitle: {
-        fontFamily: 'Bangers_400Regular',
-        fontSize: 22,
-        color: 'rgba(255,255,255,0.95)',
-        letterSpacing: 2,
+        fontFamily: 'System',
+        fontWeight: '900',
+        fontSize: 18,
+        color: '#0F172A',
+        letterSpacing: -0.5,
     },
-    sidebarList: { gap: 12 },
+    sidebarList: { gap: 10 },
     sidebarItem: {
         flexDirection: 'row',
         alignItems: 'stretch',
-        padding: 16, // More breathing room inside item
-        backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 16, // More rounded modern pill
+        padding: 14,
+        backgroundColor: '#F8FAFC',
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)'
+        borderColor: '#E2E8F0',
     },
     sidebarItemActive: {
-        backgroundColor: COLORS.white, // Invert active state for supreme pop
-        borderColor: COLORS.white,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
+        backgroundColor: '#EFF6FF',
+        borderColor: COLORS.blue,
+        ...SHADOWS.sm,
     },
-    iconRail: { alignItems: 'center', marginRight: 16, width: 24 },
-    railLine: { flex: 1, width: 2, backgroundColor: 'rgba(255,255,255,0.15)', marginVertical: 4, borderRadius: 1 },
+    iconRail: { alignItems: 'center', marginRight: 12, width: 24 },
+    railLine: { flex: 1, width: 2, backgroundColor: '#E2E8F0', marginVertical: 4, borderRadius: 1 },
     sidebarItemContent: { flex: 1, justifyContent: 'center' },
-    sidebarItemType: { fontFamily: 'System', fontWeight: '800', fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
-    sidebarItemTitle: { fontFamily: 'System', fontSize: 15, fontWeight: '700', color: 'rgba(255,255,255,0.9)' },
-    sidebarItemTitleActive: { color: COLORS.blue, fontWeight: '800' }, // Active text is blue
+    sidebarItemType: { fontFamily: 'System', fontWeight: '800', fontSize: 10, color: '#64748B', marginBottom: 2, letterSpacing: 0.5, textTransform: 'uppercase' },
+    sidebarItemTitle: { fontFamily: 'System', fontSize: 14, fontWeight: '700', color: '#1E293B' },
+    sidebarItemTitleActive: { color: COLORS.blue, fontWeight: '800' },
 });

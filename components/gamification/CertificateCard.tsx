@@ -1,4 +1,4 @@
-import { COLORS } from '@/constants/theme';
+import { COLORS, SHADOWS } from '@/constants/theme';
 import { Award, Download } from 'lucide-react-native';
 import React from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -41,26 +41,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 24,
         backgroundColor: COLORS.white,
-        borderRadius: 20,
-        borderWidth: 4,
-        borderColor: COLORS.black,
+        borderRadius: 24,
         marginBottom: 20,
-        shadowColor: COLORS.black,
-        shadowOffset: { width: 4, height: 4 },
-        shadowOpacity: 1,
-        shadowRadius: 0,
-        elevation: 8,
+        ...SHADOWS.md,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
     },
     iconContainer: {
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: COLORS.paper,
+        backgroundColor: '#FFF7ED', // Soft orange background
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 20,
-        borderWidth: 2,
-        borderColor: COLORS.black,
     },
     infoContainer: {
         flex: 1,
@@ -69,38 +63,33 @@ const styles = StyleSheet.create({
         fontFamily: 'System',
         fontSize: 12,
         fontWeight: '900',
-        color: COLORS.grayDark,
+        color: '#64748B',
         textTransform: 'uppercase',
-        letterSpacing: 1.5,
+        letterSpacing: 1,
         marginBottom: 4
     },
     course: {
-        fontFamily: 'Bangers_400Regular',
-        fontSize: 24,
-        color: COLORS.black,
+        fontFamily: 'System',
+        fontWeight: '900',
+        fontSize: 22,
+        color: '#0F172A',
         marginBottom: 4,
-        letterSpacing: 1,
+        letterSpacing: -0.5,
     },
     date: {
         fontFamily: 'System',
-        fontSize: 14,
-        color: COLORS.textSecondary,
+        fontSize: 13,
+        color: '#64748B',
         fontWeight: '700'
     },
     downloadBtn: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: COLORS.black,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: COLORS.blue,
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 16,
-        borderWidth: 2,
-        borderColor: COLORS.black,
-        shadowColor: COLORS.black,
-        shadowOffset: { width: 2, height: 2 },
-        shadowOpacity: 1,
-        shadowRadius: 0,
-        elevation: 4,
+        ...SHADOWS.sm,
     }
 });

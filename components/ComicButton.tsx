@@ -47,8 +47,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     text: {
-        fontFamily: 'Bangers_400Regular',
+        fontFamily: 'System',
+        fontWeight: '900',
         fontSize: 18,
         textTransform: 'uppercase',
+        letterSpacing: -0.5,
     }
 });

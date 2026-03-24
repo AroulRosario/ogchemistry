@@ -26,7 +26,7 @@ export default function LessonScreen() {
                 headerShown: true,
                 title: 'Chapters',
                 headerStyle: { backgroundColor: COLORS.white },
-                headerTitleStyle: { fontFamily: 'Bangers_400Regular', fontSize: 22, color: COLORS.black },
+                headerTitleStyle: { fontWeight: '900', fontSize: 22, color: COLORS.black },
                 headerTintColor: COLORS.blue,
                 headerShadowVisible: false,
             }} />
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         width: 40, height: 40, borderRadius: 10, borderWidth: 2, borderColor: COLORS.black,
         alignItems: 'center', justifyContent: 'center', marginRight: 14,
     },
-    badgeText: { fontFamily: 'Bangers_400Regular', fontSize: 18 },
-    title: { fontFamily: 'Bangers_400Regular', fontSize: 18, color: COLORS.black, letterSpacing: 0.5 },
+    badgeText: { fontWeight: '900', fontSize: 18 },
+    title: { fontWeight: '800', fontSize: 18, color: COLORS.black, letterSpacing: -0.3 },
     arrow: { fontSize: 20, color: COLORS.blue, fontWeight: '700', marginLeft: 8 },
 });

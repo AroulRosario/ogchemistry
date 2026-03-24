@@ -4,29 +4,34 @@ import { DuoHeader } from '@/components/DuoHeader';
 import { COLORS, STYLES, SHADOWS } from '@/constants/theme';
 import { Award, Book, Code, GraduationCap, Mail, MapPin, Phone, Rocket, Globe, Instagram, Linkedin, ExternalLink } from 'lucide-react-native';
 import React from 'react';
-import { Image, StyleSheet, Text, View, ScrollView, Pressable, Linking } from 'react-native';
+import { Image, StyleSheet, Text, View, ScrollView, Pressable, Linking, useWindowDimensions } from 'react-native';
 
 export default function FounderScreen() {
     const handleLink = (url: string) => Linking.openURL(url);
 
+    const { width } = useWindowDimensions();
+    const isMobile = width < 800;
+    const isDesktop = width > 1024;
+
     return (
         <View style={styles.main}>
-            <EliteNavigation />
+            {isDesktop && <EliteNavigation />}
+            {!isDesktop && <EliteNavigation />}
             
-            <View style={styles.contentArea}>
+            <View style={[styles.contentArea, !isDesktop && { paddingLeft: 0 }]}>
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                     <ResponsiveContainer fullWidth scrollable={false}>
                         
-                        {/* Hero Section - Super Clean & Modern */}
-                        <View style={styles.heroSection}>
-                            <View style={styles.heroLayout}>
+                        {/* Hero Section */}
+                        <View style={[styles.heroSection, !isDesktop && { paddingHorizontal: 20, paddingTop: 60 }]}>
+                            <View style={[styles.heroLayout, !isDesktop && { flexDirection: 'column-reverse', gap: 40 }]}>
                                 <View style={styles.heroText}>
                                     <View style={styles.eliteBadge}>
                                         <Award size={14} color={COLORS.blue} strokeWidth={3} />
                                         <Text style={styles.eliteBadgeText}>ELITE EDUCATOR</Text>
                                     </View>
                                     <Text style={styles.namePrefixText}>Dr. Aroul</Text>
-                                    <Text style={styles.nameMainText}>Rosario . S</Text>
+                                    <Text style={[styles.nameMainText, !isDesktop && { fontSize: 48, lineHeight: 48, letterSpacing: -2 }]}>Rosario . S</Text>
                                     <View style={styles.credentialsRow}>
                                         {['Ph.D', 'FRSA', 'IUPAC Affiliate', 'M.Sc', 'B.Sc', 'B.Ed'].map((item, i) => (
                                             <View key={i} style={styles.credTag}>
@@ -35,7 +40,7 @@ export default function FounderScreen() {
                                         ))}
                                     </View>
                                     
-                                    <Text style={styles.heroQuote}>"A chemist who loves computers."</Text>
+                                    <Text style={[styles.heroQuote, !isDesktop && { fontSize: 18, marginBottom: 30 }]}>"A chemist who loves computers."</Text>
 
                                     <View style={styles.contactRow}>
                                         <ContactPill icon={Phone} text="+91 97905 17185" />
@@ -43,17 +48,19 @@ export default function FounderScreen() {
                                         <ContactPill icon={MapPin} text="Puducherry, India" />
                                     </View>
 
-                                    <View style={styles.socialActionRow}>
+                                    <View style={[styles.socialActionRow, !isDesktop && { flexDirection: 'column', alignItems: 'stretch' }]}>
                                         <Pressable style={styles.primaryAction} onPress={() => handleLink('https://www.aroulrosario.com')}>
                                             <Globe size={18} color="#FFF" />
                                             <Text style={styles.primaryActionText}>Visit Personal Website</Text>
                                         </Pressable>
-                                        <SocialIconBtn icon={Linkedin} onPress={() => handleLink('https://linkedin.com/in/aroulrosario')} />
-                                        <SocialIconBtn icon={Instagram} onPress={() => handleLink('https://instagram.com/aroulrosario')} />
+                                        <View style={{ flexDirection: 'row', gap: 16 }}>
+                                            <SocialIconBtn icon={Linkedin} onPress={() => handleLink('https://linkedin.com/in/aroulrosario')} />
+                                            <SocialIconBtn icon={Instagram} onPress={() => handleLink('https://instagram.com/aroulrosario')} />
+                                        </View>
                                     </View>
                                 </View>
 
-                                <View style={styles.photoContainer}>
+                                <View style={[styles.photoContainer, !isDesktop && { width: '100%', height: 400 }]}>
                                     <View style={styles.photoShadowBox} />
                                     <View style={styles.photoFrame}>
                                         <Image 
@@ -71,7 +78,7 @@ export default function FounderScreen() {
                         </View>
 
                         {/* Core Stats / Highlights */}
-                        <View style={styles.statsStrip}>
+                        <View style={[styles.statsStrip, !isDesktop && { marginHorizontal: 20, padding: 24, flexWrap: 'wrap', gap: 24 }]}>
                             <StatItem value="15+" label="Years Expertise" />
                             <StatItem value="10k+" label="Simulations" />
                             <StatItem value="PhD" label="Italy/USA" />
@@ -79,7 +86,7 @@ export default function FounderScreen() {
                         </View>
 
                         {/* Main Grid Content */}
-                        <View style={styles.mainGrid}>
+                        <View style={[styles.mainGrid, !isDesktop && { flexDirection: 'column', paddingHorizontal: 20 }]}>
                             <View style={styles.gridColumn}>
                                 <SectionHeader icon={GraduationCap} title="Academic Foundation" />
                                 <View style={styles.modernCard}>

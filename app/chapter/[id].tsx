@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 export default function ChapterScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -140,14 +140,24 @@ export default function ChapterScreen() {
                 headerShown: true,
                 title: isMobile ? `MOD ${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} / ${items.length}`,
                 headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTitleStyle: { fontWeight: '900', fontSize: 20, color: '#0F172A' },
+                headerTitleStyle: { fontWeight: '900', fontSize: 18, color: '#0F172A' },
                 headerTintColor: '#111827',
                 headerShadowVisible: false,
                 headerLeft: () => (
-                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 64 : 0, gap: 4 }}>
-                        <ChevronLeft size={18} color={COLORS.blue} strokeWidth={3} />
-                        <Text style={{ fontFamily: 'System', fontWeight: '700', fontSize: 14, color: COLORS.blue }}>Return</Text>
+                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 64 : 8, gap: 6 }}>
+                        <ChevronLeft size={16} color={COLORS.blue} strokeWidth={2.5} />
+                        <Text style={{ fontFamily: 'System', fontWeight: '700', fontSize: 13, color: COLORS.blue }}>Return</Text>
                     </Pressable>
+                ),
+                headerRight: () => (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: isDesktop ? 64 : 12, gap: 10 }}>
+                        <Image 
+                            source={require('@/assets/images/logo.png')} 
+                            style={{ width: 32, height: 32, borderRadius: 8 }} 
+                            resizeMode="contain"
+                        />
+                        <Text style={{ fontFamily: 'System', fontWeight: '900', fontSize: 14, color: COLORS.blue, letterSpacing: -0.3 }}>OG CHEM</Text>
+                    </View>
                 ),
             }} />
             
@@ -220,7 +230,17 @@ export default function ChapterScreen() {
                     <View style={[styles.sidebarWrapper, { flex: 1, minWidth: 320, maxWidth: 380, height: '100%' }]}>
                         <View style={styles.sidebar}>
                             <View style={styles.sidebarHeaderOuter}>
-                                <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#94A3B8', letterSpacing: 0.5, marginTop: 2 }}>
+                                        {currentIndex + 1} / {items.length} COMPLETED
+                                    </Text>
+                                </View>
+                                <View style={{ backgroundColor: COLORS.blue, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+                                    <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11, letterSpacing: 0.5 }}>
+                                        {Math.round(((currentIndex + 1) / items.length) * 100)}%
+                                    </Text>
+                                </View>
                             </View>
 
                             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }} nestedScrollEnabled>
@@ -328,7 +348,17 @@ export default function ChapterScreen() {
                         <View style={styles.sidebarWrapper}>
                             <View style={[styles.sidebar, { minHeight: 300 }]}>
                                 <View style={styles.sidebarHeaderOuter}>
-                                    <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={styles.sidebarTitle}>UP NEXT</Text>
+                                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#94A3B8', letterSpacing: 0.5, marginTop: 2 }}>
+                                            {currentIndex + 1} / {items.length} COMPLETED
+                                        </Text>
+                                    </View>
+                                    <View style={{ backgroundColor: COLORS.blue, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+                                        <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11, letterSpacing: 0.5 }}>
+                                            {Math.round(((currentIndex + 1) / items.length) * 100)}%
+                                        </Text>
+                                    </View>
                                 </View>
 
                                 <View style={styles.sidebarList}>
@@ -465,13 +495,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
     },
     sidebarTitle: {
         fontFamily: 'System',
         fontWeight: '900',
-        fontSize: 18,
-        color: '#0F172A',
-        letterSpacing: -0.5,
+        fontSize: 13,
+        color: '#94A3B8',
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
     },
     sidebarList: { gap: 10 },
     sidebarItem: {

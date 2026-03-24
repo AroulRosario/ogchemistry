@@ -20,12 +20,13 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
             styles.headerContainer,
             isMobile ? {
                 paddingHorizontal: 16,
-                paddingVertical: 10,
+                paddingVertical: 12,
                 marginTop: insets.top > 0 ? insets.top : 12,
             } : {
-                paddingHorizontal: 24,
-                paddingVertical: 14,
-                marginTop: 20,
+                paddingHorizontal: 32,
+                paddingVertical: 24,
+                marginTop: 24,
+                marginBottom: 12,
             }
         ]}>
             <View style={[styles.content, isMobile ? { justifyContent: 'space-between' } : { gap: 24, justifyContent: 'center' }]}>

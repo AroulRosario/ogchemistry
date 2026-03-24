@@ -108,8 +108,8 @@ export default function ExploreScreen() {
                       <View style={styles.emojiContainer}>
                         <Text style={styles.emoji}>{'🧪'}</Text>
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.cardTitle}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
+                      <View style={{ flex: 1, justifyContent: 'center' }}>
+                        <Text style={styles.cardTitle} numberOfLines={2}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
                         <View style={styles.difficultyBadge}>
                           <Text style={styles.difficultyText}>{lesson.category || 'Core'}</Text>
                         </View>
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
   desktopContent: { paddingLeft: 260 },
   scroll: { paddingBottom: 60 },
   headerControls: {
-    marginTop: 24,
-    gap: 16,
+    marginTop: 32,
+    gap: 20,
     width: '100%',
   },
   searchBar: {
@@ -321,6 +321,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1E293B',
     letterSpacing: -0.5,
+    lineHeight: 20,
+    flexWrap: 'wrap',
   },
   difficultyBadge: {
     backgroundColor: '#F1F5F9',

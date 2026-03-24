@@ -117,7 +117,9 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                                         ]}
                                     >
                                         <View style={styles.cardHeader}>
-                                            <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                            <View style={{ flex: 1, justifyContent: 'center' }}>
+                                                <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                            </View>
                                             <View style={styles.iconCircle}>
                                                 <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
                                             </View>
@@ -288,10 +290,11 @@ const styles = StyleSheet.create({
     chapterTitle: {
         flex: 1,
         fontFamily: 'System',
-        fontSize: 19,
+        fontSize: 18,
         fontWeight: '900',
         color: '#1E293B',
-        lineHeight: 24,
+        lineHeight: 22,
+        flexWrap: 'wrap',
     },
     iconCircle: {
         width: 36,

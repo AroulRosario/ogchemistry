@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     },
     solutionHeader: {
         fontSize: 12,
-        fontWeight: '950',
+        fontWeight: '900',
         color: '#15803D',
         letterSpacing: 1,
     },

@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LaTeXText } from '@/components/LaTeXText';
 import { CheckCircle, Circle, XCircle, Trophy, ClipboardCheck } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, Alert } from 'react-native';
 
 interface QuizProps {
     data: any;
@@ -41,7 +41,10 @@ export function InteractiveQuiz({ data, onComplete }: QuizProps) {
 
     const handleSubmit = async () => {
         if (Object.keys(answers).length < questions.length) {
-            alert(`Please answer all questions! (${Object.keys(answers).length}/${questions.length})`);
+            Alert.alert(
+                "Incomplete Quiz",
+                `Please answer all questions before submitting. (${Object.keys(answers).length}/${questions.length})`
+            );
             return;
         }
 
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
     },
     submitBtnText: {
         color: '#FFF',
-        fontWeight: '950',
+        fontWeight: '900',
         fontSize: 15,
         letterSpacing: 2,
     },
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
     },
     resultTitle: {
         fontSize: 28,
-        fontWeight: '950',
+        fontWeight: '900',
         color: '#1E293B',
         marginBottom: 12,
         letterSpacing: -1,

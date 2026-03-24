@@ -22,8 +22,8 @@ export function ResponsiveContainer({
 
     const Container = scrollable ? ScrollView : View;
 
-    // Determine padding based on context and screen size
-    const horizontalPad = Platform.OS === 'web' ? (isDesktop ? 40 : 16) : 16;
+    // Determine padding based on context and screen size using theme constants
+    const horizontalPad = Platform.OS === 'web' ? (isDesktop ? LAYOUT.desktopPadding : LAYOUT.mobilePadding) : LAYOUT.mobilePadding;
 
     return (
         <View style={styles.outer}>
@@ -33,7 +33,7 @@ export function ResponsiveContainer({
                     fullWidth ? { maxWidth: '100%' } : styles.maxWidth,
                     style
                 ]}
-                contentContainerStyle={scrollable ? [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle] : undefined}
+                contentContainerStyle={scrollable ? [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle] : [styles.content, { paddingHorizontal: horizontalPad }, contentContainerStyle]}
                 showsVerticalScrollIndicator={false}
             >
                 {children}
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     outer: {
         flex: 1,
         backgroundColor: 'transparent',
-        alignItems: 'center',
     },
     container: {
         width: '100%',

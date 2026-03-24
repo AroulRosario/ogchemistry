@@ -66,19 +66,14 @@ export default function HomeScreen() {
       <EliteNavigation />
 
       <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
-        <View style={isMobile ? { paddingLeft: 60 } : {}}>
-          <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
-        </View>
 
         <View style={styles.layoutContainer}>
           <ScrollView
-            contentContainerStyle={[
-              styles.scroll,
-              { paddingHorizontal: isMobile ? 0 : 0 }
-            ]}
+            contentContainerStyle={styles.scroll}
             showsVerticalScrollIndicator={false}
           >
           <ResponsiveContainer fullWidth scrollable={false}>
+            <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
             <View style={styles.dashboardLayout}>
                 {/* Welcome Hero - Fluid */}
                 <View style={styles.heroSection}>

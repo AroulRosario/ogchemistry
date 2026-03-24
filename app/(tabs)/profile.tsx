@@ -179,21 +179,20 @@ export default function ProfileScreen() {
             <EliteNavigation />
 
             <View style={[styles.mainContent, isDesktop && styles.desktopMainContent, !isDesktop && { paddingTop: 0 }]}>
-                <DuoHeader
-                    streak={profile?.streak_count || 0}
-                    xp={profile?.xp || 0}
-                    gems={profile?.gems || 0}
-                />
 
                 <ScrollView
                     contentContainerStyle={[
                         styles.scroll,
-                        { paddingHorizontal: isMobile ? 0 : 0 }, // Unified 0px gutter
                         !isDesktop && { paddingVertical: 16 }
                     ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <ResponsiveContainer fullWidth scrollable={false}>
+                        <DuoHeader
+                            streak={profile?.streak_count || 0}
+                            xp={profile?.xp || 0}
+                            gems={profile?.gems || 0}
+                        />
                         <View style={[styles.dashboardLayout, !isDesktop && { gap: 20 }]}>
                             <HeroSection />
 

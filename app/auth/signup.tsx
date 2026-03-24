@@ -2,7 +2,7 @@ import { AuthHeroGraphic } from '@/components/auth/AuthHeroGraphic';
 import { ModernComicButton } from '@/components/ModernComicButton';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
 import { supabase } from '@/constants/supabase';
-import { COLORS } from '@/constants/theme';
+import { COLORS, LAYOUT } from '@/constants/theme';
 import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
@@ -182,10 +182,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F9FAFB', // Very subtle off-white
-        padding: 40,
+        padding: LAYOUT.desktopPadding,
     },
     mobilePane: {
-        padding: 16,
+        padding: 0,
     },
     mobileHeader: {
         alignItems: 'center',

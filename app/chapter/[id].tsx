@@ -5,7 +5,7 @@ import { ChapterInteractionHub } from '@/components/player/ChapterInteractionHub
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
-import { COLORS } from '@/constants/theme';
+import { COLORS, LAYOUT } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     desktopLayout: { flexDirection: 'row-reverse', alignItems: 'stretch' },
 
     // MAIN VIDEO AREA
-    mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? 24 : 0, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
+    mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
     videoHeader: { marginBottom: 20 },
     chapterTitle: { fontFamily: 'Bangers_400Regular', fontSize: 40, color: '#0F172A', letterSpacing: 1, marginTop: 12, lineHeight: 44, textTransform: 'uppercase' },
     typeBadge: {
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     // SIDEBAR
     sidebarWrapper: {
         backgroundColor: '#FFFFFF', // Outer wrapper matches app background
-        padding: Platform.OS === 'web' ? 24 : 16,
+        padding: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding,
     },
     sidebar: {
         backgroundColor: COLORS.blue,

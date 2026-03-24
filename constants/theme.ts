@@ -44,6 +44,8 @@ export const LAYOUT = {
   maxWidth: 1400, // Increased from 800 for fluid desktop feel
   fullWidth: '100%',
   padding: 24,
+  mobilePadding: 16,
+  desktopPadding: 40,
   borderRadius: 16,
   borderWidth: 1,
 };

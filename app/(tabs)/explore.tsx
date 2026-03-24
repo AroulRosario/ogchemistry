@@ -50,18 +50,13 @@ export default function ExploreScreen() {
       <EliteNavigation />
 
       <View style={[styles.mainContent, isDesktop && styles.desktopContent]}>
-        <View style={isMobile ? { paddingLeft: 60 } : {}}>
-          <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
-        </View>
 
         <ScrollView
-          contentContainerStyle={[
-            styles.scroll,
-            { paddingHorizontal: isMobile ? 0 : 0 }
-          ]}
+          contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
           <ResponsiveContainer fullWidth scrollable={false}>
+            <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
             {/* Search & Filter Header */}
             <View style={styles.headerControls}>
               <View style={styles.searchBar}>

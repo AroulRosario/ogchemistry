@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 interface LaTeXTextProps {
@@ -103,6 +103,24 @@ export function LaTeXText({ text, fontSize = 16, color = '#1E293B', fontWeight =
 </body>
 </html>`;
     }, [text, fontSize, color, isMarkdown]);
+
+    if (Platform.OS === 'web') {
+        return (
+            <View style={style}>
+                <iframe
+                    srcDoc={html}
+                    style={{
+                        width: '100%',
+                        height: height,
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        overflow: 'hidden'
+                    }}
+                    scrolling="no"
+                />
+            </View>
+        );
+    }
 
     if (!needsLatex && !isMarkdown) {
         return <Text style={[{ fontSize, color, fontWeight: fontWeight as any }, style]}>{text}</Text>;

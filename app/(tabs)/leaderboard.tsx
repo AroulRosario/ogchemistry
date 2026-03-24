@@ -176,24 +176,26 @@ export default function LeaderboardScreen() {
             <EliteNavigation />
 
             <View style={[styles.mainContent, isDesktop && styles.desktopMainContent]}>
-                <DuoHeader
-                    streak={profile?.streak_count || 0}
-                    xp={profile?.xp || 0}
-                    gems={profile?.gems || 0}
-                />
 
                 <ResponsiveContainer fullWidth>
                     <FlatList
                         data={leaders}
                         ListHeaderComponent={() => (
-                            <View style={[styles.headerArea, !isDesktop && { paddingHorizontal: 0 }]}>
-                                <LeagueHeader />
-                                <PodiumSection />
+                            <View>
+                                <DuoHeader
+                                    streak={profile?.streak_count || 0}
+                                    xp={profile?.xp || 0}
+                                    gems={profile?.gems || 0}
+                                />
+                                <View style={styles.headerArea}>
+                                    <LeagueHeader />
+                                    <PodiumSection />
+                                </View>
                             </View>
                         )}
                         renderItem={renderLeader}
                         keyExtractor={(item) => item.id}
-                        contentContainerStyle={[styles.scroll, !isDesktop && { paddingHorizontal: 0 }]}
+                        contentContainerStyle={styles.scroll}
                         showsVerticalScrollIndicator={false}
                     />
                 </ResponsiveContainer>

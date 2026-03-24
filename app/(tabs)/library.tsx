@@ -66,17 +66,12 @@ export default function LibraryScreen() {
         <View style={styles.main}>
             <EliteNavigation />
             <View style={[styles.contentArea, isDesktop && styles.desktopContentArea]}>
-        <View style={isMobile ? { paddingLeft: 60 } : {}}>
-          <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
-        </View>
                 <ScrollView
-                        contentContainerStyle={[
-                            styles.scrollContent,
-                            { paddingHorizontal: isMobile ? 0 : 0 }
-                        ]}
+                        contentContainerStyle={styles.scrollContent}
                         showsVerticalScrollIndicator={false}
                     >
                   <ResponsiveContainer fullWidth scrollable={false}>
+                    <DuoHeader streak={stats.streak_count} xp={stats.xp} gems={stats.gems} />
                         <GlobalStatsHero
                             totalProgress={globalStats.progress}
                             completedChapters={globalStats.completed}

@@ -1,5 +1,6 @@
 import { AuthHeroGraphic } from '@/components/auth/AuthHeroGraphic';
 import { ResponsiveContainer } from '@/components/ResponsiveContainer';
+import { COLORS, LAYOUT } from '@/constants/theme';
 import { supabase } from '@/constants/supabase';
 import { Link } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -234,11 +235,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 60,
+        padding: LAYOUT.desktopPadding,
         backgroundColor: '#FFFFFF',
     },
     mobilePane: {
-        padding: 0, // Removed double padding from parent container
+        padding: 0,
     },
     mobileHeader: {
         alignItems: 'center',

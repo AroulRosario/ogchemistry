@@ -1,4 +1,4 @@
-import { COLORS } from '@/constants/theme';
+import { COLORS, LAYOUT } from '@/constants/theme';
 import { Flame, Hexagon, Star } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
@@ -21,13 +21,11 @@ export function DuoHeader({ streak, xp, gems }: DuoHeaderProps) {
             isMobile ? {
                 paddingHorizontal: 16,
                 paddingVertical: 10,
-                marginHorizontal: 12,
                 marginTop: insets.top > 0 ? insets.top : 12,
             } : {
                 paddingHorizontal: 24,
                 paddingVertical: 14,
-                marginHorizontal: 16,
-                marginTop: 12,
+                marginTop: 20,
             }
         ]}>
             <View style={[styles.content, isMobile ? { justifyContent: 'space-between' } : { gap: 24, justifyContent: 'center' }]}>

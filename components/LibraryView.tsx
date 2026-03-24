@@ -127,13 +127,12 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                                                 pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
                                             ]}
                                         >
-                                            <View style={styles.cardHeader}>
-                                                <View style={{ flex: 1, justifyContent: 'center' }}>
-                                                    <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
-                                                </View>
-                                                <View style={styles.iconCircle}>
-                                                    <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
-                                                </View>
+                                            <View style={styles.iconCircleAbsolute}>
+                                                <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
+                                            </View>
+
+                                            <View style={styles.cardContent}>
+                                                <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
                                             </View>
 
                                             <View style={styles.progressSection}>
@@ -299,23 +298,28 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         gap: 12,
     },
+    cardContent: {
+        marginBottom: 12,
+    },
     chapterTitle: {
-        flex: 1,
         fontFamily: 'System',
         fontSize: 18,
         fontWeight: '900',
         color: '#0F172A',
         lineHeight: 22,
         letterSpacing: -0.2,
-        flexWrap: 'wrap',
     },
-    iconCircle: {
+    iconCircleAbsolute: {
+        position: 'absolute',
+        top: 20,
+        right: 20,
         width: 36,
         height: 36,
         borderRadius: 18,
         backgroundColor: '#F8FAFC',
         alignItems: 'center',
         justifyContent: 'center',
+        zIndex: 10,
     },
     tagRow: {
         flexDirection: 'row',

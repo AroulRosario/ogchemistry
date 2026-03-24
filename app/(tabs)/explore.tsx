@@ -115,18 +115,19 @@ export default function ExploreScreen() {
                         router.push('/');
                       }
                     }}>
-                      <View style={styles.cardTop}>
+                      <View style={styles.lockBadgeAbsolute}>
+                        <Lock size={14} strokeWidth={3} color="#CBD5E1" />
+                      </View>
+
+                      <View style={styles.cardContent}>
                         <View style={styles.emojiContainer}>
                           <Text style={styles.emoji}>{'🧪'}</Text>
                         </View>
-                        <View style={{ flex: 1 }}>
-                          <Text style={styles.cardTitle} numberOfLines={2}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
+                        <View style={styles.titleArea}>
+                          <Text style={styles.cardTitle}>{lesson.title?.toUpperCase() || `MODULE ${i + 1}`}</Text>
                           <View style={styles.difficultyBadge}>
                             <Text style={styles.difficultyText}>{lesson.category || 'Core'}</Text>
                           </View>
-                        </View>
-                        <View style={styles.lockBadge}>
-                          <Lock size={14} strokeWidth={3} color="#CBD5E1" />
                         </View>
                       </View>
 
@@ -320,22 +321,27 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   emojiContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: '#F8FAFC',
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emoji: { fontSize: 28 },
+  emoji: { fontSize: 24 },
+  cardContent: {
+    gap: 16,
+  },
+  titleArea: {
+    gap: 4,
+  },
   cardTitle: {
     fontFamily: 'System',
     fontWeight: '900',
-    fontSize: 18,
+    fontSize: 20, // Increased slightly for impact
     color: '#0F172A',
-    letterSpacing: -0.2,
-    lineHeight: 22,
-    flexWrap: 'wrap',
+    letterSpacing: -0.4,
+    lineHeight: 24,
   },
   difficultyBadge: {
     backgroundColor: '#F1F5F9',
@@ -350,10 +356,14 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#64748B',
   },
-  lockBadge: {
+  lockBadgeAbsolute: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
     padding: 8,
     backgroundColor: '#F8FAFC',
     borderRadius: 12,
+    zIndex: 10,
   },
   cardDesc: {
     fontSize: 14,

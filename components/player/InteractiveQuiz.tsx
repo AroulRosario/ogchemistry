@@ -1,15 +1,10 @@
 import { supabase } from '@/constants/supabase';
-import { COLORS } from '@/constants/theme';
+import { COLORS, STYLES, SHADOWS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { LaTeXText } from '@/components/LaTeXText';
-import { CheckCircle, Circle, XCircle } from 'lucide-react-native';
+import { CheckCircle, Circle, XCircle, Trophy, ClipboardCheck } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-
-interface QuizProps {
-    data: any;
-    onComplete: (score: number, passed: boolean) => void;
-}
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
 
 interface QuizProps {
     data: any;
@@ -19,15 +14,13 @@ interface QuizProps {
 export function InteractiveQuiz({ data, onComplete }: QuizProps) {
     const { user } = useAuth();
     const [questions, setQuestions] = useState<any[]>([]);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [selectedOption, setSelectedOption] = useState<any>(null);
-    const [isChecking, setIsChecking] = useState(false);
-    const [score, setScore] = useState(0);
+    const [answers, setAnswers] = useState<Record<number, any>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+    const [score, setScore] = useState(0);
 
     useEffect(() => {
         if (data?.questions) {
-            // Standardize questions
             const qs = data.questions.map((q: any, i: number) => ({
                 id: i,
                 question_text: q.question,
@@ -41,223 +34,323 @@ export function InteractiveQuiz({ data, onComplete }: QuizProps) {
         }
     }, [data]);
 
+    const handleSelect = (questionId: number, option: any) => {
+        if (isFinished) return;
+        setAnswers(prev => ({ ...prev, [questionId]: option }));
+    };
+
+    const handleSubmit = async () => {
+        if (Object.keys(answers).length < questions.length) {
+            alert(`Please answer all questions! (${Object.keys(answers).length}/${questions.length})`);
+            return;
+        }
+
+        setIsSubmitting(true);
+        // Calculate score
+        let finalScore = 0;
+        questions.forEach(q => {
+            if (answers[q.id]?.is_correct) finalScore++;
+        });
+
+        setScore(finalScore);
+        const passed = (finalScore / questions.length) * 100 >= (data.passing_score || 0);
+
+        if (user) {
+            await supabase.from('quiz_attempts').insert({
+                user_id: user.id,
+                quiz_id: data.id || 'anonymous_quiz',
+                score: finalScore,
+                passed: passed
+            });
+        }
+
+        setIsSubmitting(false);
+        setIsFinished(true);
+    };
+
     if (!data || questions.length === 0) {
-        return <View style={styles.center}><Text style={{ color: '#64748B' }}>No questions found in this quiz.</Text></View>;
+        return <View style={styles.center}><Text style={{ color: '#64748B' }}>No questions found.</Text></View>;
     }
 
     if (isFinished) {
         const passed = (score / questions.length) * 100 >= (data.passing_score || 0);
         return (
-            <View style={styles.resultContainer}>
-                <Text style={styles.resultTitle}>{passed ? "Quiz Passed! 🎉" : "Keep Tryin! 💪"}</Text>
-                <Text style={styles.resultScore}>Score: {score} / {questions.length}</Text>
-                <Pressable style={styles.btn} onPress={() => onComplete(score, passed)}>
-                    <Text style={styles.btnText}>Continue</Text>
+            <View style={styles.resultCard}>
+                <View style={[styles.resultIcon, { backgroundColor: passed ? '#DCFCE7' : '#FEE2E2' }]}>
+                    <Trophy size={48} color={passed ? '#15803D' : '#991B1B'} />
+                </View>
+                <Text style={styles.resultTitle}>{passed ? "CONGRATULATIONS!" : "KEEP PRACTICING!"}</Text>
+                <Text style={styles.resultMsg}>
+                    {passed ? "You've mastered this module with elite precision." : "Review the concepts and attempt again to achieve mastery."}
+                </Text>
+                <View style={styles.scoreRow}>
+                    <View style={styles.scoreBox}>
+                        <Text style={styles.scoreValue}>{score}</Text>
+                        <Text style={styles.scoreLabel}>CORRECT</Text>
+                    </View>
+                    <View style={styles.scoreDivider} />
+                    <View style={styles.scoreBox}>
+                        <Text style={styles.scoreValue}>{questions.length}</Text>
+                        <Text style={styles.scoreLabel}>TOTAL</Text>
+                    </View>
+                </View>
+                <Pressable style={styles.finishBtn} onPress={() => onComplete(score, passed)}>
+                    <Text style={styles.finishBtnText}>CONTINUE TO NEXT MODULE</Text>
                 </Pressable>
             </View>
         );
     }
-    
-    // ... handleSubmit logic ...
-    const handleSubmit = async () => {
-        if (!selectedOption) return;
-        setIsChecking(true);
-        await new Promise(r => setTimeout(r, 600));
-
-        if (selectedOption.is_correct) setScore(s => s + 1);
-
-        setIsChecking(false);
-        if (currentStep < questions.length - 1) {
-            setCurrentStep(c => c + 1);
-            setSelectedOption(null);
-        } else {
-            setIsFinished(true);
-            const finalScore = score + (selectedOption.is_correct ? 1 : 0);
-            const passed = (finalScore / questions.length) * 100 >= (data.passing_score || 0);
-            if (user) {
-                await supabase.from('quiz_attempts').insert({
-                    user_id: user.id,
-                    quiz_id: data.id || 'anonymous_quiz', // Fallback
-                    score: finalScore,
-                    passed: passed
-                });
-            }
-        }
-    };
-
-    const question = questions[currentStep];
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.progress}>Question {currentStep + 1} of {questions.length}</Text>
-                <View style={styles.track}>
-                    <View style={[styles.fill, { width: `${((currentStep + 1) / questions.length) * 100}%` }]} />
+        <View style={styles.listContainer}>
+            {/* Quiz Info */}
+            <View style={styles.quizHeader}>
+                <View style={styles.qIcon}>
+                    <ClipboardCheck size={20} color="#FFF" />
+                </View>
+                <View>
+                    <Text style={styles.quizTitle}>{data.title || 'Interactive Quiz'}</Text>
+                    <Text style={styles.quizMeta}>{questions.length} Concepts • {data.passing_score || 0}% Passing Grade</Text>
                 </View>
             </View>
 
-            <LaTeXText
-                text={question.question_text || ''}
-                fontSize={20}
-                color="#1E293B"
-                fontWeight="900"
-                style={styles.questionTextContainer}
-            />
+            {questions.map((q, idx) => (
+                <View key={q.id} style={styles.questionCard}>
+                    <View style={styles.qRefRow}>
+                        <View style={styles.qNum}><Text style={styles.qNumText}>{idx + 1}</Text></View>
+                        <View style={styles.qLine} />
+                    </View>
+                    
+                    <View style={styles.qContent}>
+                        <LaTeXText
+                            text={q.question_text || ''}
+                            fontSize={18}
+                            color="#1E293B"
+                            fontWeight="800"
+                            style={styles.qText}
+                        />
 
-            <View style={styles.optionsList}>
-                {question.question_options?.sort((a: any, b: any) => a.order - b.order).map((opt: any) => {
-                    const isSelected = selectedOption?.id === opt.id;
-                    const showCorrectness = isChecking && isSelected;
-                    const isCorrect = opt.is_correct;
-
-                    return (
-                        <Pressable
-                            key={opt.id}
-                            style={[
-                                styles.optionCard,
-                                isSelected && styles.optionSelected,
-                                showCorrectness && isCorrect && styles.optionCorrect,
-                                showCorrectness && !isCorrect && styles.optionIncorrect
-                            ]}
-                            onPress={() => !isChecking && setSelectedOption(opt)}
-                        >
-                            <View style={styles.radio}>
-                                {showCorrectness ? (
-                                    isCorrect ? <CheckCircle color={COLORS.green} size={20} /> : <XCircle color={COLORS.red} size={20} />
-                                ) : (
-                                    isSelected ? <CheckCircle color={COLORS.blue} size={20} /> : <Circle color={COLORS.grayDark} size={20} />
-                                )}
-                            </View>
-                            <LaTeXText
-                                text={opt.option_text || ''}
-                                fontSize={14}
-                                color={isSelected ? COLORS.blue : '#475569'}
-                                fontWeight="700"
-                                style={{ flex: 1 }}
-                            />
-                        </Pressable>
-                    );
-                })}
-            </View>
+                        <View style={styles.optionsGrid}>
+                            {q.question_options?.map((opt: any) => {
+                                const isSelected = answers[q.id]?.id === opt.id;
+                                return (
+                                    <Pressable
+                                        key={opt.id}
+                                        style={[styles.option, isSelected && styles.optionSelected]}
+                                        onPress={() => handleSelect(q.id, opt)}
+                                    >
+                                        <View style={[styles.checkCircle, isSelected && styles.checkCircleSelected]}>
+                                            {isSelected && <CheckCircle size={14} color="#FFF" />}
+                                        </View>
+                                        <LaTeXText
+                                            text={opt.option_text || ''}
+                                            fontSize={14}
+                                            color={isSelected ? COLORS.blue : '#475569'}
+                                            fontWeight="700"
+                                            style={{ flex: 1 }}
+                                        />
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </View>
+                </View>
+            ))}
 
             <Pressable
-                style={[styles.btn, !selectedOption && styles.btnDisabled]}
+                style={[styles.submitBtn, Object.keys(answers).length < questions.length && styles.btnDisabled]}
                 onPress={handleSubmit}
-                disabled={!selectedOption || isChecking}
+                disabled={isSubmitting || Object.keys(answers).length < questions.length}
             >
-                <Text style={styles.btnText}>{isChecking ? "Checking..." : "Submit"}</Text>
+                {isSubmitting ? (
+                    <ActivityIndicator color="#FFF" />
+                ) : (
+                    <Text style={styles.submitBtnText}>FINISH & CHECK RESULTS</Text>
+                )}
             </Pressable>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    center: { padding: 40, alignItems: 'center' },
-    container: {
-        backgroundColor: COLORS.white,
+    center: { padding: 60, alignItems: 'center' },
+    listContainer: { gap: 24 },
+    quizHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+        paddingHorizontal: 4,
+        marginBottom: 8,
+    },
+    qIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: COLORS.blue,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...SHADOWS.sm,
+    },
+    quizTitle: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#1E293B',
+    },
+    quizMeta: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#94A3B8',
+    },
+    questionCard: {
+        flexDirection: 'row',
+        backgroundColor: '#FFF',
         borderRadius: 24,
         padding: 24,
+        ...SHADOWS.md,
         borderWidth: 1,
         borderColor: '#E2E8F0',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2
     },
-    header: { marginBottom: 24 },
-    progress: {
-        fontFamily: 'System',
-        fontSize: 14,
-        fontWeight: '800',
-        color: '#64748B',
-        marginBottom: 12,
-        letterSpacing: 1
+    qRefRow: {
+        alignItems: 'center',
+        marginRight: 20,
     },
-    track: {
-        height: 10,
+    qNum: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
         backgroundColor: '#F1F5F9',
-        borderRadius: 5,
-        overflow: 'hidden'
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    fill: {
-        height: '100%',
-        backgroundColor: COLORS.blue,
-        borderRadius: 5
+    qNumText: {
+        fontSize: 14,
+        fontWeight: '900',
+        color: '#64748B',
     },
-    questionTextContainer: {
-        marginBottom: 24,
-        minHeight: 60,
+    qLine: {
+        flex: 1,
+        width: 2,
+        backgroundColor: '#F1F5F9',
+        marginTop: 8,
+        borderRadius: 1,
     },
-    optionsList: { gap: 12, marginBottom: 24 },
-    optionCard: {
+    qContent: { flex: 1 },
+    qText: { marginBottom: 20 },
+    optionsGrid: { gap: 10 },
+    option: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
         borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-        backgroundColor: COLORS.white
+        borderWidth: 1.5,
+        borderColor: '#F1F5F9',
+        backgroundColor: '#FFF',
+        gap: 12,
     },
     optionSelected: {
         borderColor: COLORS.blue,
-        backgroundColor: '#EFF6FF',
+        backgroundColor: '#F0F7FF',
     },
-    optionCorrect: {
-        borderColor: COLORS.green,
-        backgroundColor: '#F0FDF4'
-    },
-    optionIncorrect: {
-        borderColor: COLORS.red,
-        backgroundColor: '#FEF2F2'
-    },
-    radio: { marginRight: 16 },
-    optionText: {
-        flex: 1,
-        fontFamily: 'System',
-        fontSize: 15,
-        fontWeight: '700',
-        color: '#475569'
-    },
-    btn: {
-        backgroundColor: COLORS.blue,
-        padding: 18,
-        borderRadius: 16,
+    checkCircle: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        borderWidth: 2,
+        borderColor: '#E2E8F0',
         alignItems: 'center',
+        justifyContent: 'center',
+    },
+    checkCircleSelected: {
+        backgroundColor: COLORS.blue,
+        borderColor: COLORS.blue,
+    },
+    submitBtn: {
+        backgroundColor: COLORS.blue,
+        padding: 20,
+        borderRadius: 20,
+        alignItems: 'center',
+        marginTop: 16,
+        ...SHADOWS.md,
     },
     btnDisabled: {
-        opacity: 0.5,
         backgroundColor: '#94A3B8',
+        opacity: 0.6,
     },
-    btnText: {
-        fontFamily: 'System',
-        fontWeight: '800',
-        fontSize: 16,
-        color: COLORS.white,
-        letterSpacing: 0.5
+    submitBtnText: {
+        color: '#FFF',
+        fontWeight: '950',
+        fontSize: 15,
+        letterSpacing: 2,
     },
-    resultContainer: {
-        alignItems: 'center',
+    resultCard: {
+        backgroundColor: '#FFF',
+        borderRadius: 32,
         padding: 40,
-        backgroundColor: COLORS.white,
-        borderRadius: 24,
+        alignItems: 'center',
+        ...SHADOWS.lg,
         borderWidth: 1,
-        borderColor: '#E2E8F0'
+        borderColor: '#E2E8F0',
+    },
+    resultIcon: {
+        width: 96,
+        height: 96,
+        borderRadius: 48,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 24,
     },
     resultTitle: {
-        fontFamily: 'System',
-        fontSize: 32,
-        fontWeight: '900',
+        fontSize: 28,
+        fontWeight: '950',
         color: '#1E293B',
-        marginBottom: 8,
-        textAlign: 'center',
-        letterSpacing: -1
+        marginBottom: 12,
+        letterSpacing: -1,
     },
-    resultScore: {
-        fontFamily: 'System',
-        fontSize: 18,
+    resultMsg: {
+        fontSize: 15,
         fontWeight: '600',
         color: '#64748B',
+        textAlign: 'center',
+        lineHeight: 22,
         marginBottom: 32,
+    },
+    scoreRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F8FAFC',
+        padding: 24,
+        borderRadius: 24,
+        width: '100%',
+        marginBottom: 32,
+    },
+    scoreBox: { flex: 1, alignItems: 'center' },
+    scoreValue: {
+        fontSize: 32,
+        fontWeight: '900',
+        color: COLORS.blue,
+    },
+    scoreLabel: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#64748B',
+        marginTop: -4,
+    },
+    scoreDivider: {
+        width: 1,
+        height: 40,
+        backgroundColor: '#E2E8F0',
+    },
+    finishBtn: {
+        backgroundColor: '#1E293B',
+        paddingVertical: 18,
+        paddingHorizontal: 32,
+        borderRadius: 16,
+        ...SHADOWS.md,
+    },
+    finishBtnText: {
+        color: '#FFF',
+        fontWeight: '900',
+        fontSize: 14,
+        letterSpacing: 1,
     },
 });

@@ -1,6 +1,6 @@
 import { LaTeXText } from '@/components/LaTeXText';
-import { COLORS } from '@/constants/theme';
-import { CheckCircle, ChevronDown } from 'lucide-react-native';
+import { COLORS, STYLES, SHADOWS } from '@/constants/theme';
+import { CheckCircle, ChevronDown, BookOpen, Layers } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -21,60 +21,68 @@ interface PYQViewProps {
 
 function getDifficultyColor(difficulty?: string) {
     switch (difficulty) {
-        case 'Easy': return { bg: '#D1FAE5', text: '#065F46' };
-        case 'Hard': return { bg: '#FEE2E2', text: '#991B1B' };
-        default: return { bg: '#FEF3C7', text: '#92400E' }; // Medium
+        case 'Easy': return { bg: '#D1FAE5', text: '#065F46', border: '#10B981' };
+        case 'Hard': return { bg: '#FEE2E2', text: '#991B1B', border: '#EF4444' };
+        default: return { bg: '#FEF3C7', text: '#92400E', border: '#F59E0B' }; // Medium
     }
 }
 
 export function PYQView({ data }: PYQViewProps) {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const questions = data.questions || [data];
+
+    return (
+        <View style={styles.listContainer}>
+            {/* List Header */}
+            <View style={styles.listHeader}>
+                <View style={styles.headerIcon}>
+                    <Layers size={20} color="#FFF" />
+                </View>
+                <View>
+                    <Text style={styles.listTitle}>Practice Set: {data.title || 'PYQs'}</Text>
+                    <Text style={styles.listSubTitle}>{questions.length} Questions in this module</Text>
+                </View>
+            </View>
+
+            {questions.map((q, idx) => (
+                <PYQItem key={idx} data={q} index={idx} total={questions.length} />
+            ))}
+            
+            <View style={styles.footerNote}>
+                <BookOpen size={14} color="#64748B" />
+                <Text style={styles.footerNoteText}>End of Practice Module</Text>
+            </View>
+        </View>
+    );
+}
+
+function PYQItem({ data, index, total }: { data: PYQData, index: number, total: number }) {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [revealed, setRevealed] = useState(false);
 
-    const questions = data.questions || [data];
-    const currentData = questions[currentIndex];
-
-    const diffColor = getDifficultyColor(currentData.difficulty);
-    const isCorrect = (option: string) => revealed && option === currentData.answer;
-    const isWrong = (option: string) => revealed && option === selectedOption && option !== currentData.answer;
-
-    const handleNext = () => {
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-            setSelectedOption(null);
-            setRevealed(false);
-        }
-    };
-
-    const handlePrev = () => {
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
-            setSelectedOption(null);
-            setRevealed(false);
-        }
-    };
+    const diffColor = getDifficultyColor(data.difficulty);
+    const isCorrect = (option: string) => revealed && option === data.answer;
+    const isWrong = (option: string) => revealed && option === selectedOption && option !== data.answer;
 
     return (
-        <View style={styles.container}>
+        <View style={styles.itemCard}>
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                    <View style={[styles.badge, { backgroundColor: '#FEE2E2' }]}>
-                        <Text style={[styles.badgeText, { color: '#B91C1C' }]}>PYQ {questions.length > 1 ? `${currentIndex + 1}/${questions.length}` : ''}</Text>
+                    <View style={[styles.badge, { backgroundColor: COLORS.blue }]}>
+                        <Text style={[styles.badgeText, { color: '#FFF' }]}>Q{index + 1}</Text>
                     </View>
-                    {currentData.exam && (
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{currentData.exam}</Text>
+                    {data.exam && (
+                        <View style={[styles.badge, { backgroundColor: '#F1F5F9' }]}>
+                            <Text style={[styles.badgeText, { color: '#475569' }]}>{data.exam}</Text>
                         </View>
                     )}
-                    {currentData.year && (
-                        <Text style={styles.yearText}>{currentData.year}</Text>
+                    {data.year && (
+                        <Text style={styles.yearText}>{data.year}</Text>
                     )}
                 </View>
-                {currentData.difficulty && (
-                    <View style={[styles.diffBadge, { backgroundColor: diffColor.bg }]}>
-                        <Text style={[styles.diffText, { color: diffColor.text }]}>{currentData.difficulty}</Text>
+                {data.difficulty && (
+                    <View style={[styles.diffBadge, { backgroundColor: diffColor.bg, borderColor: diffColor.border }]}>
+                        <Text style={[styles.diffText, { color: diffColor.text }]}>{data.difficulty.toUpperCase()}</Text>
                     </View>
                 )}
             </View>
@@ -82,18 +90,18 @@ export function PYQView({ data }: PYQViewProps) {
             {/* Question */}
             <View style={styles.questionBox}>
                 <LaTeXText
-                    text={currentData.question || 'No question data available.'}
-                    fontSize={16}
+                    text={data.question || 'No question data available.'}
+                    fontSize={17}
                     color="#1E293B"
                     fontWeight="700"
-                    style={{ minHeight: 50 }}
+                    style={{ minHeight: 60 }}
                 />
             </View>
 
             {/* Options */}
-            {currentData.options && currentData.options.length > 0 && (
+            {data.options && data.options.length > 0 && (
                 <View style={styles.optionsContainer}>
-                    {currentData.options.map((option, i) => {
+                    {data.options.map((option, i) => {
                         const correct = isCorrect(option);
                         const wrong = isWrong(option);
                         return (
@@ -112,8 +120,14 @@ export function PYQView({ data }: PYQViewProps) {
                                         {String.fromCharCode(65 + i)}
                                     </Text>
                                 </View>
-                                <LaTeXText text={option.replace(/^[A-D]\. */, '')} fontSize={14} color={correct ? '#065F46' : wrong ? '#991B1B' : '#334155'} fontWeight="600" style={{ flex: 1 }} />
-                                {correct && <CheckCircle size={18} color="#059669" style={{ marginLeft: 'auto' }} />}
+                                <LaTeXText 
+                                    text={option.replace(/^[A-D]\. */, '')} 
+                                    fontSize={15} 
+                                    color={correct ? '#065F46' : wrong ? '#991B1B' : '#334155'} 
+                                    fontWeight="600" 
+                                    style={{ flex: 1 }} 
+                                />
+                                {correct && <CheckCircle size={20} color="#059669" style={{ marginLeft: 'auto' }} />}
                             </Pressable>
                         );
                     })}
@@ -123,42 +137,27 @@ export function PYQView({ data }: PYQViewProps) {
             {/* Reveal Button */}
             {!revealed && selectedOption && (
                 <Pressable style={styles.revealBtn} onPress={() => setRevealed(true)}>
-                    <Text style={styles.revealBtnText}>Check Answer & See Solution</Text>
+                    <Text style={styles.revealBtnText}>VERIFY ANSWER</Text>
                 </Pressable>
             )}
 
             {/* Solution */}
-            {revealed && currentData.solution && (
+            {revealed && data.solution && (
                 <View style={styles.solutionBox}>
-                    <Text style={styles.solutionHeader}>📖 Detailed Solution</Text>
-                    <LaTeXText text={currentData.solution} fontSize={14} color="#166534" fontWeight="500" style={{ minHeight: 40 }} />
-                </View>
-            )}
-
-            {/* Navigation for Multi-Question */}
-            {questions.length > 1 && (
-                <View style={styles.navRow}>
-                    <Pressable 
-                        style={[styles.navBtn, currentIndex === 0 && { opacity: 0.3 }]} 
-                        onPress={handlePrev}
-                        disabled={currentIndex === 0}
-                    >
-                        <Text style={styles.navBtnText}>Previous</Text>
-                    </Pressable>
-                    <Pressable 
-                        style={[styles.navBtn, currentIndex === questions.length - 1 && { opacity: 0.3 }]} 
-                        onPress={handleNext}
-                        disabled={currentIndex === questions.length - 1}
-                    >
-                        <Text style={styles.navBtnText}>Next Question</Text>
-                    </Pressable>
+                    <View style={styles.solutionHeaderRow}>
+                        <Text style={styles.solutionHeader}>📖 DETAILED SOLUTION</Text>
+                        <Pressable onPress={() => setRevealed(false)}>
+                            <Text style={styles.hideText}>Hide</Text>
+                        </Pressable>
+                    </View>
+                    <LaTeXText text={data.solution} fontSize={15} color="#166534" fontWeight="500" style={{ minHeight: 40 }} />
                 </View>
             )}
 
             {/* Show Solution Without Selecting */}
             {!revealed && !selectedOption && (
                 <Pressable style={styles.skipBtn} onPress={() => setRevealed(true)}>
-                    <ChevronDown size={16} color="#64748B" />
+                    <ChevronDown size={14} color="#64748B" />
                     <Text style={styles.skipText}>Show Solution</Text>
                 </Pressable>
             )}
@@ -167,192 +166,201 @@ export function PYQView({ data }: PYQViewProps) {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    listContainer: {
+        width: '100%',
+        gap: 24,
+    },
+    listHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
+        marginBottom: 8,
+        paddingHorizontal: 4,
+    },
+    headerIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: COLORS.blue,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...SHADOWS.sm,
+    },
+    listTitle: {
+        fontSize: 20,
+        fontWeight: '900',
+        color: '#1E293B',
+    },
+    listSubTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+    },
+    itemCard: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        padding: 22,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.07,
-        shadowRadius: 14,
-        elevation: 3,
+        borderRadius: 28,
+        padding: 28,
+        ...SHADOWS.md,
         borderWidth: 1,
         borderColor: '#E2E8F0',
-        marginBottom: 16,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 20,
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 10,
     },
     badge: {
-        backgroundColor: '#EFF6FF',
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 4,
+        borderRadius: 10,
     },
     badgeText: {
-        fontSize: 11,
-        fontWeight: '800',
-        color: '#1D4ED8',
+        fontSize: 12,
+        fontWeight: '900',
         letterSpacing: 0.5,
     },
     yearText: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#64748B',
+        fontSize: 14,
+        fontWeight: '800',
+        color: '#94A3B8',
     },
     diffBadge: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
         paddingVertical: 4,
-        borderRadius: 20,
+        borderRadius: 8,
+        borderWidth: 1,
     },
     diffText: {
-        fontSize: 11,
-        fontWeight: '800',
+        fontSize: 10,
+        fontWeight: '900',
+        letterSpacing: 1,
     },
     questionBox: {
         backgroundColor: '#F8FAFC',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 18,
-        borderLeftWidth: 3,
-        borderLeftColor: '#2563EB',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 24,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
     },
     optionsContainer: {
-        gap: 10,
-        marginBottom: 16,
+        gap: 12,
+        marginBottom: 20,
     },
     option: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F8FAFC',
-        borderRadius: 12,
-        padding: 14,
-        borderWidth: 1.5,
-        borderColor: '#E2E8F0',
-        gap: 12,
+        backgroundColor: '#FFF',
+        borderRadius: 18,
+        padding: 16,
+        borderWidth: 2,
+        borderColor: '#F1F5F9',
+        gap: 14,
     },
     optionSelected: {
-        borderColor: '#2563EB',
-        backgroundColor: '#EFF6FF',
+        borderColor: COLORS.blue,
+        backgroundColor: '#F0F7FF',
     },
     optionCorrect: {
-        borderColor: '#059669',
+        borderColor: '#10B981',
         backgroundColor: '#ECFDF5',
     },
     optionWrong: {
-        borderColor: '#DC2626',
+        borderColor: '#EF4444',
         backgroundColor: '#FEF2F2',
     },
     optionCircle: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        backgroundColor: '#E2E8F0',
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        backgroundColor: '#F1F5F9',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
     },
     optionCircleCorrect: {
-        backgroundColor: '#059669',
+        backgroundColor: '#10B981',
     },
     optionCircleWrong: {
-        backgroundColor: '#DC2626',
+        backgroundColor: '#EF4444',
     },
     optionLetter: {
-        fontSize: 13,
-        fontWeight: '800',
+        fontSize: 14,
+        fontWeight: '900',
         color: '#64748B',
     },
-    optionText: {
-        flex: 1,
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#334155',
-        lineHeight: 22,
-    },
-    optionTextCorrect: {
-        color: '#065F46',
-    },
-    optionTextWrong: {
-        color: '#991B1B',
-    },
-    // removed: inlineLatex style since we now use proper LaTeXText WebView
     revealBtn: {
-        backgroundColor: '#2563EB',
-        borderRadius: 12,
-        padding: 14,
+        backgroundColor: COLORS.blue,
+        borderRadius: 16,
+        padding: 18,
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: 8,
+        ...SHADOWS.sm,
     },
     revealBtnText: {
         color: '#fff',
-        fontWeight: '800',
-        fontSize: 15,
+        fontWeight: '900',
+        fontSize: 14,
+        letterSpacing: 1.5,
     },
     solutionBox: {
         backgroundColor: '#F0FDF4',
-        borderRadius: 14,
-        padding: 18,
-        marginTop: 16,
+        borderRadius: 20,
+        padding: 24,
+        marginTop: 20,
         borderWidth: 1,
-        borderColor: '#86EFAC',
+        borderColor: '#B9F6CA',
+    },
+    solutionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
     },
     solutionHeader: {
-        fontSize: 14,
-        fontWeight: '900',
+        fontSize: 12,
+        fontWeight: '950',
         color: '#15803D',
-        marginBottom: 10,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 1,
     },
-    solutionText: {
-        fontSize: 14,
-        fontWeight: '500',
+    hideText: {
+        fontSize: 12,
+        fontWeight: '800',
         color: '#166534',
-        lineHeight: 24,
+        opacity: 0.6,
     },
     skipBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        paddingVertical: 10,
-        opacity: 0.6,
+        gap: 8,
+        paddingVertical: 12,
+        marginTop: 8,
     },
     skipText: {
         fontSize: 13,
+        fontWeight: '800',
+        color: '#94A3B8',
+    },
+    footerNote: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 32,
+        opacity: 0.5,
+    },
+    footerNoteText: {
+        fontSize: 14,
         fontWeight: '700',
         color: '#64748B',
-    },
-    navRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 24,
-        paddingTop: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#E2E8F0',
-        gap: 12,
-    },
-    navBtn: {
-        flex: 1,
-        backgroundColor: '#F1F5F9',
-        paddingVertical: 12,
-        borderRadius: 12,
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
-    navBtnText: {
-        fontSize: 13,
-        fontWeight: '800',
-        color: '#475569',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
     },
 });

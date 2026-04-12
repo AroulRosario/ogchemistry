@@ -1,6 +1,6 @@
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { COLORS } from '@/constants/theme';
-import { Book, ChevronRight, Play, Search, SlidersHorizontal } from 'lucide-react-native';
+import { Book, ChevronRight, Play, Search, SlidersHorizontal, LayoutGrid, List } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 
@@ -16,6 +16,7 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
     const isWide = width > 1200;
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<'all' | 'progress' | 'completed'>('all');
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
     const filteredLessons = useMemo(() => {
         return lessons.map(lesson => {
@@ -70,10 +71,26 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                             </Pressable>
                         ))}
                     </View>
-                    <Pressable style={styles.moreFiltersBtn}>
-                        <SlidersHorizontal size={18} color="#475569" />
-                        <Text style={styles.moreFiltersText}>Advanced Filters</Text>
-                    </Pressable>
+                    <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+                        <View style={styles.viewToggleGroup}>
+                            <Pressable 
+                                onPress={() => setViewMode('grid')} 
+                                style={[styles.viewToggleBtn, viewMode === 'grid' && styles.viewToggleBtnActive]}
+                            >
+                                <LayoutGrid size={18} color={viewMode === 'grid' ? COLORS.blue : '#94A3B8'} />
+                            </Pressable>
+                            <Pressable 
+                                onPress={() => setViewMode('list')} 
+                                style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
+                            >
+                                <List size={18} color={viewMode === 'list' ? COLORS.blue : '#94A3B8'} />
+                            </Pressable>
+                        </View>
+                        <Pressable style={styles.moreFiltersBtn}>
+                            <SlidersHorizontal size={18} color="#475569" />
+                            <Text style={styles.moreFiltersText}>Advanced Filters</Text>
+                        </Pressable>
+                    </View>
                 </View>
             </View>
 
@@ -100,14 +117,15 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
 
                         <View style={styles.grid}>
                             {lesson.chapters?.map((chapter: any, chapterIdx: number) => {
-                                // Match adaptive column logic from Explore screen
-                                let cardWidth = '100%';
-                                if (isWide) {
-                                    cardWidth = '23.5%';
-                                } else if (width > 1100) {
-                                    cardWidth = '31%';
-                                } else if (isDesktop) {
-                                    cardWidth = '48%';
+                                let cardStyle: any = {};
+                                if (viewMode === 'list') {
+                                    cardStyle = { width: '100%', marginBottom: 16 };
+                                } else {
+                                    cardStyle = { 
+                                        flexGrow: 1, 
+                                        flexBasis: isWide ? 280 : (isDesktop ? 300 : '100%'),
+                                        maxWidth: isDesktop ? 450 : '100%'
+                                    };
                                 }
 
                                 return (
@@ -116,43 +134,72 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                                         delay={chapterIdx * 100}
                                         style={[
                                             styles.cardWrapper,
-                                            { width: cardWidth }
+                                            cardStyle
                                         ]}
                                     >
                                         <Pressable
                                             onPress={() => onSelect(chapter.id, 'chapter')}
                                             style={({ pressed }) => [
                                                 styles.card,
+                                                viewMode === 'list' && styles.cardListMode,
                                                 !isDesktop && { padding: 16 },
                                                 pressed && { transform: [{ translateY: 2 }], shadowOpacity: 0 }
                                             ]}
                                         >
-                                            <View style={styles.iconCircleAbsolute}>
-                                                <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
-                                            </View>
+                                            {viewMode === 'list' ? (
+                                                <View style={styles.listContentRow}>
+                                                    <View style={styles.listContentMain}>
+                                                        <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                                        <View style={styles.progressSectionList}>
+                                                            <View style={[styles.progressBar, { width: 120 }]}>
+                                                                <View style={[styles.progressFill, { width: `${Math.floor(Math.random() * 80) + 10}%` }]} />
+                                                            </View>
+                                                            <Text style={styles.progressText}>{Math.floor(Math.random() * 8) + 1}/10 COMPLETED</Text>
+                                                            <Text style={styles.xpTip}>+50 XP</Text>
+                                                        </View>
+                                                    </View>
 
-                                            <View style={styles.cardContent}>
-                                                <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
-                                            </View>
+                                                    <View style={styles.listActionRow}>
+                                                        <View style={[styles.tagRow, { marginTop: 0 }]}>
+                                                            <View style={styles.tag}>
+                                                                <Text style={styles.tagText}>CORE SCIENCE</Text>
+                                                            </View>
+                                                            <View style={styles.playBadge}>
+                                                                <Play size={12} color="#FFF" fill="#FFF" />
+                                                            </View>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            ) : (
+                                                <>
+                                                    <View style={styles.iconCircleAbsolute}>
+                                                        <ChevronRight size={18} color={COLORS.blue} strokeWidth={3} />
+                                                    </View>
 
-                                            <View style={styles.progressSection}>
-                                                <View style={styles.progressBar}>
-                                                    <View style={[styles.progressFill, { width: `${Math.floor(Math.random() * 80) + 10}%` }]} />
-                                                </View>
-                                                <View style={styles.progressInfo}>
-                                                    <Text style={styles.progressText}>{Math.floor(Math.random() * 8) + 1}/10 COMPLETED</Text>
-                                                    <Text style={styles.xpTip}>+50 XP</Text>
-                                                </View>
-                                            </View>
+                                                    <View style={styles.cardContent}>
+                                                        <Text style={[styles.chapterTitle, !isDesktop && { fontSize: 16, lineHeight: 20 }]} numberOfLines={2}>{chapter.title}</Text>
+                                                    </View>
 
-                                            <View style={styles.tagRow}>
-                                                <View style={styles.tag}>
-                                                    <Text style={styles.tagText}>CORE SCIENCE</Text>
-                                                </View>
-                                                <View style={styles.playBadge}>
-                                                    <Play size={12} color="#FFF" fill="#FFF" />
-                                                </View>
-                                            </View>
+                                                    <View style={styles.progressSection}>
+                                                        <View style={styles.progressBar}>
+                                                            <View style={[styles.progressFill, { width: `${Math.floor(Math.random() * 80) + 10}%` }]} />
+                                                        </View>
+                                                        <View style={styles.progressInfo}>
+                                                            <Text style={styles.progressText}>{Math.floor(Math.random() * 8) + 1}/10 COMPLETED</Text>
+                                                            <Text style={styles.xpTip}>+50 XP</Text>
+                                                        </View>
+                                                    </View>
+
+                                                    <View style={styles.tagRow}>
+                                                        <View style={styles.tag}>
+                                                            <Text style={styles.tagText}>CORE SCIENCE</Text>
+                                                        </View>
+                                                        <View style={styles.playBadge}>
+                                                            <Play size={12} color="#FFF" fill="#FFF" />
+                                                        </View>
+                                                    </View>
+                                                </>
+                                            )}
                                         </Pressable>
                                     </AnimatedCard>
                                 );
@@ -229,6 +276,25 @@ const styles = StyleSheet.create({
     filterLabelActive: {
         color: COLORS.blue,
     },
+    viewToggleGroup: {
+        flexDirection: 'row',
+        backgroundColor: '#F1F5F9',
+        padding: 4,
+        borderRadius: 16,
+        gap: 4,
+    },
+    viewToggleBtn: {
+        padding: 8,
+        borderRadius: 12,
+    },
+    viewToggleBtnActive: {
+        backgroundColor: '#FFF',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 2,
+    },
     moreFiltersBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -291,6 +357,31 @@ const styles = StyleSheet.create({
         borderColor: '#E2E8F0',
         borderRadius: 32,
         shadowOpacity: 0.04,
+    },
+    cardListMode: {
+        paddingHorizontal: 32,
+        paddingVertical: 20,
+        borderRadius: 24,
+    },
+    listContentRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 24,
+    },
+    listContentMain: {
+        flex: 1,
+        gap: 8,
+    },
+    progressSectionList: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    listActionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 16,
     },
     cardHeader: {
         flexDirection: 'row',

@@ -1,4 +1,6 @@
 import { AnimatedCard } from '@/components/AnimatedCard';
+import { DuoHeader } from '@/components/DuoHeader';
+// Deployment sync trigger - v1.0.3 (Accordion Close Fix)
 import { COLORS } from '@/constants/theme';
 import { Book, ChevronRight, Play, Search, SlidersHorizontal, LayoutGrid, List, ChevronDown, ChevronUp } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
@@ -21,11 +23,11 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState<'all' | 'progress' | 'completed'>('all');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-    const [expandedLessonId, setExpandedLessonId] = useState<string | null>(null);
+    const [expandedLessonId, setExpandedLessonId] = useState<any>(null);
 
-    const toggleLesson = (id: string) => {
+    const toggleLesson = (id: any) => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setExpandedLessonId(expandedLessonId === id ? null : id);
+        setExpandedLessonId(String(expandedLessonId) === String(id) ? null : id);
     };
 
     const filteredLessons = useMemo(() => {
@@ -113,9 +115,8 @@ export function LibraryView({ lessons, onSelect }: LibraryViewProps) {
                     </Pressable>
                 </View>
             ) : (
-            ) : (
                 filteredLessons.map((lesson: any) => {
-                    const isExpanded = expandedLessonId === lesson.id || viewMode === 'grid';
+                    const isExpanded = String(expandedLessonId) === String(lesson.id) || viewMode === 'grid';
                     
                     return (
                         <View key={lesson.id} style={[styles.lessonSection, viewMode === 'list' && styles.lessonSectionList]}>

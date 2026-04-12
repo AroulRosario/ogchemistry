@@ -1,4 +1,5 @@
 import { DuoHeader } from '@/components/DuoHeader';
+// Deployment sync trigger - v1.0.2
 import { EliteNavigation } from '@/components/EliteNavigation';
 import { GlobalStatsHero } from '@/components/library/GlobalStatsHero';
 import { LibraryView } from '@/components/LibraryView';

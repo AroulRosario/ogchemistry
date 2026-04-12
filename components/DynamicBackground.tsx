@@ -8,6 +8,8 @@ export function DynamicBackground({ children }: { children: React.ReactNode }) {
             {/* Dynamic Accents */}
             <View style={[styles.blob, styles.blob1]} />
             <View style={[styles.blob, styles.blob2]} />
+            <View style={[styles.blob, styles.blob3]} />
+            <View style={[styles.blob, styles.blob4]} />
 
             {/* Main Content */}
             <View style={styles.content}>
@@ -43,5 +45,21 @@ const styles = StyleSheet.create({
         width: 500,
         height: 500,
         backgroundColor: COLORS.yellow,
+    },
+    blob3: {
+        bottom: '20%',
+        right: -200,
+        width: 450,
+        height: 450,
+        backgroundColor: COLORS.green,
+        opacity: 0.1,
+    },
+    blob4: {
+        top: '30%',
+        left: -200,
+        width: 350,
+        height: 350,
+        backgroundColor: COLORS.orange,
+        opacity: 0.08,
     },
 });

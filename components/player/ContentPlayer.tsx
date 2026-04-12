@@ -5,7 +5,7 @@ import { PYQView } from '@/components/player/PYQView';
 import { SimulationView } from '@/components/player/SimulationView';
 import { VideoPlayer } from '@/components/player/VideoPlayer';
 import { LaTeXText } from '@/components/LaTeXText';
-import { COLORS } from '@/constants/theme';
+import { COLORS, SHADOWS, TYPOGRAPHY } from '@/constants/theme';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -86,59 +86,44 @@ export function ContentPlayer({ item, onQuizComplete, onAssignmentComplete }: Co
 }
 
 const styles = StyleSheet.create({
-    simContainer: { height: 450, marginBottom: 16, borderRadius: 16, overflow: 'hidden' },
+    simContainer: { height: 450, marginBottom: 24, borderRadius: 24, overflow: 'hidden', ...SHADOWS.md },
     audioCard: {
-        backgroundColor: '#1E293B',
-        borderRadius: 20,
-        padding: 32,
+        backgroundColor: '#0F172A',
+        borderRadius: 32,
+        padding: 40,
         alignItems: 'center',
-        gap: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.2,
-        shadowRadius: 16,
-        elevation: 8,
+        gap: 16,
+        ...SHADOWS.lg,
     },
     audioIcon: {
-        fontSize: 48,
+        fontSize: 56,
     },
     audioTitle: {
-        fontSize: 18,
-        fontWeight: '800',
+        ...(TYPOGRAPHY.h2 as any),
         color: '#fff',
         textAlign: 'center',
     },
     audioUrl: {
-        fontSize: 12,
-        fontWeight: '500',
+        ...(TYPOGRAPHY.label as any),
         color: '#94A3B8',
         textAlign: 'center',
     },
     defaultContainer: {
-        padding: 32,
+        padding: 40,
         backgroundColor: COLORS.white,
-        borderRadius: 24,
+        borderRadius: 32,
         borderWidth: 1,
-        borderColor: '#E2E8F0',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: '#F1F5F9',
+        ...SHADOWS.md,
     },
     title: {
-        fontFamily: 'System',
-        fontWeight: '900',
-        fontSize: 28,
+        ...(TYPOGRAPHY.h1 as any),
         color: '#1E293B',
-        marginBottom: 16,
-        letterSpacing: -0.5,
+        marginBottom: 20,
     },
     desc: {
-        fontFamily: 'System',
-        fontSize: 16,
+        ...(TYPOGRAPHY.body as any),
         color: '#475569',
         fontWeight: '600',
-        lineHeight: 24,
     },
 });

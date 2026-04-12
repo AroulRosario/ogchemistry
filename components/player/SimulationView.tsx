@@ -1,4 +1,4 @@
-import { STYLES } from '@/constants/theme';
+import { COLORS, SHADOWS, STYLES } from '@/constants/theme';
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 
@@ -14,14 +14,14 @@ export function SimulationView({ content, style }: { content: { html?: string; u
                 {content.html ? (
                     <iframe
                         srcDoc={content.html}
-                        style={{ width: '100%', height: '100%', border: 'none', backgroundColor: 'transparent', borderRadius: 16 }}
+                        style={{ width: '100%', height: '100%', border: 'none', backgroundColor: '#F8FAFC', borderRadius: 24 }}
                         title="Simulation HTML"
                         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                     />
                 ) : content.url || content.uri ? (
                     <iframe
                         src={content.url || content.uri}
-                        style={{ width: '100%', height: '100%', border: 'none', borderRadius: 16 }}
+                        style={{ width: '100%', height: '100%', border: 'none', borderRadius: 24, backgroundColor: '#F8FAFC' }}
                         title="Simulation URL"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -53,9 +53,14 @@ export function SimulationView({ content, style }: { content: { html?: string; u
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        height: 450, // Fixed height for sims
-        ...STYLES.card,
-        marginBottom: 20,
+        height: 550, // Increased for a more spacious feel
+        backgroundColor: '#FFFFFF',
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        ...SHADOWS.lg,
+        marginBottom: 32,
     },
     webview: {
         flex: 1,

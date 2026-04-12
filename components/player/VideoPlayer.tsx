@@ -2,7 +2,7 @@ import { supabase } from '@/constants/supabase';
 import { COLORS, SHADOWS } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { ResizeMode, Video } from 'expo-av';
-import { FastForward, Loader2, Pause, Play } from 'lucide-react-native';
+import { FastForward, Loader2, Maximize, Pause, Play } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -88,6 +88,19 @@ export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
         await videoRef.current.setPositionAsync(status.positionMillis + 10000);
         showControlsTemporarily();
     };
+    
+    const toggleFullscreen = async () => {
+        if (!videoRef.current) return;
+        if (Platform.OS === 'web') {
+            const videoElement = document.querySelector('video');
+            if (videoElement) {
+                if (!document.fullscreenElement) videoElement.requestFullscreen();
+                else document.exitFullscreen();
+            }
+        } else {
+            videoRef.current.presentFullscreenPlayer();
+        }
+    };
 
     const showControlsTemporarily = () => {
         setControlsVisible(true);
@@ -137,6 +150,7 @@ export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
                     ref={videoRef}
                     source={{ uri: url, headers: { 'User-Agent': 'EliteApp/1.0' } }}
                     style={styles.video}
+                    videoStyle={Platform.OS === 'web' ? { objectFit: 'contain' } as any : undefined}
                     resizeMode={ResizeMode.CONTAIN}
                     isLooping={false}
                     onPlaybackStatusUpdate={status => {
@@ -181,6 +195,9 @@ export function VideoPlayer({ url, contentItemId }: VideoPlayerProps) {
                                 </View>
                             </View>
                             <Text style={styles.timeText}>{formatTime(status.durationMillis)}</Text>
+                            <Pressable style={styles.fullscreenBtn} onPress={toggleFullscreen}>
+                                <Maximize color="#FFF" size={20} />
+                            </Pressable>
                         </View>
                     </Animated.View>
                 )}
@@ -206,7 +223,8 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     video: {
-        flex: 1,
+        width: '100%',
+        height: '100%',
     },
     loaderOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -301,5 +319,9 @@ const styles = StyleSheet.create({
     progressFill: {
         height: '100%',
         backgroundColor: COLORS.blue, // Standard professional blue
+    },
+    fullscreenBtn: {
+        marginLeft: 8,
+        padding: 4,
     }
 });

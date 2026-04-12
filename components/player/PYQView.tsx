@@ -1,5 +1,5 @@
 import { LaTeXText } from '@/components/LaTeXText';
-import { COLORS, STYLES, SHADOWS } from '@/constants/theme';
+import { COLORS, STYLES, SHADOWS, TYPOGRAPHY } from '@/constants/theme';
 import { CheckCircle, ChevronDown, BookOpen, Layers } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -188,24 +188,18 @@ const styles = StyleSheet.create({
         ...SHADOWS.sm,
     },
     listTitle: {
-        fontSize: 20,
-        fontWeight: '900',
+        ...(TYPOGRAPHY.h2 as any),
         color: '#1E293B',
     },
     listSubTitle: {
-        fontSize: 13,
-        fontWeight: '700',
+        ...(TYPOGRAPHY.label as any),
         color: '#64748B',
     },
     itemCard: {
         backgroundColor: '#FFFFFF',
         borderRadius: 32,
         padding: 32,
-        shadowColor: 'rgba(0,0,0,0.05)',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 1,
-        shadowRadius: 20,
-        elevation: 4,
+        ...SHADOWS.lg,
         borderWidth: 1,
         borderColor: '#F1F5F9',
     },

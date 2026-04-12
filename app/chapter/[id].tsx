@@ -3,10 +3,10 @@ import { DynamicBackground } from '@/components/DynamicBackground';
 import { ContentPlayer } from '@/components/player/ContentPlayer';
 import { MOCK_CONTENT } from '@/constants/mockData';
 import { supabase } from '@/constants/supabase';
-import { COLORS, LAYOUT, SHADOWS } from '@/constants/theme';
+import { COLORS, LAYOUT, SHADOWS, STYLES, TYPOGRAPHY } from '@/constants/theme';
 import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { CheckCircle2, ChevronLeft, PlayCircle } from 'lucide-react-native';
+import { CheckCircle2, ChevronLeft, Flame, Hexagon, PlayCircle, Star, Trophy } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
@@ -15,6 +15,16 @@ export default function ChapterScreen() {
     const { user } = useAuth();
     const [items, setItems] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [profile, setProfile] = useState<any>(null);
+
+    useEffect(() => {
+        if (user) fetchProfile();
+    }, [user]);
+
+    const fetchProfile = async () => {
+        const { data } = await supabase.from('profiles').select('*').eq('id', user?.id).single();
+        if (data) setProfile(data);
+    };
     const router = useRouter();
     const { width } = useWindowDimensions();
     const isDesktop = width > 800;
@@ -137,25 +147,52 @@ export default function ChapterScreen() {
         <DynamicBackground>
             <Stack.Screen options={{
                 headerShown: true,
-                title: isMobile ? `MOD ${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} / ${items.length}`,
-                headerStyle: { backgroundColor: '#FFFFFF' },
-                headerTitleStyle: { fontWeight: '900', fontSize: 18, color: '#0F172A' },
+                headerTitle: () => (
+                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ alignItems: 'center' }}>
+                            <Text style={{ fontWeight: '800', fontSize: 10, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4 }}>
+                                {isMobile ? `${currentIndex + 1}/${items.length}` : `MODULE ${currentIndex + 1} OF ${items.length}`}
+                            </Text>
+                            <View style={{ width: isMobile ? 100 : 180, height: 6, backgroundColor: '#F1F5F9', borderRadius: 3, overflow: 'hidden', borderWidth: 1, borderColor: '#E2E8F0' }}>
+                                <View style={{ width: `${((currentIndex + 1) / items.length) * 100}%`, height: '100%', backgroundColor: COLORS.blue }} />
+                            </View>
+                        </View>
+                    </View>
+                ),
+                headerStyle: { backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
                 headerTintColor: '#111827',
                 headerShadowVisible: false,
+                headerTitleAlign: 'center',
                 headerLeft: () => (
-                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 64 : 8, gap: 6 }}>
-                        <ChevronLeft size={16} color={COLORS.blue} strokeWidth={2.5} />
-                        <Text style={{ fontFamily: 'System', fontWeight: '700', fontSize: 13, color: COLORS.blue }}>Return</Text>
+                    <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', paddingHorizontal: 10, paddingVertical: 10, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', marginLeft: isDesktop ? 20 : 8 }}>
+                        <ChevronLeft size={20} color={COLORS.blue} strokeWidth={2.5} />
                     </Pressable>
                 ),
                 headerRight: () => (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: isDesktop ? 64 : 12, gap: 10 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: isDesktop ? 20 : 8, gap: 12 }}>
+                        {!isMobile && (
+                            <View style={{ flexDirection: 'row', gap: 10 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <Flame size={16} color={COLORS.orange} fill={COLORS.orange} />
+                                    <Text style={{ fontWeight: '900', color: COLORS.orange, fontSize: 13 }}>{profile?.streak_count || 0}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <Hexagon size={16} color={COLORS.blue} fill={COLORS.blue} />
+                                    <Text style={{ fontWeight: '900', color: COLORS.blue, fontSize: 13 }}>{profile?.gems || 0}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <View style={{ backgroundColor: '#22C55E', borderRadius: 10, width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
+                                        <Star size={12} color="#FFF" fill="#FFF" />
+                                    </View>
+                                    <Text style={{ fontWeight: '900', color: '#15803D', fontSize: 13 }}>{profile?.xp || 0}</Text>
+                                </View>
+                            </View>
+                        )}
                         <Image 
                             source={require('@/assets/images/logo.png')} 
-                            style={{ width: 32, height: 32, borderRadius: 8 }} 
+                            style={{ width: 44, height: 44, borderRadius: 10 }} 
                             resizeMode="contain"
                         />
-                        <Text style={{ fontFamily: 'System', fontWeight: '900', fontSize: 14, color: COLORS.blue, letterSpacing: -0.3 }}>OG CHEM</Text>
                     </View>
                 ),
             }} />
@@ -192,12 +229,7 @@ export default function ChapterScreen() {
                         </View>
 
                         <View style={styles.controlsArea}>
-                            <View style={styles.progressRow}>
-                                <View style={styles.progressTrack}>
-                                    <View style={[styles.progressFill, { width: `${((currentIndex + 1) / items.length) * 100}%` }]} />
-                                </View>
-                                <Text style={styles.progressText}>{currentIndex + 1}/{items.length}</Text>
-                            </View>
+
 
                             <View style={styles.actionBox}>
                                 {currentIndex < items.length - 1 ? (
@@ -229,7 +261,7 @@ export default function ChapterScreen() {
                                         {currentIndex + 1} / {items.length} COMPLETED
                                     </Text>
                                 </View>
-                                <View style={{ backgroundColor: COLORS.blue, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+                                <View style={{ backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
                                     <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 11, letterSpacing: 0.5 }}>
                                         {Math.round(((currentIndex + 1) / items.length) * 100)}%
                                     </Text>
@@ -259,11 +291,11 @@ export default function ChapterScreen() {
                                             >
                                                 <View style={styles.iconRail}>
                                                     {isPast ? (
-                                                        <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
+                                                        <CheckCircle2 size={24} color="#4ADE80" strokeWidth={3} />
                                                     ) : (
-                                                        <PlayCircle size={24} color={isActive ? COLORS.blue : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
+                                                        <PlayCircle size={24} color={isActive ? "white" : 'rgba(255,255,255,0.3)'} strokeWidth={isActive ? 3 : 2} />
                                                     )}
-                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
+                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: '#4ADE80' }]} />}
                                                 </View>
                                                 <View style={styles.sidebarItemContent}>
                                                     <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
@@ -275,6 +307,30 @@ export default function ChapterScreen() {
                                     })}
                                 </View>
                             </ScrollView>
+
+                            {/* GAMIFIED SIDEBAR WIDGETS */}
+                            <View style={{ marginTop: 12, gap: 12, paddingHorizontal: 4 }}>
+                                <View style={{ backgroundColor: '#F0F9FF', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#BAE6FD' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                                        <Text style={{ fontWeight: '900', fontSize: 11, color: '#0369A1', letterSpacing: 0.5 }}>DAILY GOAL</Text>
+                                        <Trophy size={14} color="#0369A1" />
+                                    </View>
+                                    <View style={{ height: 6, backgroundColor: '#E0F2FE', borderRadius: 3, overflow: 'hidden', marginBottom: 6 }}>
+                                        <View style={{ width: '65%', height: '100%', backgroundColor: '#0EA5E9' }} />
+                                    </View>
+                                    <Text style={{ fontSize: 10, fontWeight: '700', color: '#0369A1' }}>350 / 500 XP to Level 4</Text>
+                                </View>
+
+                                <View style={{ backgroundColor: '#FFF7ED', padding: 16, borderRadius: 20, borderWidth: 1, borderColor: '#FFEDD5' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                        <Flame size={20} color={COLORS.orange} fill={COLORS.orange} />
+                                        <View>
+                                            <Text style={{ fontWeight: '900', fontSize: 14, color: COLORS.orange }}>{profile?.streak_count || 0} DAY STREAK</Text>
+                                            <Text style={{ fontSize: 10, fontWeight: '700', color: '#9A3412' }}>You're on fire! Keep going.</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
                         </View>
                     </View>
 
@@ -285,7 +341,7 @@ export default function ChapterScreen() {
                         {/* MAIN CONTENT AREA */}
                         <View style={[styles.mainVideoArea, { paddingHorizontal: 16, paddingVertical: 16 }]}>
                             <View style={styles.videoHeader}>
-                                <Text style={[styles.chapterTitle, { fontSize: 32 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
+                                <Text style={[styles.chapterTitle, { fontSize: 28, lineHeight: 32 }]}>{item.data?.title || `Content Part ${currentIndex + 1}`}</Text>
                             </View>
 
                             <View style={styles.contentArea}>
@@ -304,12 +360,7 @@ export default function ChapterScreen() {
                             </View>
 
                             <View style={styles.controlsArea}>
-                                <View style={styles.progressRow}>
-                                    <View style={styles.progressTrack}>
-                                        <View style={[styles.progressFill, { width: `${((currentIndex + 1) / items.length) * 100}%` }]} />
-                                    </View>
-                                    <Text style={styles.progressText}>{currentIndex + 1}/{items.length}</Text>
-                                </View>
+
 
                                 <View style={[styles.actionBox, { alignItems: 'stretch' }]}>
                                     {currentIndex < items.length - 1 ? (
@@ -369,11 +420,11 @@ export default function ChapterScreen() {
                                             >
                                                 <View style={styles.iconRail}>
                                                     {isPast ? (
-                                                        <CheckCircle2 size={24} color={COLORS.green} strokeWidth={3} />
+                                                        <CheckCircle2 size={24} color="#4ADE80" strokeWidth={3} />
                                                     ) : (
-                                                        <PlayCircle size={24} color={isActive ? COLORS.blue : 'rgba(255,255,255,0.4)'} strokeWidth={isActive ? 3 : 2} />
+                                                        <PlayCircle size={24} color={isActive ? "white" : 'rgba(255,255,255,0.3)'} strokeWidth={isActive ? 3 : 2} />
                                                     )}
-                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: COLORS.green }]} />}
+                                                    {idx !== items.length - 1 && <View style={[styles.railLine, isPast && { backgroundColor: '#4ADE80' }]} />}
                                                 </View>
                                                 <View style={styles.sidebarItemContent}>
                                                     <Text style={[styles.sidebarItemTitle, isActive && styles.sidebarItemTitleActive]} numberOfLines={2}>
@@ -397,54 +448,51 @@ const styles = StyleSheet.create({
     fullscreenContainer: { flex: 1, backgroundColor: '#FFFFFF' },
     fullscreenContent: { flexGrow: 1 },
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' },
-    loadingText: { fontFamily: 'System', fontWeight: '700', fontSize: 20, color: COLORS.blue, letterSpacing: 1 },
+    loadingText: { ...(TYPOGRAPHY.h1 as any), color: COLORS.blue },
     mainLayout: { flexDirection: 'column', width: '100%', flex: 1 },
     desktopLayout: { flexDirection: 'row-reverse', alignItems: 'stretch' },
 
     // MAIN VIDEO AREA
-    mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding, paddingVertical: 24, paddingBottom: 64, backgroundColor: '#FFFFFF' },
-    videoHeader: { marginBottom: 20 },
+    mainVideoArea: { paddingHorizontal: Platform.OS === 'web' ? LAYOUT.desktopPadding : LAYOUT.mobilePadding, paddingVertical: 40, paddingBottom: 80, backgroundColor: '#FFFFFF' },
+    videoHeader: { marginBottom: 32 },
     chapterTitle: { 
-        fontFamily: 'System', 
-        fontWeight: '900', 
-        fontSize: 36, 
+        ...(TYPOGRAPHY.h1 as any),
+        fontSize: Platform.OS === 'web' ? 42 : 28,
         color: '#0F172A', 
-        letterSpacing: -1, 
-        marginTop: 8, 
-        lineHeight: 40,
+        lineHeight: Platform.OS === 'web' ? 48 : 34,
     },
     typeBadge: {
         alignSelf: 'flex-start',
-        backgroundColor: '#FEE2E2', // Soft red background
-        borderWidth: 0,
-        borderRadius: 8,
-        paddingVertical: 4,
-        paddingHorizontal: 12,
+        backgroundColor: '#FEE2E2',
+        borderRadius: 12,
+        paddingVertical: 6,
+        paddingHorizontal: 16,
     },
-    typeBadgeText: { fontFamily: 'System', fontWeight: '700', fontSize: 13, color: COLORS.red, letterSpacing: 0.5 },
-    contentArea: { width: '100%', minHeight: 300 },
-    controlsArea: { marginTop: 24 },
+    typeBadgeText: { ...(TYPOGRAPHY.label as any), color: COLORS.red },
+    contentArea: { width: '100%', minHeight: 400 },
+    controlsArea: { marginTop: 40 },
 
     progressRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
-        backgroundColor: '#F9FAFB', // Soft surface
-        padding: 16,
-        borderRadius: 12,
+        gap: 20,
+        backgroundColor: '#F8FAFC',
+        padding: 20,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
-        marginBottom: 20,
+        borderColor: '#E2E8F0',
+        marginBottom: 24,
+        ...SHADOWS.sm,
     },
     progressTrack: {
         flex: 1,
-        height: 12, // Thinner, modern track
-        borderRadius: 6,
-        backgroundColor: '#E5E7EB',
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#E2E8F0',
         overflow: 'hidden'
     },
     progressFill: { height: '100%', backgroundColor: COLORS.blue },
-    progressText: { fontFamily: 'System', fontWeight: '700', fontSize: 16, color: '#4B5563' },
+    progressText: { ...(TYPOGRAPHY.h3 as any), color: '#475569' },
 
     actionBox: { alignItems: 'flex-start' },
 
@@ -452,72 +500,54 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        backgroundColor: '#F9FAFB',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-    },
-    qaBtnText: { fontFamily: 'System', fontWeight: '600', fontSize: 13, color: '#4B5563' },
-
-    // SIDEBAR
-    sidebarWrapper: {
-        backgroundColor: '#FFFFFF', // Professional background
-        padding: Platform.OS === 'web' ? 32 : 16,
-        borderLeftWidth: 1,
-        borderLeftColor: '#E2E8F0',
-    },
-    sidebar: {
-        backgroundColor: COLORS.white,
-        padding: 20,
-        borderRadius: 24,
-        flex: 1,
-        ...SHADOWS.md,
+        backgroundColor: '#F8FAFC',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 12,
         borderWidth: 1,
         borderColor: '#E2E8F0',
     },
+    qaBtnText: { ...(TYPOGRAPHY.label as any), color: '#475569' },
+
+    // SIDEBAR
+    sidebarWrapper: {
+        backgroundColor: COLORS.blue,
+        padding: Platform.OS === 'web' ? 40 : 20,
+        borderLeftWidth: 1,
+        borderLeftColor: 'rgba(255,255,255,0.1)',
+    },
+    sidebar: {
+        backgroundColor: 'transparent',
+        padding: Platform.OS === 'web' ? 24 : 16,
+        borderRadius: 32,
+        flex: 1,
+        borderWidth: 0,
+    },
     sidebarHeaderOuter: {
-        marginBottom: 20,
+        marginBottom: 24,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
-        paddingBottom: 16,
+        gap: 12,
+        paddingBottom: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
+        borderBottomColor: 'rgba(255,255,255,0.1)',
     },
-    sidebarTitle: {
-        fontFamily: 'System',
-        fontWeight: '900',
-        fontSize: 13,
-        color: '#94A3B8',
-        letterSpacing: 1.5,
-        textTransform: 'uppercase',
-    },
-    sidebarList: { gap: 10 },
+    sidebarTitle: { ...(TYPOGRAPHY.h2 as any), fontSize: 13, color: 'white', letterSpacing: 1.2 },
+    sidebarList: { gap: 4 },
     sidebarItem: {
         flexDirection: 'row',
-        alignItems: 'stretch',
+        alignItems: 'center',
         padding: 16,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#F1F5F9',
-        marginHorizontal: 4,
+        borderRadius: 20,
+        backgroundColor: 'transparent',
     },
     sidebarItemActive: {
-        backgroundColor: '#EFF6FF',
-        borderColor: '#BFDBFE',
-        shadowColor: COLORS.blue,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 2,
+        backgroundColor: 'rgba(255,255,255,0.15)',
     },
-    iconRail: { alignItems: 'center', marginRight: 12, width: 24 },
-    railLine: { flex: 1, width: 2, backgroundColor: '#E2E8F0', marginVertical: 4, borderRadius: 1 },
-    sidebarItemContent: { flex: 1, justifyContent: 'center' },
-    sidebarItemType: { fontFamily: 'System', fontWeight: '800', fontSize: 10, color: '#64748B', marginBottom: 2, letterSpacing: 0.5, textTransform: 'uppercase' },
-    sidebarItemTitle: { fontFamily: 'System', fontSize: 14, fontWeight: '700', color: '#1E293B' },
-    sidebarItemTitleActive: { color: COLORS.blue, fontWeight: '800' },
+    sidebarItemContent: { flex: 1, marginLeft: 16 },
+    sidebarItemTitle: { ...(TYPOGRAPHY.body as any), fontSize: 15, color: '#DBEAFE', fontWeight: '600' },
+    sidebarItemTitleActive: { color: 'white', fontWeight: '800' },
+    
+    iconRail: { alignItems: 'center', width: 24, alignSelf: 'stretch' },
+    railLine: { flex: 1, width: 2, backgroundColor: 'rgba(255,255,255,0.2)', marginVertical: 4 },
 });

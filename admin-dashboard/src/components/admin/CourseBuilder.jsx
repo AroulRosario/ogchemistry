@@ -66,6 +66,8 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
     // Add item state
     const [addingTo, setAddingTo] = useState(null);
     const [newName, setNewName] = useState('');
+    const [editingItem, setEditingItem] = useState(null); // {type, id, title}
+    const [editValue, setEditValue] = useState('');
 
     const handleSelect = (type, data) => {
         setSelectedItem({ type, data });
@@ -129,6 +131,33 @@ export default function CourseBuilder({ lessons, chapters, contentItems, fetchAl
             await fetchAll();
         } catch (e) {
             showNotification('Reorder failed', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleInlineSave = async () => {
+        if (!editValue.trim() || !editingItem) return;
+        const { type, id } = editingItem;
+        setLoading(true);
+        try {
+            const table = type === 'lesson' ? 'lessons' : type === 'chapter' ? 'chapters' : 'content_items';
+            
+            if (type === 'content') {
+                // Find original item to keep data
+                const original = contentItems.find(ci => ci.id === id);
+                await supabase.from(table).update({
+                    data: { ...original.data, title: editValue.trim() }
+                }).eq('id', id);
+            } else {
+                await supabase.from(table).update({ title: editValue.trim() }).eq('id', id);
+            }
+            
+            showNotification(`${type} renamed successfully`);
+            setEditingItem(null);
+            await fetchAll();
+        } catch (e) {
+            showNotification('Rename failed', 'error');
         } finally {
             setLoading(false);
         }
@@ -482,18 +511,39 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
 
                 <div className="card" style={{ flex: 1, padding: '0.75rem', overflowY: 'auto', background: 'var(--white)' }}>
                     {lessons.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-400)', fontSize: '0.9rem' }}>No syllabus yet.</p>}
-                    {lessons.map((lesson, li) => {
-                        const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
                         return (
                         <div key={lesson.id} style={{ marginBottom: '0.25rem' }}>
                             <div
                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === lesson.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === lesson.id ? 'var(--blue)' : 'inherit' }}
                                 onClick={() => handleSelect('lesson', lesson)}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={(e) => { e.stopPropagation(); toggleLesson(lesson.id); }}>
-                                    {expandedLessons[lesson.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                                    <div 
+                                        onClick={(e) => { e.stopPropagation(); toggleLesson(lesson.id); }}
+                                        style={{ display: 'flex', alignItems: 'center', padding: '4px' }}
+                                    >
+                                        {expandedLessons[lesson.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                    </div>
                                     <Folder size={16} />
-                                    <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>{lesson.title}</span>
+                                    {editingItem?.id === lesson.id ? (
+                                        <input 
+                                            autoFocus 
+                                            className="input" 
+                                            style={{ height: '24px', padding: '2px 8px', fontSize: '0.9rem' }} 
+                                            value={editValue} 
+                                            onChange={e => setEditValue(e.target.value)}
+                                            onBlur={handleInlineSave}
+                                            onKeyDown={e => e.key === 'Enter' && handleInlineSave()}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                    ) : (
+                                        <span 
+                                            onDoubleClick={(e) => { e.stopPropagation(); setEditingItem({ type: 'lesson', id: lesson.id }); setEditValue(lesson.title); }}
+                                            style={{ fontSize: '0.9rem', fontWeight: '800' }}
+                                        >
+                                            {lesson.title}
+                                        </span>
+                                    )}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                     <button onClick={(e) => { e.stopPropagation(); reorderItems('lesson', sortedLessons, sortedLessons.findIndex(x => x.id === lesson.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }} title="Move Up"><ChevronUp size={12} /></button>
@@ -513,10 +563,33 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === chapter.id ? 'var(--gray-100)' : 'transparent', fontSize: '0.85rem' }}
                                                 onClick={() => handleSelect('chapter', chapter)}
                                             >
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={(e) => { e.stopPropagation(); toggleChapter(chapter.id); }}>
-                                                    {expandedChapters[chapter.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                                                    <div 
+                                                        onClick={(e) => { e.stopPropagation(); toggleChapter(chapter.id); }}
+                                                        style={{ display: 'flex', alignItems: 'center', padding: '4px' }}
+                                                    >
+                                                        {expandedChapters[chapter.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                                    </div>
                                                     <Layers size={14} />
-                                                    <span style={{ fontWeight: '500' }}>{chapter.title}</span>
+                                                    {editingItem?.id === chapter.id ? (
+                                                        <input 
+                                                            autoFocus 
+                                                            className="input" 
+                                                            style={{ height: '22px', padding: '2px 8px', fontSize: '0.85rem' }} 
+                                                            value={editValue} 
+                                                            onChange={e => setEditValue(e.target.value)}
+                                                            onBlur={handleInlineSave}
+                                                            onKeyDown={e => e.key === 'Enter' && handleInlineSave()}
+                                                            onClick={e => e.stopPropagation()}
+                                                        />
+                                                    ) : (
+                                                        <span 
+                                                            onDoubleClick={(e) => { e.stopPropagation(); setEditingItem({ type: 'chapter', id: chapter.id }); setEditValue(chapter.title); }}
+                                                            style={{ fontWeight: '700' }}
+                                                        >
+                                                            {chapter.title}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                                                     <button onClick={(e) => { e.stopPropagation(); reorderItems('chapter', siblingChapters, siblingChapters.findIndex(x => x.id === chapter.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '2px' }}><ChevronUp size={11} /></button>
@@ -534,10 +607,29 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                                                         <div
                                                             key={item.id}
                                                             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.3rem 0.5rem', borderRadius: '0.5rem', cursor: 'pointer', backgroundColor: selectedItem?.data?.id === item.id ? 'var(--blue-light)' : 'transparent', color: selectedItem?.data?.id === item.id ? 'var(--blue)' : 'var(--gray-600)', fontSize: '0.8rem' }}
+                                                            onClick={() => handleSelect('content', item)}
                                                         >
-                                                            <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden' }} onClick={() => handleSelect('content', item)}>
+                                                            <span style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.4rem', overflow: 'hidden' }}>
                                                                 {TYPE_ICONS[item.type] || <FileIcon size={14} />}
-                                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: '500' }}>{item.data?.title || 'Untitled'}</span>
+                                                                {editingItem?.id === item.id ? (
+                                                                    <input 
+                                                                        autoFocus 
+                                                                        className="input" 
+                                                                        style={{ height: '20px', padding: '2px 8px', fontSize: '0.75rem' }} 
+                                                                        value={editValue} 
+                                                                        onChange={e => setEditValue(e.target.value)}
+                                                                        onBlur={handleInlineSave}
+                                                                        onKeyDown={e => e.key === 'Enter' && handleInlineSave()}
+                                                                        onClick={e => e.stopPropagation()}
+                                                                    />
+                                                                ) : (
+                                                                    <span 
+                                                                        onDoubleClick={(e) => { e.stopPropagation(); setEditingItem({ type: 'content', id: item.id }); setEditValue(item.data?.title || 'Untitled'); }}
+                                                                        style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: '500' }}
+                                                                    >
+                                                                        {item.data?.title || 'Untitled'}
+                                                                    </span>
+                                                                )}
                                                             </span>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: '1px', flexShrink: 0 }}>
                                                                 <button onClick={(e) => { e.stopPropagation(); reorderItems('content', siblingItems, siblingItems.findIndex(x => x.id === item.id), -1); }} style={{ background: 'none', border: 'none', cursor: 'pointer', opacity: 0.4, padding: '1px' }}><ChevronUp size={11} /></button>

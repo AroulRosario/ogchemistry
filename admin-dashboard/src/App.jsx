@@ -10,7 +10,10 @@ import {
     MessageSquare,
     RefreshCw,
     Settings,
-    Users
+    Users,
+    Menu,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import AdvancedControls from './components/admin/AdvancedControls';
@@ -258,60 +261,77 @@ function App() {
                 </div>
             </header>
 
-            <main className="container">
-                <div className="grid">
+            <main className="container" style={{ maxWidth: '100%', paddingLeft: isSidebarCollapsed ? '2rem' : '3rem', paddingRight: '3rem' }}>
+                <div className="grid" style={{ gridTemplateColumns: isSidebarCollapsed ? '80px 1fr' : '280px 1fr', transition: 'grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}>
                     <aside className="tabs-sidebar" style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
-                        <div className="card sidebar-dark" style={{ padding: '1.5rem' }}>
-                            <h3 style={{ marginBottom: '1.25rem', fontSize: '0.8rem', color: 'var(--gray-500)', letterSpacing: '0.1em', fontWeight: '800', textTransform: 'uppercase' }}>Command Center</h3>
+                        <div className="card sidebar-dark" style={{ padding: isSidebarCollapsed ? '0.75rem' : '1.5rem', transition: 'padding 0.3s' }}>
+                            <div style={{ display: 'flex', justifyContent: isSidebarCollapsed ? 'center' : 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                                {!isSidebarCollapsed && (
+                                    <h3 style={{ fontSize: '0.8rem', color: '#BFDBFE', letterSpacing: '0.1em', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>Command Center</h3>
+                                )}
+                                <button 
+                                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                                    style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', padding: '6px', color: 'white', cursor: 'pointer', display: 'flex' }}
+                                >
+                                    {isSidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                                </button>
+                            </div>
                             <div className="tabs">
-                                <button className={`tab ${tab === 'analytics' ? 'active' : ''}`} onClick={() => setTab('analytics')}>
-                                    <BarChart3 size={18} /> Analytics
+                                <button className={`tab ${tab === 'analytics' ? 'active' : ''}`} onClick={() => setTab('analytics')} title={isSidebarCollapsed ? "Analytics" : ""}>
+                                    <BarChart3 size={18} /> {!isSidebarCollapsed && "Analytics"}
                                 </button>
-                                <button className={`tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')}>
-                                    <Users size={18} /> Students
+                                <button className={`tab ${tab === 'users' ? 'active' : ''}`} onClick={() => setTab('users')} title={isSidebarCollapsed ? "Students" : ""}>
+                                    <Users size={18} /> {!isSidebarCollapsed && "Students"}
                                 </button>
-                                <button className={`tab ${tab === 'builder' ? 'active' : ''}`} onClick={() => setTab('builder')}>
-                                    <BookOpen size={18} /> Course Builder
+                                <button className={`tab ${tab === 'builder' ? 'active' : ''}`} onClick={() => setTab('builder')} title={isSidebarCollapsed ? "Course Builder" : ""}>
+                                    <BookOpen size={18} /> {!isSidebarCollapsed && "Course Builder"}
                                 </button>
-                                <button className={`tab ${tab === 'explore' ? 'active' : ''}`} onClick={() => setTab('explore')}>
-                                    <Compass size={18} /> Explore Hub
+                                <button className={`tab ${tab === 'explore' ? 'active' : ''}`} onClick={() => setTab('explore')} title={isSidebarCollapsed ? "Explore Hub" : ""}>
+                                    <Compass size={18} /> {!isSidebarCollapsed && "Explore Hub"}
                                 </button>
-                                <button className={`tab ${tab === 'visual-path' ? 'active' : ''}`} onClick={() => setTab('visual-path')}>
-                                    <Map size={18} /> Visual Path
+                                <button className={`tab ${tab === 'visual-path' ? 'active' : ''}`} onClick={() => setTab('visual-path')} title={isSidebarCollapsed ? "Visual Path" : ""}>
+                                    <Map size={18} /> {!isSidebarCollapsed && "Visual Path"}
                                 </button>
-                                <button className={`tab ${tab === 'grading' ? 'active' : ''}`} onClick={() => setTab('grading')}>
-                                    <GraduationCap size={18} /> Grading Hub
+                                <button className={`tab ${tab === 'grading' ? 'active' : ''}`} onClick={() => setTab('grading')} title={isSidebarCollapsed ? "Grading Hub" : ""}>
+                                    <GraduationCap size={18} /> {!isSidebarCollapsed && "Grading Hub"}
                                 </button>
-                                <button className={`tab ${tab === 'qa' ? 'active' : ''}`} onClick={() => setTab('qa')}>
-                                    <MessageSquare size={18} /> Q&A Board
+                                <button className={`tab ${tab === 'qa' ? 'active' : ''}`} onClick={() => setTab('qa')} title={isSidebarCollapsed ? "Q&A Board" : ""}>
+                                    <MessageSquare size={18} /> {!isSidebarCollapsed && "Q&A Board"}
                                 </button>
-                                <button className={`tab ${tab === 'advanced' ? 'active' : ''}`} onClick={() => setTab('advanced')}>
-                                    <AlertCircle size={18} /> Advanced
+                                <button className={`tab ${tab === 'advanced' ? 'active' : ''}`} onClick={() => setTab('advanced')} title={isSidebarCollapsed ? "Advanced" : ""}>
+                                    <AlertCircle size={18} /> {!isSidebarCollapsed && "Advanced"}
                                 </button>
-                                <button className={`tab ${tab === 'settings' ? 'active' : ''}`} onClick={() => setTab('settings')}>
-                                    <Settings size={18} /> Settings
+                                <button className={`tab ${tab === 'settings' ? 'active' : ''}`} onClick={() => setTab('settings')} title={isSidebarCollapsed ? "Settings" : ""}>
+                                    <Settings size={18} /> {!isSidebarCollapsed && "Settings"}
                                 </button>
-                                <button className={`tab ${tab === 'docs' ? 'active' : ''}`} onClick={() => setTab('docs')} style={{ marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-                                    <BookText size={18} color="var(--blue)" /> HELP & GUIDE
+                                <button 
+                                    className={`tab ${tab === 'docs' ? 'active' : ''}`} 
+                                    onClick={() => setTab('docs')} 
+                                    style={{ marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}
+                                    title={isSidebarCollapsed ? "HELP & GUIDE" : ""}
+                                >
+                                    <BookText size={18} color="#BFDBFE" /> {!isSidebarCollapsed && "HELP & GUIDE"}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="card sidebar-dark" style={{ padding: '1.25rem', marginTop: '1.5rem' }}>
-                            <h4 style={{ color: 'var(--gray-500)', fontSize: '0.75rem', fontWeight: '700', marginBottom: '1rem', textTransform: 'uppercase' }}>Fleet Status</h4>
-                            <div className="stats-list" style={{ fontSize: '0.9rem', color: 'var(--black)' }}>
-                                <div className="stat-item" style={{ marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ color: 'var(--gray-500)', fontWeight: '500' }}>Active Users</span>
-                                    <span style={{ fontWeight: '700' }}>{profiles.length}</span>
-                                </div>
-                                <div className="stat-item" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ color: 'var(--gray-500)', fontWeight: '500' }}>Pending Approval</span>
-                                    <span style={{ fontWeight: '700', color: profiles.some(p => !p.approved) ? '#FCA5A5' : 'inherit' }}>
-                                        {profiles.filter(p => !p.approved).length}
-                                    </span>
+                        {!isSidebarCollapsed && (
+                            <div className="card sidebar-dark fade-in" style={{ padding: '1.25rem', marginTop: '1.5rem' }}>
+                                <h4 style={{ color: '#BFDBFE', fontSize: '0.75rem', fontWeight: '700', marginBottom: '1rem', textTransform: 'uppercase' }}>Fleet Status</h4>
+                                <div className="stats-list" style={{ fontSize: '0.9rem', color: 'var(--white)' }}>
+                                    <div className="stat-item" style={{ marginBottom: '0.6rem', display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ color: '#BFDBFE', fontWeight: '500' }}>Active Users</span>
+                                        <span style={{ fontWeight: '700' }}>{profiles.length}</span>
+                                    </div>
+                                    <div className="stat-item" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span style={{ color: '#BFDBFE', fontWeight: '500' }}>Pending Approval</span>
+                                        <span style={{ fontWeight: '700', color: profiles.some(p => !p.approved) ? '#FCA5A5' : 'inherit' }}>
+                                            {profiles.filter(p => !p.approved).length}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </aside>
 
                     <section className="main-content">

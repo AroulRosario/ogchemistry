@@ -510,7 +510,8 @@ Include: Overview, Key Concepts, Important Formulas, Common Mistakes, Solved Exa
                 </div>
 
                 <div className="card" style={{ flex: 1, padding: '0.75rem', overflowY: 'auto', background: 'var(--white)' }}>
-                    {lessons.length === 0 && <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray-400)', fontSize: '0.9rem' }}>No syllabus yet.</p>}
+                    {lessons.map((lesson, li) => {
+                        const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
                         return (
                         <div key={lesson.id} style={{ marginBottom: '0.25rem' }}>
                             <div

@@ -39,7 +39,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [notification, setNotification] = useState(null);
-
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     // Selection
     const [selectedLessonId, setSelectedLessonId] = useState('');
     const [selectedChapterId, setSelectedChapterId] = useState('');

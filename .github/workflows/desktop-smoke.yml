@@ -1,0 +1,40 @@
+name: Desktop Windows smoke check
+
+on:
+  push:
+    branches: [desktop/windows-smoke]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Download staged installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release download desktop-v0.1.0 --repo AroulRosario/ogchemistry --pattern '*.exe' --dir "$env:RUNNER_TEMP"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install and open OG Classes
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem "$env:RUNNER_TEMP/*.exe" | Select-Object -First 1
+          if (-not $installer) { throw 'Desktop installer was not downloaded' }
+          $setup = Start-Process -FilePath $installer.FullName -ArgumentList '/S' -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { throw "Installer failed: $($setup.ExitCode)" }
+          $app = Get-ChildItem "$env:LOCALAPPDATA/Programs" -Filter 'OG Classes.exe' -Recurse | Select-Object -First 1
+          if (-not $app) { throw 'Installed app was not found' }
+          $process = Start-Process -FilePath $app.FullName -PassThru
+          $loaded = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            Start-Sleep -Seconds 1
+            $windows = Get-Process -Name 'OG Classes' -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -match 'OG Classes' }
+            if ($windows) { $loaded = $true; break }
+          }
+          if (-not $loaded) { throw 'OG Classes did not open a window' }
+          Write-Output 'Installed app opened an OG Classes window.'

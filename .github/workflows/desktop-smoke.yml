@@ -18,7 +18,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release download desktop-v0.1.0 --repo AroulRosario/ogchemistry --pattern '*.exe' --dir "$env:RUNNER_TEMP"
+          gh release download desktop-v0.1.1 --repo AroulRosario/ogchemistry --pattern '*.exe' --dir "$env:RUNNER_TEMP"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install and open OG Classes
         shell: pwsh
